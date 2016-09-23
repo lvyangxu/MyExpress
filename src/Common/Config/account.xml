@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <username>{username}</username>
+    <password>{password}</password>
+    <usernameCookie>{usernameCookie}</usernameCookie>
+    <passwordCookie>{passwordCookie}</passwordCookie>
+    <loginRedirect>{loginRedirect}</loginRedirect>
+</root>

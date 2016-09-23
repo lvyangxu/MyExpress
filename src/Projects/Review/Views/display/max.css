@@ -1,0 +1,11 @@
+@media screen and (min-width: 1680px) {
+  body .middle .container .right {
+    width: 30%; }
+  body .middle .container .left {
+    width: 70%; }
+  body .middle .container .gameImage .game-left {
+    width: 50%; }
+  body .middle .container .gameImage .game-right {
+    width: 50%; } }
+
+/*# sourceMappingURL=max.css.map */

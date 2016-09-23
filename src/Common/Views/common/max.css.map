@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,qCAAsC;EAE9B,eAAW;IACP,KAAK,EAAE,iBAAiB",
+"sources": ["max.scss"],
+"names": [],
+"file": "max.css"
+}

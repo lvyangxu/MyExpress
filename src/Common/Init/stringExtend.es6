@@ -1,0 +1,2 @@
+myString.extend();
+module.exports = "";
