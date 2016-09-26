@@ -19,6 +19,7 @@ body {
 
     #display {
         padding-top: 100px;
+        margin-bottom: 100px;
         .container {
             border: 1px solid rgba(221, 221, 221, 1);
             .nav {
@@ -45,7 +46,7 @@ body {
             .info {
                 display: inline-block;
                 vertical-align: top;
-                padding-top: 20px;
+                padding: 20px 50px 100px;
                 .radio-div {
                     .react-radio {
                         margin-right: 30px;
@@ -65,7 +66,11 @@ body {
                         line-height: 30px;
                         min-width: 100px;
                         margin-right: 20px;
-                        border: 1px solid rgba(20, 20, 20, 1);
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        border: none;
+                        color: white;
+                        background-color: rgba(11, 185, 149, 1);
                     }
                 }
 
@@ -89,23 +94,69 @@ body {
                     }
                 }
 
-                .screenshot{
-                    border-top: 1px solid rgba(238,238,238,1);
+                .screenshot {
+                    border-top: 1px solid rgba(238, 238, 238, 1);
                     margin-top: 20px;
-                    .screenshot-title{
+                    .screenshot-title {
                         color: #33ba95;
                         font-size: 18px;
                         margin-top: 30px;
                         margin-bottom: 30px;
                     }
+
+                    .screenshot-image {
+                        .row {
+                            margin-bottom: 50px;
+                            img {
+                                width: 450px;
+                            }
+                            img:first-child {
+                                margin-right: 50px;
+                            }
+                        }
+                    }
                 }
 
-                .basic-info{
-                    .basic-info-title{
+                .basic-info, .follow-status, .follow-log {
+                    .basic-info-title, .follow-status-title, .follow-log-title {
                         color: #33ba95;
                         font-size: 18px;
                         margin-top: 30px;
                         margin-bottom: 30px;
+                    }
+
+                    .basic-info-text, .follow-status-text, .follow-log-text {
+                        .row {
+                            min-height: 20px;
+                            line-height: 20px;
+                            padding-top: 10px;
+                            padding-bottom: 10px;
+                            border-bottom: 1px dashed rgba(221, 221, 221, 1);
+                            font-size: 14px;
+                            .left {
+                                display: inline-block;
+                                vertical-align: top;
+                                width: 100px;
+                                text-align: right;
+                            }
+
+                            .middle {
+                                display: inline-block;
+                                vertical-align: top;
+                                width: 300px;
+                                margin-left: 40px;
+                                padding-left: 10px;
+                            }
+
+                            .right {
+                                display: inline-block;
+                                vertical-align: top;
+                                width: 300px;
+                                margin-left: 40px;
+                                padding-left: 10px;
+                                padding-right: 10px;
+                            }
+                        }
                     }
                 }
             }

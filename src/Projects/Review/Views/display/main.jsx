@@ -4,6 +4,8 @@ require("../../util/myString").extend();
 let Radio = require("../../util/radio");
 let http = require("../../util/http");
 
+let Table = require("../../util/table");
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -19,7 +21,14 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-
+        let hash = window.location.hash.replace(/#/g, "");
+        switch (hash) {
+            case "game":
+            case "cp":
+            case "follow":
+                this.setState({display: hash});
+                break;
+        }
     }
 
     render() {
@@ -43,7 +52,7 @@ class App extends React.Component {
                     <div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">
                         <div className="radio-div">
                             <Radio defaultBlank url="../table/getGames/read" selectCallback={(d)=> {
-                                this.selectGame(d);
+                                this.chooseGameName(d);
                             }}></Radio>
                             <Radio defaultBlank url="../table/getPublishers/read" selectCallback={(d)=> {
                                 this.selectPublisher(d);
@@ -72,7 +81,20 @@ class App extends React.Component {
                         </div>
                         <div className="screenshot">
                             <div className="screenshot-title">游戏截图</div>
-                            <div className="screenshot-image"></div>
+                            <div className="screenshot-image">
+                                {
+                                    this.state.screenshotData ?
+                                        (this.state.screenshotData.length == 0 ? "无截图" :
+                                            this.state.screenshotData.map((d, i)=> {
+                                                return <div key={i} className="row">{
+                                                    d.map((d1, j)=> {
+                                                        return <img key={j}
+                                                                    src={"../data/game/" + d1.game + "/" + d1.imageName}/>
+                                                    })
+                                                }</div>
+                                            })) : ""
+                                }
+                            </div>
                         </div>
                         <div className="basic-info">
                             <div className="basic-info-title">基本信息</div>
@@ -109,6 +131,11 @@ class App extends React.Component {
                                     <div className="left">上线表现</div>
                                     <div className="right">{this.state.gameData.performance}</div>
                                 </div>
+                            </div>
+                        </div>
+                        <div className="follow-status">
+                            <div className="follow-status-title">基本信息</div>
+                            <div className="follow-status-text">
                                 <div className="row">
                                     <div className="left">最后联系时间</div>
                                     <div className="right">{this.state.gameData.lastContact}</div>
@@ -139,17 +166,47 @@ class App extends React.Component {
                                 </div>
                                 <div className="row">
                                     <div className="left">跟进状态</div>
-                                    <div className="right">{this.state.gameData.followStatus}</div>
+                                    {
+                                        <div className={this.state.gameData.followStatus == "等包" ?
+                                            "right follow-status-wait" :
+                                            (this.state.gameData.followStatus == "商谈" ?
+                                                    "right follow-status-discuss" :
+                                                    (this.state.gameData.followStatus == "不合作" ?
+                                                            "right follow-status-stop" :
+                                                            this.state.gameData.followStatus == "合作" ?
+                                                                "right follow-status-cooperation" : "right"
+                                                    )
+                                            )
+                                        }>{this.state.gameData.followStatus}</div>
+                                    }
+
                                 </div>
                                 <div className="row">
-                                    <div className="left">Apple Annie</div>
+                                    <div className="left">App Annie</div>
                                     <div className="right">{this.state.gameData.appleannie}</div>
                                 </div>
                             </div>
                         </div>
+                        <div className="follow-log">
+                            <div className="follow-log-title">跟进日志</div>
+                            <div className="follow-log-text">
+                                {
+                                    this.state.contactData ?
+                                        (this.state.contactData.length == 0 ? "无日志" :
+                                                this.state.contactData.map(d=> {
+                                                    return <div className="row">
+                                                        <div className="left">{d.contactDate}</div>
+                                                        <div className="middle">{d.contactTactics}</div>
+                                                        <div className="right">{d.contactContent}</div>
+                                                    </div>
+                                                })
+                                        ) : ""
+                                }
+                            </div>
+                        </div>
                     </div>
                     <div style={this.state.display == "cp" ? {} : {display: "none"}} className="cp-panel">
-
+                         <Table tableId="cp"/>
                     </div>
                     <div style={this.state.display == "follow" ? {} : {display: "none"}} className="follow-panel">
 
@@ -160,18 +217,8 @@ class App extends React.Component {
     }
 
     nav(name) {
+        window.location.hash = "#" + name;
         this.setState({"display": name});
-    }
-
-    selectGame(d) {
-        http.post("../table/getGameNames/read", {name: d}).then(d1=> {
-            d1 = d1.filter(d2=> {
-                return d2.name == d;
-            });
-            this.setState({gameData: d1[0]});
-        }).catch(d=> {
-            alert("获取数据失败:" + d);
-        });
     }
 
     selectPublisher(d) {
@@ -201,11 +248,29 @@ class App extends React.Component {
     }
 
     chooseGameName(d) {
-        http.post("../table/game/read", {name: d}).then(d1=> {
-            d1 = d1.filter(d2=> {
+        let gamePromise = http.post("../table/game/read");
+        let screenshotPromise = http.post("../controller/screenshot/getNames", {name: d});
+        let contactPromise = http.post("../table/followLog/read", {name: d});
+        Promise.all([gamePromise, screenshotPromise, contactPromise]).then(d1=> {
+            let gameData = d1[0].filter(d2=> {
                 return d2.name == d;
+            })[0];
+            let screenshotData = [];
+            for (let i = 0; i < d1[1].length; i = i + 2) {
+                let row = [];
+                if (i == d1[1].length - 1) {
+                    row.push(d1[1][i]);
+                } else {
+                    row.push(d1[1][i]);
+                    row.push(d1[1][i + 1]);
+                }
+                screenshotData.push(row);
+            }
+            this.setState({
+                gameData: gameData,
+                screenshotData: screenshotData,
+                contactData: d1[2]
             });
-            this.setState({gameData: d1[0]});
         }).catch(d=> {
             alert("获取数据失败:" + d);
         });

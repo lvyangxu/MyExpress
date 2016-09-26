@@ -52,11 +52,32 @@ router.route("/table/:name/:action").post(upload.any(), (req, res, next)=> {
         console.log("unknown action:table/" + name + "/" + action);
         response.fail(res, "unknown action");
     } else {
-        if(action == "dataMap"){
+        if (action == "dataMap") {
             response.fail(res, "unknown action");
-        }else{
+        } else {
             let map = tableMap[action](req, res, name);
             table[action](req, res, name, map);
+        }
+    }
+});
+
+//controller router
+router.route("/controller/:name/:action").post(upload.any(), (req, res, next)=> {
+    let action = req.params.action;
+    let name = req.params.name;
+    try {
+        let controller = require("./"+name);
+        let func = controller[action];
+        if(func == undefined){
+            response.fail(res,"action not found");
+            return;
+        }
+        func(req,res);
+    } catch (e) {
+        if (e.code == "MODULE_NOT_FOUND") {
+             response.fail(res,"controller not found");
+        }else{
+
         }
     }
 });

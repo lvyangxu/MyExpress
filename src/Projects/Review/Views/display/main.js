@@ -14,6 +14,8 @@ require("../../util/myString").extend();
 var Radio = require("../../util/radio");
 var http = require("../../util/http");
 
+var Table = require("../../util/table");
+
 var App = function (_React$Component) {
     _inherits(App, _React$Component);
 
@@ -36,7 +38,16 @@ var App = function (_React$Component) {
 
     _createClass(App, [{
         key: "componentDidMount",
-        value: function componentDidMount() {}
+        value: function componentDidMount() {
+            var hash = window.location.hash.replace(/#/g, "");
+            switch (hash) {
+                case "game":
+                case "cp":
+                case "follow":
+                    this.setState({ display: hash });
+                    break;
+            }
+        }
     }, {
         key: "render",
         value: function render() {
@@ -80,7 +91,7 @@ var App = function (_React$Component) {
                             "div",
                             { className: "radio-div" },
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getGames/read", selectCallback: function selectCallback(d) {
-                                    _this2.selectGame(d);
+                                    _this2.chooseGameName(d);
                                 } }),
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getPublishers/read", selectCallback: function selectCallback(d) {
                                     _this2.selectPublisher(d);
@@ -143,7 +154,20 @@ var App = function (_React$Component) {
                                 { className: "screenshot-title" },
                                 "游戏截图"
                             ),
-                            React.createElement("div", { className: "screenshot-image" })
+                            React.createElement(
+                                "div",
+                                { className: "screenshot-image" },
+                                this.state.screenshotData ? this.state.screenshotData.length == 0 ? "无截图" : this.state.screenshotData.map(function (d, i) {
+                                    return React.createElement(
+                                        "div",
+                                        { key: i, className: "row" },
+                                        d.map(function (d1, j) {
+                                            return React.createElement("img", { key: j,
+                                                src: "../data/game/" + d1.game + "/" + d1.imageName });
+                                        })
+                                    );
+                                }) : ""
+                            )
                         ),
                         React.createElement(
                             "div",
@@ -267,7 +291,20 @@ var App = function (_React$Component) {
                                         { className: "right" },
                                         this.state.gameData.performance
                                     )
-                                ),
+                                )
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "follow-status" },
+                            React.createElement(
+                                "div",
+                                { className: "follow-status-title" },
+                                "基本信息"
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "follow-status-text" },
                                 React.createElement(
                                     "div",
                                     { className: "row" },
@@ -376,7 +413,7 @@ var App = function (_React$Component) {
                                     ),
                                     React.createElement(
                                         "div",
-                                        { className: "right" },
+                                        { className: this.state.gameData.followStatus == "等包" ? "right follow-status-wait" : this.state.gameData.followStatus == "商谈" ? "right follow-status-discuss" : this.state.gameData.followStatus == "不合作" ? "right follow-status-stop" : this.state.gameData.followStatus == "合作" ? "right follow-status-cooperation" : "right" },
                                         this.state.gameData.followStatus
                                     )
                                 ),
@@ -386,7 +423,7 @@ var App = function (_React$Component) {
                                     React.createElement(
                                         "div",
                                         { className: "left" },
-                                        "Apple Annie"
+                                        "App Annie"
                                     ),
                                     React.createElement(
                                         "div",
@@ -395,9 +432,47 @@ var App = function (_React$Component) {
                                     )
                                 )
                             )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "follow-log" },
+                            React.createElement(
+                                "div",
+                                { className: "follow-log-title" },
+                                "跟进日志"
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "follow-log-text" },
+                                this.state.contactData ? this.state.contactData.length == 0 ? "无日志" : this.state.contactData.map(function (d) {
+                                    return React.createElement(
+                                        "div",
+                                        { className: "row" },
+                                        React.createElement(
+                                            "div",
+                                            { className: "left" },
+                                            d.contactDate
+                                        ),
+                                        React.createElement(
+                                            "div",
+                                            { className: "middle" },
+                                            d.contactTactics
+                                        ),
+                                        React.createElement(
+                                            "div",
+                                            { className: "right" },
+                                            d.contactContent
+                                        )
+                                    );
+                                }) : ""
+                            )
                         )
                     ),
-                    React.createElement("div", { style: this.state.display == "cp" ? {} : { display: "none" }, className: "cp-panel" }),
+                    React.createElement(
+                        "div",
+                        { style: this.state.display == "cp" ? {} : { display: "none" }, className: "cp-panel" },
+                        React.createElement(Table, { tableId: "cp" })
+                    ),
                     React.createElement("div", { style: this.state.display == "follow" ? {} : { display: "none" }, className: "follow-panel" })
                 )
             );
@@ -405,30 +480,33 @@ var App = function (_React$Component) {
     }, {
         key: "nav",
         value: function nav(name) {
+            window.location.hash = "#" + name;
             this.setState({ "display": name });
         }
     }, {
-        key: "selectGame",
-        value: function selectGame(d) {
+        key: "selectPublisher",
+        value: function selectPublisher(d) {
             var _this3 = this;
 
-            http.post("../table/getGameNames/read", { name: d }).then(function (d1) {
+            http.post("../table/getGameNamesByPublisher/read", { publisher: d }).then(function (d1) {
                 d1 = d1.filter(function (d2) {
-                    return d2.name == d;
+                    return d2.publisher == d;
+                }).map(function (d2) {
+                    return d2.name;
                 });
-                _this3.setState({ gameData: d1[0] });
+                _this3.setState({ gameNames: d1 });
             }).catch(function (d) {
                 alert("获取数据失败:" + d);
             });
         }
     }, {
-        key: "selectPublisher",
-        value: function selectPublisher(d) {
+        key: "selectDeveloper",
+        value: function selectDeveloper(d) {
             var _this4 = this;
 
-            http.post("../table/getGameNamesByPublisher/read", { publisher: d }).then(function (d1) {
+            http.post("../table/getGameNamesByDeveloper/read", { developer: d }).then(function (d1) {
                 d1 = d1.filter(function (d2) {
-                    return d2.publisher == d;
+                    return d2.developer == d;
                 }).map(function (d2) {
                     return d2.name;
                 });
@@ -438,31 +516,33 @@ var App = function (_React$Component) {
             });
         }
     }, {
-        key: "selectDeveloper",
-        value: function selectDeveloper(d) {
-            var _this5 = this;
-
-            http.post("../table/getGameNamesByDeveloper/read", { developer: d }).then(function (d1) {
-                d1 = d1.filter(function (d2) {
-                    return d2.developer == d;
-                }).map(function (d2) {
-                    return d2.name;
-                });
-                _this5.setState({ gameNames: d1 });
-            }).catch(function (d) {
-                alert("获取数据失败:" + d);
-            });
-        }
-    }, {
         key: "chooseGameName",
         value: function chooseGameName(d) {
-            var _this6 = this;
+            var _this5 = this;
 
-            http.post("../table/game/read", { name: d }).then(function (d1) {
-                d1 = d1.filter(function (d2) {
+            var gamePromise = http.post("../table/game/read");
+            var screenshotPromise = http.post("../controller/screenshot/getNames", { name: d });
+            var contactPromise = http.post("../table/followLog/read", { name: d });
+            Promise.all([gamePromise, screenshotPromise, contactPromise]).then(function (d1) {
+                var gameData = d1[0].filter(function (d2) {
                     return d2.name == d;
+                })[0];
+                var screenshotData = [];
+                for (var i = 0; i < d1[1].length; i = i + 2) {
+                    var row = [];
+                    if (i == d1[1].length - 1) {
+                        row.push(d1[1][i]);
+                    } else {
+                        row.push(d1[1][i]);
+                        row.push(d1[1][i + 1]);
+                    }
+                    screenshotData.push(row);
+                }
+                _this5.setState({
+                    gameData: gameData,
+                    screenshotData: screenshotData,
+                    contactData: d1[2]
                 });
-                _this6.setState({ gameData: d1[0] });
             }).catch(function (d) {
                 alert("获取数据失败:" + d);
             });

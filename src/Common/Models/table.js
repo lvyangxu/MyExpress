@@ -5,6 +5,14 @@ var response = require("./response");
 var tableMap = require("./tableMap");
 
 module.exports = {
+    init: function init(req, res, table, map) {
+        var d = tableMap.init(table);
+        if (d.length == 0) {
+            response.fail(res, "unknown table");
+        } else {
+            response.success(res, d);
+        }
+    },
     read: function read(req, res, table, map) {
         var sqlCommand = map.sqlCommand;
         var values = map.values;

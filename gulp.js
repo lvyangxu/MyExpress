@@ -36,11 +36,13 @@ gulp.task("build-server", function () {
     //config
     gulp.src("src/Common/Config/mysql.xml").pipe(replace(/\{user}/g, mysqlConfig.user)).pipe(replace(/\{password}/g, mysqlConfig.password)).pipe(replace(/\{database}/g, mysqlConfig.database)).pipe(gulp.dest("dist/" + project + "/server/config"));
     gulp.src("src/Common/Config/account.xml").pipe(replace(/\{username}/g, accountConfig.username)).pipe(replace(/\{password}/g, accountConfig.password)).pipe(replace(/\{usernameCookie}/g, accountConfig.usernameCookie)).pipe(replace(/\{passwordCookie}/g, accountConfig.passwordCookie)).pipe(replace(/\{loginRedirect}/g, accountConfig.loginRedirect)).pipe(gulp.dest("dist/" + project + "/server/config"));
+    //controller
+    gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
 });
 
 gulp.task("build-util", function () {
     //component
-    var componentArr = ["login", "radio"];
+    var componentArr = ["login", "radio", "select", "table"];
     componentArr.map(function (d) {
         gulp.src("src/Common/Components/" + d + "/*.js").pipe(gulp.dest("dist/" + project + "/util"));
     });
@@ -62,10 +64,10 @@ gulp.task("build-client", function () {
                 srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Components/login/login.css"];
                 break;
             case "display":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css", "src/Projects/" + project + "/Views/common/*.css"];
                 break;
             case "manage":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css", "src/Projects/" + project + "/Views/common/*.css"];
                 break;
         }
         gulp.src(srcArr).pipe(concatCss("bundle.css", { rebaseUrls: false })).pipe(cleanCSS({ compatibility: 'ie8' })).pipe(gulp.dest("dist/" + project + "/client/" + d));

@@ -14,7 +14,8 @@ body {
       line-height: 60px;
       margin-left: 40px; }
   body #display {
-    padding-top: 100px; }
+    padding-top: 100px;
+    margin-bottom: 100px; }
     body #display .container {
       border: 1px solid #dddddd; }
       body #display .container .nav {
@@ -36,7 +37,7 @@ body {
       body #display .container .info {
         display: inline-block;
         vertical-align: top;
-        padding-top: 20px; }
+        padding: 20px 50px 100px; }
         body #display .container .info .radio-div .react-radio {
           margin-right: 30px;
           vertical-align: top; }
@@ -52,7 +53,11 @@ body {
             line-height: 30px;
             min-width: 100px;
             margin-right: 20px;
-            border: 1px solid #141414; }
+            padding-left: 10px;
+            padding-right: 10px;
+            border: none;
+            color: white;
+            background-color: #0bb995; }
         body #display .container .info .game-title {
           margin-top: 10px;
           font-size: 24px;
@@ -75,10 +80,41 @@ body {
             font-size: 18px;
             margin-top: 30px;
             margin-bottom: 30px; }
-        body #display .container .info .basic-info .basic-info-title {
+          body #display .container .info .screenshot .screenshot-image .row {
+            margin-bottom: 50px; }
+            body #display .container .info .screenshot .screenshot-image .row img {
+              width: 450px; }
+            body #display .container .info .screenshot .screenshot-image .row img:first-child {
+              margin-right: 50px; }
+        body #display .container .info .basic-info .basic-info-title, body #display .container .info .basic-info .follow-status-title, body #display .container .info .basic-info .follow-log-title, body #display .container .info .follow-status .basic-info-title, body #display .container .info .follow-status .follow-status-title, body #display .container .info .follow-status .follow-log-title, body #display .container .info .follow-log .basic-info-title, body #display .container .info .follow-log .follow-status-title, body #display .container .info .follow-log .follow-log-title {
           color: #33ba95;
           font-size: 18px;
           margin-top: 30px;
           margin-bottom: 30px; }
+        body #display .container .info .basic-info .basic-info-text .row, body #display .container .info .basic-info .follow-status-text .row, body #display .container .info .basic-info .follow-log-text .row, body #display .container .info .follow-status .basic-info-text .row, body #display .container .info .follow-status .follow-status-text .row, body #display .container .info .follow-status .follow-log-text .row, body #display .container .info .follow-log .basic-info-text .row, body #display .container .info .follow-log .follow-status-text .row, body #display .container .info .follow-log .follow-log-text .row {
+          min-height: 20px;
+          line-height: 20px;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          border-bottom: 1px dashed #dddddd;
+          font-size: 14px; }
+          body #display .container .info .basic-info .basic-info-text .row .left, body #display .container .info .basic-info .follow-status-text .row .left, body #display .container .info .basic-info .follow-log-text .row .left, body #display .container .info .follow-status .basic-info-text .row .left, body #display .container .info .follow-status .follow-status-text .row .left, body #display .container .info .follow-status .follow-log-text .row .left, body #display .container .info .follow-log .basic-info-text .row .left, body #display .container .info .follow-log .follow-status-text .row .left, body #display .container .info .follow-log .follow-log-text .row .left {
+            display: inline-block;
+            vertical-align: top;
+            width: 100px;
+            text-align: right; }
+          body #display .container .info .basic-info .basic-info-text .row .middle, body #display .container .info .basic-info .follow-status-text .row .middle, body #display .container .info .basic-info .follow-log-text .row .middle, body #display .container .info .follow-status .basic-info-text .row .middle, body #display .container .info .follow-status .follow-status-text .row .middle, body #display .container .info .follow-status .follow-log-text .row .middle, body #display .container .info .follow-log .basic-info-text .row .middle, body #display .container .info .follow-log .follow-status-text .row .middle, body #display .container .info .follow-log .follow-log-text .row .middle {
+            display: inline-block;
+            vertical-align: top;
+            width: 300px;
+            margin-left: 40px;
+            padding-left: 10px; }
+          body #display .container .info .basic-info .basic-info-text .row .right, body #display .container .info .basic-info .follow-status-text .row .right, body #display .container .info .basic-info .follow-log-text .row .right, body #display .container .info .follow-status .basic-info-text .row .right, body #display .container .info .follow-status .follow-status-text .row .right, body #display .container .info .follow-status .follow-log-text .row .right, body #display .container .info .follow-log .basic-info-text .row .right, body #display .container .info .follow-log .follow-status-text .row .right, body #display .container .info .follow-log .follow-log-text .row .right {
+            display: inline-block;
+            vertical-align: top;
+            width: 300px;
+            margin-left: 40px;
+            padding-left: 10px;
+            padding-right: 10px; }
 
 /*# sourceMappingURL=index.css.map */

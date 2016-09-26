@@ -1,6 +1,6 @@
 {
 "version": 3,
-"mappings": "AACA,oCAA0C;EAGlC,eAAW;IACP,KAAK,EAAE,eAAe",
+"mappings": "AACA,oCAA0C;EAElC,eAAW;IACP,KAAK,EAAE,eAAe",
 "sources": ["480.scss"],
 "names": [],
 "file": "480.css"

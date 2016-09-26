@@ -50,11 +50,14 @@ gulp.task("build-server", ()=> {
         .pipe(replace(/\{passwordCookie}/g, accountConfig.passwordCookie))
         .pipe(replace(/\{loginRedirect}/g, accountConfig.loginRedirect))
         .pipe(gulp.dest("dist/" + project + "/server/config"));
+    //controller
+    gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
 });
 
 gulp.task("build-util", ()=> {
     //component
-    let componentArr = ["login","radio"];
+    let componentArr = ["login","radio","select","table"];
     componentArr.map(d=>{
         gulp.src("src/Common/Components/"+d+"/*.js")
             .pipe(gulp.dest("dist/" + project + "/util"));
@@ -83,10 +86,18 @@ gulp.task("build-client", ()=> {
                 srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Components/login/login.css"]
                 break;
             case "display":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
+                    "src/Common/Components/*/*.css",
+                    "src/Common/Views/common/*.css",
+                    "src/Projects/" + project + "/Views/common/*.css"
+                ];
                 break;
             case "manage":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
+                    "src/Common/Components/*/*.css",
+                    "src/Common/Views/common/*.css",
+                    "src/Projects/" + project + "/Views/common/*.css"
+                ];
                 break;
         }
         gulp.src(srcArr)

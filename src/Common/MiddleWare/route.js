@@ -63,6 +63,25 @@ router.route("/table/:name/:action").post(upload.any(), function (req, res, next
     }
 });
 
+//controller router
+router.route("/controller/:name/:action").post(upload.any(), function (req, res, next) {
+    var action = req.params.action;
+    var name = req.params.name;
+    try {
+        var controller = require("./" + name);
+        var func = controller[action];
+        if (func == undefined) {
+            response.fail(res, "action not found");
+            return;
+        }
+        func(req, res);
+    } catch (e) {
+        if (e.code == "MODULE_NOT_FOUND") {
+            response.fail(res, "controller not found");
+        } else {}
+    }
+});
+
 module.exports = router;
 
 //# sourceMappingURL=route.js.map
