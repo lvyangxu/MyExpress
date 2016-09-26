@@ -29,7 +29,7 @@ class select extends React.Component {
         return (
             <div className="react-select" tabIndex="0" onBlur={this.selectBlur}>
                 <div className="input" onClick={this.panelToggle}>
-                    {this.state.value}<i className="fa fa-caret-down"></i>
+                    {this.props.text}<i className="fa fa-caret-down"></i>
                 </div>
                 <div className="panel" style={(this.state.panelShow) ? {} : {display: "none"}}>
                     <div className="allCheck">

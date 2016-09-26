@@ -54,7 +54,7 @@ var select = function (_React$Component) {
                 React.createElement(
                     "div",
                     { className: "input", onClick: this.panelToggle },
-                    this.state.value,
+                    this.props.text,
                     React.createElement("i", { className: "fa fa-caret-down" })
                 ),
                 React.createElement(

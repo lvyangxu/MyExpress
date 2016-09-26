@@ -58,7 +58,7 @@ var table = function (_React$Component) {
                     React.createElement(
                         "div",
                         { className: "column-filter" },
-                        React.createElement(Select, { data: this.state.columns })
+                        React.createElement(Select, { data: this.state.columns, text: "列" })
                     )
                 )
             );

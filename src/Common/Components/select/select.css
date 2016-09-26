@@ -2,7 +2,7 @@
   display: inline-block;
   font-size: 13px; }
   .react-select .input {
-    width: 150px;
+    min-width: 50px;
     height: 16px;
     padding: 8px;
     border: 1px solid #cccccc;

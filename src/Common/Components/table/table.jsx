@@ -32,7 +32,7 @@ class table extends React.Component {
             <div className="react-table">
                 <div className="table-head">
                     <div className="column-filter">
-                        <Select data={this.state.columns}/>
+                        <Select data={this.state.columns} text="列"/>
                     </div>
                 </div>
             </div>
