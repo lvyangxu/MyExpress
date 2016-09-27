@@ -1,8 +1,10 @@
+@charset "utf-8";
 body {
     font-family: "Microsoft YaHei UI", Arial;
     overflow-y: scroll;
     .top {
         position: fixed;
+        z-index: 2;
         width: 100%;
         height: 60px;
         font-size: 16px;
@@ -22,10 +24,14 @@ body {
         margin-bottom: 100px;
         .container {
             border: 1px solid rgba(221, 221, 221, 1);
+            position: relative;
+            padding-right: 50px;
             .nav {
-                display: inline-block;
+                position: absolute;
                 width: 200px;
                 height: 100%;
+                top: 0;
+                left: 0;
                 background-color: rgba(244, 244, 244, 1);
                 div {
                     padding-left: 40px;
@@ -44,121 +50,194 @@ body {
             }
 
             .info {
-                display: inline-block;
                 vertical-align: top;
-                padding: 20px 50px 100px;
-                .radio-div {
-                    .react-radio {
-                        margin-right: 30px;
-                        vertical-align: top;
-                    }
-                }
+                padding-top: 20px;
+                padding-bottom: 100px;
+                margin-left: 250px;
 
-                .game-names {
-                    height: 30px;
-                    margin-top: 20px;
-                    margin-bottom: 20px;
-                    button {
-                        display: inline-block;
-                        font-family: "Microsoft YaHei UI", Arial;
-                        cursor: pointer;
+                .game-panel {
+                    .radio-div {
+                        .react-radio {
+                            margin-right: 30px;
+                            vertical-align: top;
+                        }
+                    }
+
+                    .game-names {
                         height: 30px;
-                        line-height: 30px;
-                        min-width: 100px;
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        button {
+                            display: inline-block;
+                            font-family: "Microsoft YaHei UI", Arial;
+                            cursor: pointer;
+                            height: 30px;
+                            line-height: 30px;
+                            min-width: 100px;
+                            margin-right: 20px;
+                            padding-left: 10px;
+                            padding-right: 10px;
+                            border: none;
+                            color: white;
+                            background-color: rgba(11, 185, 149, 1);
+                        }
+                    }
+
+                    .game-title {
+                        margin-top: 10px;
+                        font-size: 24px;
+                        height: 30px;
+                    }
+
+                    .game-company {
+                        display: inline-block;
+                        min-width: 150px;
                         margin-right: 20px;
-                        padding-left: 10px;
-                        padding-right: 10px;
-                        border: none;
-                        color: white;
-                        background-color: rgba(11, 185, 149, 1);
-                    }
-                }
-
-                .game-title {
-                    margin-top: 10px;
-                    font-size: 24px;
-                    height: 30px;
-                }
-
-                .game-company {
-                    display: inline-block;
-                    min-width: 150px;
-                    margin-right: 20px;
-                    .up {
-                        margin-top: 20px;
-                        font-size: 12px;
-                    }
-                    .down {
-                        margin-top: 20px;
-                        font-size: 14px;
-                    }
-                }
-
-                .screenshot {
-                    border-top: 1px solid rgba(238, 238, 238, 1);
-                    margin-top: 20px;
-                    .screenshot-title {
-                        color: #33ba95;
-                        font-size: 18px;
-                        margin-top: 30px;
-                        margin-bottom: 30px;
-                    }
-
-                    .screenshot-image {
-                        .row {
-                            margin-bottom: 50px;
-                            img {
-                                width: 450px;
-                            }
-                            img:first-child {
-                                margin-right: 50px;
-                            }
+                        .up {
+                            margin-top: 20px;
+                            font-size: 12px;
                         }
-                    }
-                }
-
-                .basic-info, .follow-status, .follow-log {
-                    .basic-info-title, .follow-status-title, .follow-log-title {
-                        color: #33ba95;
-                        font-size: 18px;
-                        margin-top: 30px;
-                        margin-bottom: 30px;
-                    }
-
-                    .basic-info-text, .follow-status-text, .follow-log-text {
-                        .row {
-                            min-height: 20px;
-                            line-height: 20px;
-                            padding-top: 10px;
-                            padding-bottom: 10px;
-                            border-bottom: 1px dashed rgba(221, 221, 221, 1);
+                        .down {
+                            margin-top: 20px;
                             font-size: 14px;
-                            .left {
-                                display: inline-block;
-                                vertical-align: top;
-                                width: 100px;
-                                text-align: right;
-                            }
+                        }
+                        .publisher, .developer {
+                            color: rgba(20, 200, 100, 1);
+                            cursor: pointer;
+                        }
+                        .publisher:hover, .developer:hover {
+                            color: rgba(20, 200, 100, 0.8);
+                        }
+                    }
 
-                            .middle {
-                                display: inline-block;
-                                vertical-align: top;
-                                width: 300px;
-                                margin-left: 40px;
-                                padding-left: 10px;
-                            }
+                    .screenshot {
+                        border-top: 1px solid rgba(238, 238, 238, 1);
+                        margin-top: 20px;
+                        .screenshot-title {
+                            color: #33ba95;
+                            font-size: 18px;
+                            margin-top: 30px;
+                            margin-bottom: 30px;
+                        }
 
-                            .right {
-                                display: inline-block;
-                                vertical-align: top;
-                                width: 300px;
-                                margin-left: 40px;
-                                padding-left: 10px;
-                                padding-right: 10px;
+                        .screenshot-image {
+                            .row {
+                                margin-bottom: 50px;
+                                img {
+                                    width: 450px;
+                                }
+                                img:first-child {
+                                    margin-right: 50px;
+                                }
+                            }
+                        }
+                    }
+
+                    .basic-info, .follow-status, .follow-log {
+                        .basic-info-title, .follow-status-title, .follow-log-title {
+                            color: #33ba95;
+                            font-size: 18px;
+                            margin-top: 30px;
+                            margin-bottom: 30px;
+                        }
+
+                        .basic-info-text, .follow-status-text, .follow-log-text {
+                            .row {
+                                min-height: 20px;
+                                line-height: 20px;
+                                padding-top: 10px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px dashed rgba(221, 221, 221, 1);
+                                font-size: 14px;
+                                .left {
+                                    display: inline-block;
+                                    vertical-align: top;
+                                    width: 100px;
+                                    text-align: right;
+                                }
+
+                                .middle {
+                                    display: inline-block;
+                                    vertical-align: top;
+                                    width: 300px;
+                                    margin-left: 40px;
+                                    padding-left: 10px;
+                                }
+
+                                .right {
+                                    display: inline-block;
+                                    vertical-align: top;
+                                    width: 300px;
+                                    margin-left: 40px;
+                                    padding-left: 10px;
+                                    padding-right: 10px;
+                                    a {
+                                        text-decoration: none;
+                                        color: black;
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+                .cp-panel{
+                    table{
+                        thead tr{
+                            th[data-columnId=website]{
+                                width: 90px;
+                            }
+                        }
+                        tbody tr{
+                            td[data-columnId=website]{
+                                width: 90px;
+                                text-align: center;
+                                a:first-child{
+                                    margin-right: 15px;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .follow-panel {
+                    table tbody tr {
+                        td[data=初步沟通等待出包],
+                        td[data=已收到包，评测中],
+                        td[data=包完成度不够，跟进新包],
+                        td[data=评测通过，等待上线数据] {
+                            background-color: #FF6666;
+                            color: white;
+                        }
+                        td[data=评测通过，初步沟通合作意向],
+                        td[data=已上线产品，初步沟通合作意向] {
+                            background-color: #FFCC33;
+                            color: white;
+                        }
+                        td[data=已被其他公司代理],
+                        td[data=开发自己发行],
+                        td[data=我方主动放弃],
+                        td[data=合作协议推进失败] {
+                            background-color: gray;
+                            color: white;
+                        }
+                        td[data=双方明确合作意向],
+                        td[data=签订测试协议],
+                        td[data=签订代理协议] {
+                            background-color: #99CC00;
+                            color: white;
+                        }
+
+                        td[data-columnId=name] {
+                            color: rgba(20, 200, 100, 1);
+                            cursor: pointer;
+                        }
+                        td[data-columnId=name]:hover {
+                            color: rgba(20, 200, 100, 0.8);
+                        }
+                    }
+                }
+
             }
         }
     }

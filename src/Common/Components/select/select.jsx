@@ -7,7 +7,8 @@ class select extends React.Component {
         this.state = {
             panelShow: false,
             data: [],
-            allChecked: false
+            allChecked: false,
+            optionNumPerColumn: this.props.optionNumPerColumn ? this.props.optionNumPerColumn : 10
         };
         let bindArr = ["selectBlur", "panelToggle", "setData", "check", "allCheck"];
         bindArr.forEach(d=> {
@@ -20,7 +21,7 @@ class select extends React.Component {
         this.setState({data: data});
     }
 
-    componentWillReceiveProps(nextProps){
+    componentWillReceiveProps(nextProps) {
         let data = this.setData(nextProps.data);
         this.setState({data: data});
     }
@@ -87,8 +88,9 @@ class select extends React.Component {
 
     setData(d) {
         let columnDataArr = [];
-        for (let i = 0; i < d.length; i = i + 10) {
-            let end = (i + 10) > d.length ? d.length : i + 10;
+        let num = this.state.optionNumPerColumn;
+        for (let i = 0; i < d.length; i = i + num) {
+            let end = (i + num) > d.length ? d.length : i + num;
             let columnData = d.slice(i, end);
             columnDataArr.push(columnData);
         }

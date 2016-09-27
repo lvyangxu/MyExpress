@@ -16,10 +16,11 @@
         <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/http.js" />
         <item url="file://$PROJECT_DIR$/src/app.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Components/select/radio.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Components/select/select.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/xml.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Components/login/login.js" />
         <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
+        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/cookie.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
         <item url="file://$PROJECT_DIR$/gulp.js" />
@@ -36,20 +37,21 @@
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableMap.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/http.js" />
       <root url="file://$PROJECT_DIR$/src/app.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Components/select/select.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/xml.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Components/login/login.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Utils/cookie.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
-      <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
+      <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Utils/cookie.js" />
+      <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
     </CLASSES>
     <SOURCES />

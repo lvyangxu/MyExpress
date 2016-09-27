@@ -22,7 +22,8 @@ var select = function (_React$Component) {
         _this.state = {
             panelShow: false,
             data: [],
-            allChecked: false
+            allChecked: false,
+            optionNumPerColumn: _this.props.optionNumPerColumn ? _this.props.optionNumPerColumn : 10
         };
         var bindArr = ["selectBlur", "panelToggle", "setData", "check", "allCheck"];
         bindArr.forEach(function (d) {
@@ -130,8 +131,9 @@ var select = function (_React$Component) {
         key: "setData",
         value: function setData(d) {
             var columnDataArr = [];
-            for (var i = 0; i < d.length; i = i + 10) {
-                var end = i + 10 > d.length ? d.length : i + 10;
+            var num = this.state.optionNumPerColumn;
+            for (var i = 0; i < d.length; i = i + num) {
+                var end = i + num > d.length ? d.length : i + num;
                 var columnData = d.slice(i, end);
                 columnDataArr.push(columnData);
             }

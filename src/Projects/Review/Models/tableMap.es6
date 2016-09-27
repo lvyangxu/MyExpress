@@ -23,6 +23,7 @@ module.exports = {
         let d = [];
         switch (table) {
             case "cp":
+            case "cpDisplay":
                 d = [
                     {id: "id", name: "id", checked: false},
                     {id: "name", name: "公司名称", checked: true, updateReadonly: true},
@@ -39,6 +40,45 @@ module.exports = {
                 ];
                 break;
             case "follow":
+                d = [
+                    {id: "id", name: "id", checked: false},
+                    {id: "name", name: "游戏名称", checked: true},
+                    {id: "followStatus", name: "跟进标签", checked: true, radio: true},
+                    {id: "lastContact", name: "最后联系时间", checked: true},
+                    {id: "admin", name: "负责人", checked: true},
+                    {id: "createTime", name: "录入时间", checked: false},
+                    {id: "updateTime", name: "更新时间", checked: false}
+                ];
+                break;
+            case "game":
+                d = [
+                    {id: "id", name: "id", checked: false},
+                    {id: "name", name: "游戏名称", checked: true},
+                    {id: "publisher", name: "发行商", checked: true},
+                    {id: "developer", name: "研发商", checked: true},
+                    {id: "type", name: "游戏类型", checked: true},
+                    {id: "play", name: "玩法", checked: true},
+                    {id: "ip", name: "IP", checked: true},
+                    {id: "theme", name: "题材", checked: true},
+                    {id: "online", name: "上线情况", checked: true},
+                    {id: "performance", name: "上线表现", checked: true},
+                    {id: "lastContact", name: "最后联系时间", checked: true},
+                    {id: "schedule", name: "当前进度", checked: true},
+                    {id: "contactWay", name: "沟通方式", checked: true},
+                    {id: "agentCondition", name: "代理条件", checked: true},
+                    {id: "admin", name: "负责人", checked: true},
+                    {id: "followStatus", name: "跟进标签", checked: true},
+                    {id: "appleannie", name: "Apple Annie", checked: true}
+                ];
+                break;
+            case "contact":
+                d = [
+                    {id: "id", name: "id", checked: false},
+                    {id: "name", name: "游戏名称", checked: true},
+                    {id: "contactDate", name: "沟通日期", checked: true},
+                    {id: "contactTactics", name: "沟通策略", checked: true},
+                    {id: "contactContent", name: "沟通内容", checked: true}
+                ];
                 break;
         }
         return d;
@@ -67,6 +107,13 @@ module.exports = {
             case "followLog":
                 sqlCommand = "select * from contact where ?";
                 values = {name: req.body.name};
+                break;
+            case "follow":
+                sqlCommand = "select * from game order by createTime desc";
+                break;
+            case "cpDisplay":
+                let w = "concat(\"<a href='\",website,\"' target='_blank'>\",'主页','</a>',\"<a href='\",appannie,\"' target='_blank'>\",'annie','</a>')";
+                sqlCommand = "select name,businessType,area,address,productType,contactMan,duty,contactWay," + w + " as website,manager,note from cp";
                 break;
             default:
                 sqlCommand = "select * from " + table;

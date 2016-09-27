@@ -27,9 +27,11 @@ var App = function (_React$Component) {
         _this.state = {
             display: "game",
             gameNames: [],
-            gameData: []
+            gameData: [],
+            cpRowFilterValue: "",
+            gameRadioValue: ""
         };
-        var bindArr = ["nav"];
+        var bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -92,7 +94,7 @@ var App = function (_React$Component) {
                             { className: "radio-div" },
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getGames/read", selectCallback: function selectCallback(d) {
                                     _this2.chooseGameName(d);
-                                } }),
+                                }, value: this.state.gameRadioValue }),
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getPublishers/read", selectCallback: function selectCallback(d) {
                                     _this2.selectPublisher(d);
                                 } }),
@@ -128,7 +130,9 @@ var App = function (_React$Component) {
                             ),
                             React.createElement(
                                 "div",
-                                { className: "down" },
+                                { className: "down publisher", onClick: function onClick() {
+                                        _this2.turnToCp(_this2.state.gameData.publisher);
+                                    } },
                                 this.state.gameData ? this.state.gameData.publisher : ""
                             )
                         ),
@@ -142,7 +146,9 @@ var App = function (_React$Component) {
                             ),
                             React.createElement(
                                 "div",
-                                { className: "down" },
+                                { className: "down developer", onClick: function onClick() {
+                                        _this2.turnToCp(_this2.state.gameData.developer);
+                                    } },
                                 this.state.gameData ? this.state.gameData.developer : ""
                             )
                         ),
@@ -428,7 +434,11 @@ var App = function (_React$Component) {
                                     React.createElement(
                                         "div",
                                         { className: "right" },
-                                        this.state.gameData.appleannie
+                                        React.createElement(
+                                            "a",
+                                            { href: this.state.gameData.appleannie, target: "_blank" },
+                                            this.state.gameData.appleannie ? this.state.gameData.appleannie.length > 25 ? this.state.gameData.appleannie.substr(0, 25) + "..." : this.state.gameData.appleannie : ""
+                                        )
                                     )
                                 )
                             )
@@ -444,10 +454,29 @@ var App = function (_React$Component) {
                             React.createElement(
                                 "div",
                                 { className: "follow-log-text" },
-                                this.state.contactData ? this.state.contactData.length == 0 ? "无日志" : this.state.contactData.map(function (d) {
+                                this.state.contactData && this.state.contactData.length != 0 ? React.createElement(
+                                    "div",
+                                    { className: "row" },
+                                    React.createElement(
+                                        "div",
+                                        { className: "left" },
+                                        "时间"
+                                    ),
+                                    React.createElement(
+                                        "div",
+                                        { className: "middle" },
+                                        "策略"
+                                    ),
+                                    React.createElement(
+                                        "div",
+                                        { className: "right" },
+                                        "内容"
+                                    )
+                                ) : "",
+                                this.state.contactData ? this.state.contactData.length == 0 ? "无日志" : this.state.contactData.map(function (d, i) {
                                     return React.createElement(
                                         "div",
-                                        { className: "row" },
+                                        { key: i, className: "row" },
                                         React.createElement(
                                             "div",
                                             { className: "left" },
@@ -471,9 +500,13 @@ var App = function (_React$Component) {
                     React.createElement(
                         "div",
                         { style: this.state.display == "cp" ? {} : { display: "none" }, className: "cp-panel" },
-                        React.createElement(Table, { tableId: "cp" })
+                        React.createElement(Table, { tableId: "cpDisplay", rowFilterValue: this.state.cpRowFilterValue })
                     ),
-                    React.createElement("div", { style: this.state.display == "follow" ? {} : { display: "none" }, className: "follow-panel" })
+                    React.createElement(
+                        "div",
+                        { style: this.state.display == "follow" ? {} : { display: "none" }, className: "follow-panel" },
+                        React.createElement(Table, { tableId: "follow", nameTdCallback: this.nameTdCallback })
+                    )
                 )
             );
         }
@@ -546,6 +579,21 @@ var App = function (_React$Component) {
             }).catch(function (d) {
                 alert("获取数据失败:" + d);
             });
+        }
+    }, {
+        key: "turnToCp",
+        value: function turnToCp(d) {
+            this.nav("cp");
+            this.setState({ cpRowFilterValue: d });
+        }
+    }, {
+        key: "nameTdCallback",
+        value: function nameTdCallback(value) {
+            this.nav("game");
+            this.setState({
+                gameRadioValue: value
+            });
+            this.chooseGameName(value);
         }
     }]);
 

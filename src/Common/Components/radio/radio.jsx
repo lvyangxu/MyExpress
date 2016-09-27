@@ -41,6 +41,14 @@ class radio extends React.Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.value != nextProps.value) {
+            this.setState({
+                value: nextProps.value
+            });
+        }
+    }
+
     render() {
         return (
             <div className="react-radio" tabIndex="0" onBlur={this.radioBlur}>

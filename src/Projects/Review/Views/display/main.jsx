@@ -12,9 +12,11 @@ class App extends React.Component {
         this.state = {
             display: "game",
             gameNames: [],
-            gameData: []
+            gameData: [],
+            cpRowFilterValue: "",
+            gameRadioValue: ""
         };
-        let bindArr = ["nav"];
+        let bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -53,7 +55,7 @@ class App extends React.Component {
                         <div className="radio-div">
                             <Radio defaultBlank url="../table/getGames/read" selectCallback={(d)=> {
                                 this.chooseGameName(d);
-                            }}></Radio>
+                            }} value={this.state.gameRadioValue}></Radio>
                             <Radio defaultBlank url="../table/getPublishers/read" selectCallback={(d)=> {
                                 this.selectPublisher(d);
                             }}></Radio>
@@ -73,11 +75,19 @@ class App extends React.Component {
                         <div className="game-title">{(this.state.gameData) ? this.state.gameData.name : ""}</div>
                         <div className="game-company">
                             <div className="up">发行商</div>
-                            <div className="down">{(this.state.gameData) ? this.state.gameData.publisher : ""}</div>
+                            <div className="down publisher" onClick={()=> {
+                                this.turnToCp(this.state.gameData.publisher)
+                            }}>
+                                {(this.state.gameData) ? this.state.gameData.publisher : ""}
+                            </div>
                         </div>
                         <div className="game-company">
                             <div className="up">研发商</div>
-                            <div className="down">{(this.state.gameData) ? this.state.gameData.developer : ""}</div>
+                            <div className="down developer" onClick={()=> {
+                                this.turnToCp(this.state.gameData.developer);
+                            }}>
+                                {(this.state.gameData) ? this.state.gameData.developer : ""}
+                            </div>
                         </div>
                         <div className="screenshot">
                             <div className="screenshot-title">游戏截图</div>
@@ -183,7 +193,16 @@ class App extends React.Component {
                                 </div>
                                 <div className="row">
                                     <div className="left">App Annie</div>
-                                    <div className="right">{this.state.gameData.appleannie}</div>
+                                    <div className="right">
+                                        <a href={this.state.gameData.appleannie} target="_blank">
+                                            {
+                                                this.state.gameData.appleannie ?
+                                                    (this.state.gameData.appleannie.length > 25 ?
+                                                        (this.state.gameData.appleannie.substr(0, 25) + "...") :
+                                                        this.state.gameData.appleannie) : ""
+                                            }
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -191,10 +210,18 @@ class App extends React.Component {
                             <div className="follow-log-title">跟进日志</div>
                             <div className="follow-log-text">
                                 {
+                                    (this.state.contactData && this.state.contactData.length != 0) ?
+                                        <div className="row">
+                                            <div className="left">时间</div>
+                                            <div className="middle">策略</div>
+                                            <div className="right">内容</div>
+                                        </div> : ""
+                                }
+                                {
                                     this.state.contactData ?
                                         (this.state.contactData.length == 0 ? "无日志" :
-                                                this.state.contactData.map(d=> {
-                                                    return <div className="row">
+                                                this.state.contactData.map((d, i)=> {
+                                                    return <div key={i} className="row">
                                                         <div className="left">{d.contactDate}</div>
                                                         <div className="middle">{d.contactTactics}</div>
                                                         <div className="right">{d.contactContent}</div>
@@ -206,10 +233,10 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div style={this.state.display == "cp" ? {} : {display: "none"}} className="cp-panel">
-                         <Table tableId="cp"/>
+                        <Table tableId="cpDisplay" rowFilterValue={this.state.cpRowFilterValue}/>
                     </div>
                     <div style={this.state.display == "follow" ? {} : {display: "none"}} className="follow-panel">
-
+                        <Table tableId="follow" nameTdCallback={this.nameTdCallback}/>
                     </div>
                 </div>
             </div>
@@ -274,6 +301,19 @@ class App extends React.Component {
         }).catch(d=> {
             alert("获取数据失败:" + d);
         });
+    }
+
+    turnToCp(d) {
+        this.nav("cp");
+        this.setState({cpRowFilterValue: d});
+    }
+
+    nameTdCallback(value) {
+        this.nav("game");
+        this.setState({
+            gameRadioValue: value
+        });
+        this.chooseGameName(value);
     }
 }
 

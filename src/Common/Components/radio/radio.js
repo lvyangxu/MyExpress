@@ -60,6 +60,15 @@ var radio = function (_React$Component) {
             }
         }
     }, {
+        key: "componentWillReceiveProps",
+        value: function componentWillReceiveProps(nextProps) {
+            if (this.props.value != nextProps.value) {
+                this.setState({
+                    value: nextProps.value
+                });
+            }
+        }
+    }, {
         key: "render",
         value: function render() {
             var _this3 = this;
