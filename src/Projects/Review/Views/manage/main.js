@@ -85,17 +85,17 @@ var App = function (_React$Component) {
                     React.createElement(
                         "div",
                         { style: this.state.display == "game" ? {} : { display: "none" }, className: "game-panel" },
-                        React.createElement(Table, { tableId: "game" })
+                        React.createElement(Table, { tableId: "game", curd: "curd" })
                     ),
                     React.createElement(
                         "div",
                         { style: this.state.display == "cp" ? {} : { display: "none" }, className: "cp-panel" },
-                        React.createElement(Table, { tableId: "cp" })
+                        React.createElement(Table, { tableId: "cp", curd: "curd" })
                     ),
                     React.createElement(
                         "div",
                         { style: this.state.display == "contact" ? {} : { display: "none" }, className: "contact-panel" },
-                        React.createElement(Table, { tableId: "contact" })
+                        React.createElement(Table, { tableId: "contact", curd: "curd" })
                     )
                 )
             );

@@ -23,7 +23,6 @@ body {
         padding-top: 100px;
         margin-bottom: 100px;
         .container {
-            border: 1px solid rgba(221, 221, 221, 1);
             position: relative;
             padding-right: 50px;
             .nav {
@@ -61,6 +60,9 @@ body {
                             th[data-columnId=lastContact]{
                                 width: 90px;
                             }
+                            th[data-columnId=appleannie]{
+                                max-width: 300px;
+                            }
                         }
 
                         tbody tr {
@@ -90,17 +92,12 @@ body {
                                 color: white;
                             }
 
-                            td[data-columnId=name] {
-                                color: rgba(20, 200, 100, 1);
-                                cursor: pointer;
-                            }
-                            td[data-columnId=name]:hover {
-                                color: rgba(20, 200, 100, 0.8);
-                            }
-
                             td[data-columnId=lastContact]{
                                 width: 90px;
                                 text-align: center;
+                            }
+                            td[data-columnId=appleannie]{
+                                max-width: 300px;
                             }
                         }
                     }

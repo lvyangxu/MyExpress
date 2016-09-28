@@ -13,69 +13,85 @@
       width: 120px;
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
   .react-table .table-head .radio-filter {
-    display: inline-block;
-    margin-left: 20px; }
+    display: inline-block; }
     .react-table .table-head .radio-filter select {
       height: 34px;
       border: 1px solid #ccc;
       outline: none;
       cursor: pointer; }
-  .react-table .table-head .refresh {
-    display: inline-block;
-    margin-left: 20px; }
-    .react-table .table-head .refresh button {
+  .react-table .table-head .create, .react-table .table-head .update, .react-table .table-head .refresh, .react-table .table-head .delete {
+    display: inline-block; }
+    .react-table .table-head .create button, .react-table .table-head .update button, .react-table .table-head .refresh button, .react-table .table-head .delete button {
       height: 34px;
       padding-left: 10px;
       padding-right: 10px;
       border: 1px solid #ccc;
-      width: 120px;
+      width: 80px;
       background-color: white;
       outline: none;
       cursor: pointer; }
-.react-table .table-body table {
+.react-table .panel-head {
+  margin-bottom: 50px; }
+  .react-table .panel-head .backToMain, .react-table .panel-head .submit {
+    height: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1px solid #ccc;
+    min-width: 80px;
+    background-color: white;
+    outline: none;
+    cursor: pointer;
+    margin-right: 20px; }
+.react-table table {
   border-collapse: collapse; }
-  .react-table .table-body table thead {
+  .react-table table thead {
     background-color: #e9e9e9;
     color: #252525;
     font-weight: bold; }
-    .react-table .table-body table thead tr th {
+    .react-table table thead tr th {
       padding: 10px;
       border: 1px solid #cccccc;
       -moz-user-select: none;
       -ms-user-select: none;
       -webkit-user-select: none; }
-    .react-table .table-body table thead tr th.checkbox {
+    .react-table table thead tr th.checkbox {
       padding: 2px; }
-      .react-table .table-body table thead tr th.checkbox input[type=checkbox] {
+      .react-table table thead tr th.checkbox input[type=checkbox] {
         height: 20px;
-        width: 20px; }
-    .react-table .table-body table thead tr th.hide {
+        width: 20px;
+        cursor: pointer; }
+    .react-table table thead tr th.hide {
       display: none; }
-    .react-table .table-body table thead tr th:hover {
+    .react-table table thead tr th:hover {
       cursor: pointer;
       box-shadow: inset 0 0 0 1px #dedede;
       background-color: #f3f3f3; }
-  .react-table .table-body table tbody {
+    .react-table table thead tr th.checkbox:hover {
+      cursor: auto; }
+  .react-table table tbody {
     background-color: white;
     color: #272727; }
-    .react-table .table-body table tbody tr td {
+    .react-table table tbody tr td {
       padding: 10px;
       border: 1px solid #cccccc;
       word-break: break-all; }
-      .react-table .table-body table tbody tr td input {
+      .react-table table tbody tr td input {
         width: 120px;
-        height: 30px; }
-      .react-table .table-body table tbody tr td a {
+        height: 30px;
+        padding-left: 10px;
+        padding-right: 10px; }
+      .react-table table tbody tr td a {
         text-decoration: none;
         color: #14c864; }
-      .react-table .table-body table tbody tr td a:hover {
+      .react-table table tbody tr td a:hover {
         color: rgba(20, 200, 100, 0.8); }
-    .react-table .table-body table tbody tr td.checkbox {
+    .react-table table tbody tr td.checkbox {
       padding: 2px; }
-      .react-table .table-body table tbody tr td.checkbox input[type=checkbox] {
+      .react-table table tbody tr td.checkbox input[type=checkbox] {
         height: 20px;
-        width: 20px; }
-    .react-table .table-body table tbody tr td.hide {
+        width: 20px;
+        cursor: pointer; }
+    .react-table table tbody tr td.hide {
       display: none; }
 
 /*# sourceMappingURL=table.css.map */

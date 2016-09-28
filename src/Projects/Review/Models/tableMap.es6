@@ -26,7 +26,7 @@ module.exports = {
             case "cpDisplay":
                 d = [
                     {id: "id", name: "id", checked: false},
-                    {id: "name", name: "公司名称", checked: true, updateReadonly: true},
+                    {id: "name", name: "公司名称", checked: true},
                     {id: "businessType", name: "业务类型", checked: true},
                     {id: "area", name: "业务地区", checked: true},
                     {id: "address", name: "所在地", checked: true},
@@ -83,6 +83,93 @@ module.exports = {
         }
         return d;
     },
+    create: (req, res, table)=> {
+        let sqlCommand = "";
+        let tableStruct = global.dbStruct.filter(d=> {
+            return d.id == table;
+        });
+        if (tableStruct.length != 0) {
+            let defaultValues = [{tableName: "game", createTime: "now()", updateTime: "now()"}];
+
+            let fields = tableStruct[0].fields;
+            let noIdFields = fields.filter(d=> {
+                return d.Field != "id";
+            });
+            let columnNameStr = noIdFields.map(d=> {
+                return d.Field;
+            }).join(",");
+            let rowLengthArr = [];
+            for (let i = 0; i < req.body.requestRowsLength; i++) {
+                rowLengthArr.push(i);
+            }
+            let rowValueStr = rowLengthArr.map(i=> {
+                let row = "(";
+                row += noIdFields.map(d=> {
+                    let id = d.Field;
+                    let type = d.Type;
+                    let value;
+                    let defaultValue = defaultValues.filter(d=> {
+                        return d.tableName == table;
+                    });
+                    if (defaultValue.length != 0 && defaultValue[0][id]) {
+                        value = defaultValue[0][id];
+                    } else {
+                        value = req.body[id].split(",")[i];
+                        if (!type.includes("int") && type != "float" && type != "double") {
+                            value = "'" + value + "'";
+                        }
+                    }
+                    return value;
+                }).join(",");
+                row += ")";
+                return row;
+            }).join(",");
+            sqlCommand = "insert into " + table + " (" + columnNameStr + ") values " + rowValueStr;
+        }
+        return {sqlCommand: sqlCommand, values: {}};
+    },
+    update: (req, res, table)=> {
+        let sqlCommandArr = [];
+        let valuesArr = [];
+        let tableStruct = global.dbStruct.filter(d=> {
+            return d.id == table;
+        });
+        if (tableStruct.length != 0) {
+            let defaultValues = [{tableName: "game", createTime: null, updateTime: "now()"}];
+
+            let fields = tableStruct[0].fields;
+            let noIdFields = fields.filter(d=> {
+                return d.Field != "id";
+            });
+            let rowLengthArr = [];
+            for (let i = 0; i < req.body.requestRowsLength; i++) {
+                rowLengthArr.push(i);
+            }
+            rowLengthArr.forEach(i=> {
+                let sqlCommand = "update " + table + " set ? where id=" + req.body.id.split(",")[i];
+                sqlCommandArr.push(sqlCommand);
+                let values = {};
+                noIdFields.forEach(d=>{
+                    let id = d.Field;
+                    let value;
+                    let defaultValue = defaultValues.filter(d=> {
+                        return d.tableName == table;
+                    });
+                    if (defaultValue.length != 0 && defaultValue[0][id]) {
+                        value = defaultValue[0][id];
+                        if(value != null){
+                            values[id] = value;
+                        }
+                    } else {
+                        value = req.body[id].split(",")[i];
+                        values[id] = value;
+                    }
+                });
+                valuesArr.push(values);
+            });
+        }
+        return {sqlCommand: sqlCommandArr, values: valuesArr};
+    },
     read: (req, res, table)=> {
         let sqlCommand = "";
         let values = {};
@@ -120,5 +207,8 @@ module.exports = {
                 break;
         }
         return {sqlCommand: sqlCommand, values: values};
+    },
+    delete: (req, res, table)=> {
+
     }
 };

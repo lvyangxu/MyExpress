@@ -21,14 +21,21 @@ var table = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (table.__proto__ || Object.getPrototypeOf(table)).call(this, props));
 
         _this.state = {
+            curd: _this.props.curd == undefined ? "r" : _this.props.curd,
+            panel: "main",
             columns: [],
             sourceData: [],
             filterData: [],
             displayData: [],
             rowFilterValue: "",
-            rowAllCheck: false
+            rowAllChecked: false,
+            sortDesc: true,
+            sortColumnId: "",
+            createLineNum: 10,
+            ct: [],
+            ut: []
         };
-        var bindArr = ["columnFilterCallback", "rowFilterChange", "tdCallback"];
+        var bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck", "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -45,11 +52,29 @@ var table = function (_React$Component) {
                 var promiseInit = http.post("../table/" + tableId + "/init");
                 var promiseRead = http.post("../table/" + tableId + "/read");
                 Promise.all([promiseInit, promiseRead]).then(function (d) {
+                    d[1] = d[1].map(function (d1) {
+                        d1.checkboxChecked = false;
+                        return d1;
+                    });
+                    var ct = [];
+
+                    var _loop = function _loop(i) {
+                        var ctRow = {};
+                        d[0].forEach(function (d1) {
+                            ctRow[d1.id] = "";
+                        });
+                        ct.push(ctRow);
+                    };
+
+                    for (var i = 0; i < _this2.state.createLineNum; i++) {
+                        _loop(i);
+                    }
                     _this2.setState({
                         columns: d[0],
                         sourceData: d[1],
                         filterData: d[1],
-                        displayData: d[1]
+                        displayData: d[1],
+                        ct: ct
                     });
                 }).catch(function (d) {
                     console.log("init table failed:" + d);
@@ -76,68 +101,207 @@ var table = function (_React$Component) {
                 { className: "react-table" },
                 React.createElement(
                     "div",
-                    { className: "table-head" },
+                    { style: this.state.panel == "main" ? {} : { display: "none" } },
                     React.createElement(
                         "div",
-                        { className: "column-filter" },
-                        React.createElement(Select, { data: this.state.columns, text: "列过滤", callback: this.columnFilterCallback,
-                            optionNumPerColumn: 5 })
-                    ),
-                    React.createElement(
-                        "div",
-                        { className: "row-filter" },
-                        React.createElement("input", { onChange: this.rowFilterChange, placeholder: "行过滤",
-                            value: this.state.rowFilterValue })
-                    ),
-                    React.createElement(
-                        "div",
-                        { className: "radio-filter" },
-                        this.state.columns.filter(function (d) {
-                            return d.radio;
-                        }).map(function (d) {
-                            var radioValues = [];
-                            _this3.state.sourceData.forEach(function (d1) {
-                                if (!radioValues.includes(d1[d.id])) {
-                                    radioValues.push(d1[d.id]);
-                                }
-                            });
-                            var select = React.createElement(
-                                "select",
-                                { key: d.id, onChange: function onChange(e) {
-                                        _this3.radioFilterChange(e, d);
-                                    } },
-                                React.createElement(
-                                    "option",
-                                    null,
-                                    d.name
-                                ),
-                                radioValues.map(function (d1) {
-                                    return React.createElement(
+                        { className: "table-head" },
+                        React.createElement(
+                            "div",
+                            { className: "column-filter" },
+                            React.createElement(Select, { data: this.state.columns, text: "列过滤", callback: this.columnFilterCallback,
+                                optionNumPerColumn: 5 })
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "row-filter" },
+                            React.createElement("input", { onChange: this.rowFilterChange, placeholder: "行过滤",
+                                value: this.state.rowFilterValue })
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "radio-filter", style: this.state.columns.filter(function (d) {
+                                    return d.radio;
+                                }).length > 0 ? { marginLeft: "20px" } : {} },
+                            this.state.columns.filter(function (d) {
+                                return d.radio;
+                            }).map(function (d) {
+                                var radioValues = [];
+                                _this3.state.sourceData.forEach(function (d1) {
+                                    if (!radioValues.includes(d1[d.id])) {
+                                        radioValues.push(d1[d.id]);
+                                    }
+                                });
+                                var select = React.createElement(
+                                    "select",
+                                    { key: d.id, onChange: function onChange(e) {
+                                            _this3.radioFilterChange(e, d);
+                                        } },
+                                    React.createElement(
                                         "option",
-                                        { key: d1 },
-                                        d1
+                                        null,
+                                        d.name
+                                    ),
+                                    radioValues.map(function (d1) {
+                                        return React.createElement(
+                                            "option",
+                                            { key: d1 },
+                                            d1
+                                        );
+                                    })
+                                );
+                                return select;
+                            })
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "create",
+                                style: this.state.curd.includes("c") ? { marginLeft: "20px" } : { display: "none" } },
+                            React.createElement(
+                                "button",
+                                { onClick: function onClick() {
+                                        _this3.create();
+                                    } },
+                                React.createElement("i", { className: "fa fa-plus" }),
+                                "添加"
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "update",
+                                style: this.state.curd.includes("u") ? { marginLeft: "20px" } : { display: "none" } },
+                            React.createElement(
+                                "button",
+                                { onClick: function onClick() {
+                                        _this3.update();
+                                    } },
+                                React.createElement("i", { className: "fa fa-edit" }),
+                                "更改"
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "refresh",
+                                style: this.state.curd.includes("r") ? { marginLeft: "20px" } : { display: "none" } },
+                            React.createElement(
+                                "button",
+                                { onClick: function onClick() {
+                                        _this3.refresh();
+                                    } },
+                                React.createElement("i", { className: "fa fa-refresh" }),
+                                "刷新"
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "refresh",
+                                style: this.state.curd.includes("d") ? { marginLeft: "20px" } : { display: "none" } },
+                            React.createElement(
+                                "button",
+                                { onClick: function onClick() {
+                                        _this3.delete();
+                                    } },
+                                React.createElement("i", { className: "fa fa-times" }),
+                                "删除"
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "table-body" },
+                        React.createElement(
+                            "table",
+                            null,
+                            React.createElement(
+                                "thead",
+                                null,
+                                React.createElement(
+                                    "tr",
+                                    null,
+                                    React.createElement(
+                                        "th",
+                                        { className: "checkbox",
+                                            style: this.state.curd.includes("u") || this.state.curd.includes("d") ? {} : { display: "none" } },
+                                        React.createElement("input", { type: "checkbox", checked: this.state.rowAllChecked, onChange: function onChange() {
+                                                _this3.rowAllCheck();
+                                            } })
+                                    ),
+                                    this.state.columns.map(function (d) {
+                                        return React.createElement(
+                                            "th",
+                                            { key: d.id, onClick: function onClick() {
+                                                    _this3.sort(d.id);
+                                                }, "data-columnId": d.id, className: d.checked ? "" : "hide" },
+                                            d.name,
+                                            _this3.state.sortColumnId == d.id ? _this3.state.sortDesc ? React.createElement("i", { className: "fa fa-caret-up" }) : React.createElement("i", { className: "fa fa-caret-down" }) : ""
+                                        );
+                                    })
+                                )
+                            ),
+                            React.createElement(
+                                "tbody",
+                                null,
+                                this.state.displayData.map(function (d, i) {
+                                    return React.createElement(
+                                        "tr",
+                                        { key: i },
+                                        React.createElement(
+                                            "td",
+                                            { className: "checkbox",
+                                                style: _this3.state.curd.includes("d") || _this3.state.curd.includes("d") ? {} : { display: "none" } },
+                                            React.createElement("input", { checked: d.checkboxChecked, type: "checkbox", onChange: function onChange() {
+                                                    _this3.rowCheck(d);
+                                                } })
+                                        ),
+                                        _this3.state.columns.map(function (d1) {
+                                            var tdHtml = d[d1.id];
+                                            if (tdHtml) {
+                                                tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
+                                            }
+                                            if (_this3.props[d1.id + "TdCallback"] != undefined) {
+                                                return React.createElement("td", { data: d[d1.id], key: d1.id,
+                                                    "data-columnId": d1.id,
+                                                    className: d1.checked ? "" : "hide",
+                                                    onClick: function onClick() {
+                                                        _this3.tdCallback(d1.id, d[d1.id]);
+                                                    },
+                                                    dangerouslySetInnerHTML: { __html: tdHtml } });
+                                            } else {
+                                                return React.createElement("td", { data: d[d1.id], key: d1.id,
+                                                    "data-columnId": d1.id,
+                                                    className: d1.checked ? "" : "hide",
+                                                    dangerouslySetInnerHTML: { __html: tdHtml } });
+                                            }
+                                        })
                                     );
                                 })
-                            );
-                            return select;
-                        })
-                    ),
-                    React.createElement(
-                        "div",
-                        { className: "refresh" },
-                        React.createElement(
-                            "button",
-                            { onClick: function onClick() {
-                                    _this3.refresh();
-                                } },
-                            React.createElement("i", { className: "fa fa-refresh" }),
-                            "刷新数据"
+                            )
                         )
                     )
                 ),
                 React.createElement(
                     "div",
-                    { className: "table-body" },
+                    { className: "panel-create",
+                        style: this.state.panel == "create" ? {} : { display: "none" } },
+                    React.createElement(
+                        "div",
+                        { className: "panel-head" },
+                        React.createElement(
+                            "button",
+                            { className: "backToMain", onClick: function onClick() {
+                                    _this3.backToMain();
+                                } },
+                            React.createElement("i", { className: "fa fa-arrow-left" }),
+                            "返回表格主界面"
+                        ),
+                        React.createElement(
+                            "button",
+                            { className: "submit", onClick: function onClick() {
+                                    _this3.createSubmit();
+                                } },
+                            React.createElement("i", { className: "fa fa-plus" }),
+                            "提交"
+                        )
+                    ),
                     React.createElement(
                         "table",
                         null,
@@ -147,11 +311,13 @@ var table = function (_React$Component) {
                             React.createElement(
                                 "tr",
                                 null,
-                                this.state.columns.map(function (d) {
+                                this.state.columns.filter(function (d) {
+                                    var filter = d.id == "id";
+                                    return !filter;
+                                }).map(function (d) {
                                     return React.createElement(
                                         "th",
-                                        { key: d.id, "data-columnId": d.id,
-                                            className: d.checked ? "" : "hide" },
+                                        { key: d.id },
                                         d.name
                                     );
                                 })
@@ -160,29 +326,99 @@ var table = function (_React$Component) {
                         React.createElement(
                             "tbody",
                             null,
-                            this.state.displayData.map(function (d, i) {
+                            this.state.ct.map(function (d, i) {
                                 return React.createElement(
                                     "tr",
                                     { key: i },
-                                    _this3.state.columns.map(function (d1) {
-                                        var tdHtml = d[d1.id];
-                                        if (tdHtml) {
-                                            tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
-                                        }
-                                        if (_this3.props[d1.id + "TdCallback"] != undefined) {
-                                            return React.createElement("td", { data: d[d1.id], key: d1.id,
-                                                "data-columnId": d1.id,
-                                                className: d1.checked ? "" : "hide",
-                                                onClick: function onClick() {
-                                                    _this3.tdCallback(d1.id, d[d1.id]);
-                                                },
-                                                dangerouslySetInnerHTML: { __html: tdHtml } });
-                                        } else {
-                                            return React.createElement("td", { data: d[d1.id], key: d1.id,
-                                                "data-columnId": d1.id,
-                                                className: d1.checked ? "" : "hide",
-                                                dangerouslySetInnerHTML: { __html: tdHtml } });
-                                        }
+                                    _this3.state.columns.filter(function (d1) {
+                                        var filter = d1.id == "id";
+                                        return !filter;
+                                    }).map(function (d1) {
+                                        return React.createElement(
+                                            "td",
+                                            { key: d1.id },
+                                            d1.isTextarea ? React.createElement("textarea", { disabled: d1.createReadonly, value: d[d1.id],
+                                                onChange: function onChange(e) {
+                                                    _this3.createTdChange(e, i, d1.id);
+                                                } }) : React.createElement("input", { disabled: d1.createReadonly, value: d[d1.id],
+                                                onChange: function onChange(e) {
+                                                    _this3.createTdChange(e, i, d1.id);
+                                                } })
+                                        );
+                                    })
+                                );
+                            })
+                        )
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { className: "panel-update", style: this.state.panel == "update" ? {} : { display: "none" } },
+                    React.createElement(
+                        "div",
+                        { className: "panel-head" },
+                        React.createElement(
+                            "button",
+                            { className: "backToMain", onClick: function onClick() {
+                                    _this3.backToMain();
+                                } },
+                            React.createElement("i", { className: "fa fa-arrow-left" }),
+                            "返回表格主界面"
+                        ),
+                        React.createElement(
+                            "button",
+                            { className: "submit", onClick: function onClick() {
+                                    _this3.updateSubmit();
+                                } },
+                            React.createElement("i", { className: "fa fa-edit" }),
+                            "提交"
+                        )
+                    ),
+                    React.createElement(
+                        "table",
+                        null,
+                        React.createElement(
+                            "thead",
+                            null,
+                            React.createElement(
+                                "tr",
+                                null,
+                                this.state.columns.filter(function (d) {
+                                    var filter = d.id == "id";
+                                    return !filter;
+                                }).map(function (d) {
+                                    return React.createElement(
+                                        "th",
+                                        { key: d.id },
+                                        d.name
+                                    );
+                                })
+                            )
+                        ),
+                        React.createElement(
+                            "tbody",
+                            null,
+                            this.state.ut.map(function (d, i) {
+                                return React.createElement(
+                                    "tr",
+                                    { key: i },
+                                    _this3.state.columns.filter(function (d1) {
+                                        var filter = d1.id == "id";
+                                        return !filter;
+                                    }).map(function (d1) {
+                                        return React.createElement(
+                                            "td",
+                                            { key: d1.id },
+                                            d1.isTextarea ? React.createElement("textarea", { disabled: d1.updateReadonly,
+                                                value: _this3.state.ut.length == 0 ? "" : _this3.state.ut[i][d1.id],
+                                                onChange: function onChange(e) {
+                                                    _this3.updateTdChange(e, i, d1.id);
+                                                } }) : React.createElement("input", { disabled: d1.updateReadonly,
+                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id],
+                                                onChange: function onChange(e) {
+                                                    _this3.updateTdChange(e, i, d1.id);
+                                                } })
+                                        );
                                     })
                                 );
                             })
@@ -255,6 +491,229 @@ var table = function (_React$Component) {
         key: "tdCallback",
         value: function tdCallback(id, value) {
             this.props[id + "TdCallback"](value);
+        }
+    }, {
+        key: "sort",
+        value: function sort(id) {
+            var sortDesc = this.state.sortDesc;
+            if (this.state.sortColumnId == id) {
+                sortDesc = !sortDesc;
+            }
+            var sortedData = this.state.displayData.concat();
+            var regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
+            if (sortDesc) {
+                sortedData.sort(function (a, b) {
+                    var va = void 0,
+                        vb = void 0;
+                    if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
+                        va = a[id];
+                        vb = b[id];
+                    } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
+                        va = parseFloat(a[id]);
+                        vb = parseFloat(b[id]);
+                    } else {
+                        va = a[id] == null ? "" : a[id];
+                        vb = b[id] == null ? "" : b[id];
+                    }
+                    return va > vb ? 1 : -1;
+                });
+            } else {
+                sortedData.sort(function (a, b) {
+                    var va = void 0,
+                        vb = void 0;
+                    if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
+                        va = a[id];
+                        vb = b[id];
+                    } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
+                        va = parseFloat(a[id]);
+                        vb = parseFloat(b[id]);
+                    } else {
+                        va = a[id] == null ? "" : a[id];
+                        vb = b[id] == null ? "" : b[id];
+                    }
+                    return va < vb ? 1 : -1;
+                });
+            }
+
+            this.setState({
+                sortColumnId: id,
+                sortDesc: sortDesc,
+                displayData: sortedData
+            });
+        }
+    }, {
+        key: "rowAllCheck",
+        value: function rowAllCheck() {
+            var _this5 = this;
+
+            var newData = this.state.displayData.map(function (d) {
+                d.checkboxChecked = !_this5.state.rowAllChecked;
+                return d;
+            });
+            this.setState({
+                rowAllChecked: !this.state.rowAllChecked,
+                displayData: newData
+            });
+        }
+    }, {
+        key: "rowCheck",
+        value: function rowCheck(d) {
+            var newData = this.state.displayData.map(function (d1) {
+                if (d1 == d) {
+                    d1.checkboxChecked = !d1.checkboxChecked;
+                }
+                return d1;
+            });
+            this.setState({
+                displayData: newData
+            });
+        }
+    }, {
+        key: "backToMain",
+        value: function backToMain() {
+            this.setState({
+                panel: "main"
+            });
+        }
+    }, {
+        key: "create",
+        value: function create() {
+            this.setState({
+                panel: "create"
+            });
+        }
+    }, {
+        key: "createSubmit",
+        value: function createSubmit() {
+            var _this6 = this;
+
+            var rows = this.state.ct.filter(function (d) {
+                var isEmpty = true;
+                for (var k in d) {
+                    if (d[k].trim() != "") {
+                        isEmpty = false;
+                        break;
+                    }
+                }
+                return !isEmpty;
+            });
+            if (rows.length == 0) {
+                alert("请至少填写一行数据");
+                return;
+            }
+            if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
+                (function () {
+                    var data = { requestRowsLength: rows.length.toString() };
+                    _this6.state.columns.forEach(function (d) {
+                        var v = rows.map(function (d1) {
+                            return d1[d.id];
+                        }).join(",");
+                        data[d.id] = v;
+                    });
+                    var tableId = _this6.props.tableId;
+                    http.post("../table/" + tableId + "/create", data).then(function (d) {
+                        _this6.refresh();
+                        alert("提交成功");
+                    }).catch(function (d) {
+                        alert("提交失败:" + d);
+                    });
+                })();
+            }
+        }
+    }, {
+        key: "createTdChange",
+        value: function createTdChange(e, i, id) {
+            var ct = this.state.ct;
+            ct[i][id] = e.target.value;
+            this.setState({
+                ct: ct
+            });
+        }
+    }, {
+        key: "update",
+        value: function update() {
+            var checkedData = this.state.displayData.filter(function (d) {
+                return d.checkboxChecked;
+            });
+            if (checkedData.length == 0) {
+                alert("请至少选择一行数据");
+                return;
+            }
+            var json = {
+                panel: "update",
+                ut: checkedData
+            };
+            checkedData.map(function (d, i) {
+                for (var k in d) {
+                    json["ut" + i + "_" + k] = d[k];
+                }
+            });
+            this.setState(json);
+        }
+    }, {
+        key: "updateSubmit",
+        value: function updateSubmit() {
+            var _this7 = this;
+
+            var rows = this.state.ut;
+            if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
+                (function () {
+                    var data = { requestRowsLength: rows.length.toString() };
+                    _this7.state.columns.forEach(function (d) {
+                        var v = "";
+                        for (var i = 0; i < rows.length; i++) {
+                            v += _this7.state["ut" + i + "_" + d.id];
+                            if (i != rows.length - 1) {
+                                v += ",";
+                            }
+                        }
+                        data[d.id] = v;
+                    });
+                    var tableId = _this7.props.tableId;
+                    http.post("../table/" + tableId + "/update", data).then(function (d) {
+                        _this7.refresh();
+                        alert("提交成功");
+                    }).catch(function (d) {
+                        alert("提交失败:" + d);
+                    });
+                })();
+            }
+        }
+    }, {
+        key: "updateTdChange",
+        value: function updateTdChange(e, i, id) {
+            var displayData = this.state.displayData;
+            var json = {};
+            json["ut" + i + "_" + id] = e.target.value;
+            this.setState(json);
+        }
+    }, {
+        key: "delete",
+        value: function _delete() {
+            var _this8 = this;
+
+            var checkedData = this.state.displayData.filter(function (d) {
+                return d.checkboxChecked;
+            });
+            if (checkedData.length == 0) {
+                alert("请至少选择一行数据");
+                return;
+            }
+            var v = checkedData.map(function (d) {
+                return d.id;
+            }).join(",");
+            var data = {
+                id: v
+            };
+            if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
+                var tableId = this.props.tableId;
+                http.post("../table/" + tableId + "/delete", data).then(function (d) {
+                    _this8.refresh();
+                    alert("删除成功");
+                }).catch(function (d) {
+                    alert("删除失败:" + d);
+                });
+            }
         }
     }]);
 

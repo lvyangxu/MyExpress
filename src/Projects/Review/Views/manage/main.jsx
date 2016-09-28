@@ -48,13 +48,13 @@ class App extends React.Component {
                 </div>
                 <div className="info">
                     <div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">
-                        <Table tableId="game"/>
+                        <Table tableId="game" curd="curd"/>
                     </div>
                     <div style={this.state.display == "cp" ? {} : {display: "none"}} className="cp-panel">
-                        <Table tableId="cp"/>
+                        <Table tableId="cp" curd="curd"/>
                     </div>
                     <div style={this.state.display == "contact" ? {} : {display: "none"}} className="contact-panel">
-                        <Table tableId="contact"/>
+                        <Table tableId="contact" curd="curd"/>
                     </div>
                 </div>
             </div>

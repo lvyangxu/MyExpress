@@ -64,6 +64,36 @@ Promise.all([promise1, promise2]).then(function (d) {
     var mysql = require("../../util/mysql");
     mysql.init("localhost", d[1].root.user[0], d[1].root.password[0], d[1].root.database[0]);
     console.log("mysql init success");
+
+    mysql.excuteQuery("show tables", {}).then(function (d) {
+        var tableNames = d.map(function (d1) {
+            var tableName = void 0;
+            for (var k in d1) {
+                tableName = d1[k];
+                break;
+            }
+            return tableName;
+        });
+        var descTablePromise = [];
+        tableNames.map(function (d1) {
+            descTablePromise.push(mysql.excuteQuery("desc " + d1));
+        });
+        global.dbStruct = [];
+        Promise.all(descTablePromise).then(function (d1) {
+            for (var i = 0; i < d1.length; i++) {
+                var tableName = tableNames[i];
+                var tableDesc = d1[i];
+                global.dbStruct.push({ id: tableName, fields: tableDesc });
+            }
+            console.log("get database structure successfully");
+        }).catch(function (d1) {
+            console.log("get table structure failed:");
+            console.log(d1);
+        });
+    }).catch(function (d) {
+        console.log("get database structure failed:");
+        console.log(d);
+    });
 }).catch(function (d) {
     console.log(d);
 });
@@ -82,7 +112,8 @@ app.use(function (req, res, next) {
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
         res.status(err.status || 500);
-        console.log("server error:" + err.message);
+        console.log("server error:");
+        console.log(err);
         res.render('error/');
     });
 }
@@ -91,7 +122,8 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
     res.status(err.status || 500);
-    console.log("server error:" + err.message);
+    console.log("server error:");
+    console.log(err);
     res.render('error/');
 });
 
