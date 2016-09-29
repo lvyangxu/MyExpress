@@ -29,9 +29,11 @@ var App = function (_React$Component) {
             gameNames: [],
             gameData: [],
             cpRowFilterValue: "",
-            gameRadioValue: ""
+            gameRadioValue: "",
+            basicChecked: true,
+            followChecked: true
         };
-        var bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback"];
+        var bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback", "columnFilter", "basicFilter", "followFilter"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -42,13 +44,26 @@ var App = function (_React$Component) {
         key: "componentDidMount",
         value: function componentDidMount() {
             var hash = window.location.hash.replace(/#/g, "");
+            var columnsBasic = [{ id: "type", name: "游戏类型" }, { id: "play", name: "玩法" }, { id: "ip", name: "IP" }, { id: "theme", name: "题材" }, { id: "online", name: "上线情况" }, { id: "performance", name: "上线表现" }, { id: "appannie", name: "Apple Annie" }, { id: "screenshot", name: "截图" }];
+            var columnsFollow = [{ id: "lastContact", name: "最后联系时间" }, { id: "schedule", name: "当前进度" }, { id: "contactWay", name: "沟通方式" }, { id: "agentCondition", name: "代理条件" }, { id: "admin", name: "负责人" }, { id: "createTime", name: "创建时间" }, { id: "updateTime", name: "更新时间" }, { id: "followStatus", name: "跟进状态" }, { id: "contactContent", name: "沟通内容" }];
+            var data = {
+                columnsBasic: columnsBasic,
+                columnsFollow: columnsFollow
+            };
+            columnsBasic.forEach(function (d) {
+                data[d.id + "Checked"] = true;
+            });
+            columnsFollow.forEach(function (d) {
+                data[d.id + "Checked"] = true;
+            });
             switch (hash) {
                 case "game":
                 case "cp":
                 case "follow":
-                    this.setState({ display: hash });
+                    data.display = hash;
                     break;
             }
+            this.setState(data);
         }
     }, {
         key: "render",
@@ -92,15 +107,87 @@ var App = function (_React$Component) {
                         React.createElement(
                             "div",
                             { className: "radio-div" },
+                            React.createElement(
+                                "label",
+                                null,
+                                "游戏名称"
+                            ),
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getGames/read", selectCallback: function selectCallback(d) {
                                     _this2.chooseGameName(d);
                                 }, value: this.state.gameRadioValue }),
+                            React.createElement(
+                                "label",
+                                null,
+                                "发行商"
+                            ),
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getPublishers/read", selectCallback: function selectCallback(d) {
                                     _this2.selectPublisher(d);
                                 } }),
+                            React.createElement(
+                                "label",
+                                null,
+                                "研发商"
+                            ),
                             React.createElement(Radio, { defaultBlank: true, url: "../table/getDevelopers/read", selectCallback: function selectCallback(d) {
                                     _this2.selectDeveloper(d);
                                 } })
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "column-filter" },
+                            React.createElement(
+                                "p",
+                                null,
+                                "显示"
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "basic-filter" },
+                                React.createElement(
+                                    "div",
+                                    { className: "label" },
+                                    React.createElement("input", { type: "checkbox", checked: this.state.basicChecked,
+                                        onChange: this.basicFilter }),
+                                    "基本信息"
+                                ),
+                                this.state.columnsBasic ? this.state.columnsBasic.map(function (d) {
+                                    return React.createElement(
+                                        "div",
+                                        { className: "label", key: d.id },
+                                        React.createElement("input", {
+                                            type: "checkbox",
+                                            checked: _this2.state[d.id + "Checked"],
+                                            onChange: function onChange() {
+                                                _this2.columnFilter(d.id);
+                                            } }),
+                                        d.name
+                                    );
+                                }) : ""
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "follow-filter" },
+                                React.createElement(
+                                    "div",
+                                    { className: "label" },
+                                    React.createElement("input", { type: "checkbox", checked: this.state.followChecked,
+                                        onChange: this.followFilter }),
+                                    "跟进情况"
+                                ),
+                                this.state.columnsFollow ? this.state.columnsFollow.map(function (d) {
+                                    return React.createElement(
+                                        "div",
+                                        { className: "label", key: d.id },
+                                        React.createElement("input", {
+                                            type: "checkbox",
+                                            checked: _this2.state[d.id + "Checked"],
+                                            onChange: function onChange() {
+                                                _this2.columnFilter(d.id);
+                                            } }),
+                                        d.name
+                                    );
+                                }) : ""
+                            )
                         ),
                         React.createElement(
                             "div",
@@ -154,7 +241,7 @@ var App = function (_React$Component) {
                         ),
                         React.createElement(
                             "div",
-                            { className: "screenshot" },
+                            { className: "screenshot", style: this.state.screenshotChecked ? {} : { display: "none" } },
                             React.createElement(
                                 "div",
                                 { className: "screenshot-title" },
@@ -169,7 +256,7 @@ var App = function (_React$Component) {
                                         { key: i, className: "row" },
                                         d.map(function (d1, j) {
                                             return React.createElement("img", { key: j,
-                                                src: "../data/game/" + d1.game + "/" + d1.imageName });
+                                                src: "../data/game/" + d1.id + "/" + d1.imageName });
                                         })
                                     );
                                 }) : ""
@@ -177,7 +264,8 @@ var App = function (_React$Component) {
                         ),
                         React.createElement(
                             "div",
-                            { className: "basic-info" },
+                            { className: "basic-info",
+                                style: this.state.basicChecked || this.state.typeChecked || this.state.playChecked || this.state.ipChecked || this.state.themeChecked || this.state.onlineChecked || this.state.performanceChecked || this.state.appannieChecked ? {} : { display: "none" } },
                             React.createElement(
                                 "div",
                                 { className: "basic-info-title" },
@@ -188,35 +276,7 @@ var App = function (_React$Component) {
                                 { className: "basic-info-text" },
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
-                                    React.createElement(
-                                        "div",
-                                        { className: "left" },
-                                        "发行商"
-                                    ),
-                                    React.createElement(
-                                        "div",
-                                        { className: "right" },
-                                        this.state.gameData.publisher
-                                    )
-                                ),
-                                React.createElement(
-                                    "div",
-                                    { className: "row" },
-                                    React.createElement(
-                                        "div",
-                                        { className: "left" },
-                                        "研发商"
-                                    ),
-                                    React.createElement(
-                                        "div",
-                                        { className: "right" },
-                                        this.state.gameData.developer
-                                    )
-                                ),
-                                React.createElement(
-                                    "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.typeChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -230,7 +290,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.playChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -244,7 +304,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.ipChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -258,7 +318,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.themeChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -272,7 +332,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.onlineChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -286,7 +346,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.performanceChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -297,23 +357,42 @@ var App = function (_React$Component) {
                                         { className: "right" },
                                         this.state.gameData.performance
                                     )
+                                ),
+                                React.createElement(
+                                    "div",
+                                    { className: "row", style: this.state.appannieChecked ? {} : { display: "none" } },
+                                    React.createElement(
+                                        "div",
+                                        { className: "left" },
+                                        "App Annie"
+                                    ),
+                                    React.createElement(
+                                        "div",
+                                        { className: "right" },
+                                        React.createElement(
+                                            "a",
+                                            { href: this.state.gameData.appannie, target: "_blank" },
+                                            this.state.gameData.appannie ? this.state.gameData.appannie.length > 25 ? this.state.gameData.appannie.substr(0, 25) + "..." : this.state.gameData.appannie : ""
+                                        )
+                                    )
                                 )
                             )
                         ),
                         React.createElement(
                             "div",
-                            { className: "follow-status" },
+                            { className: "follow-status",
+                                style: this.state.followChecked || this.state.lastContactChecked || this.state.scheduleChecked || this.state.contactWayChecked || this.state.agentConditionChecked || this.state.adminChecked || this.state.createTimeChecked || this.state.updateTimeChecked || this.state.followStatusChecked ? {} : { display: "none" } },
                             React.createElement(
                                 "div",
                                 { className: "follow-status-title" },
-                                "基本信息"
+                                "跟进情况"
                             ),
                             React.createElement(
                                 "div",
                                 { className: "follow-status-text" },
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.lastContactChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -327,7 +406,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.scheduleChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -341,7 +420,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.contactWayChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -355,7 +434,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.agentConditionChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -369,7 +448,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.adminChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -383,7 +462,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.createTimeChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -397,7 +476,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.updateTimeChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -411,7 +490,7 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row" },
+                                    { className: "row", style: this.state.followStatusChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
@@ -422,30 +501,12 @@ var App = function (_React$Component) {
                                         { className: this.state.gameData.followStatus == "等包" ? "right follow-status-wait" : this.state.gameData.followStatus == "商谈" ? "right follow-status-discuss" : this.state.gameData.followStatus == "不合作" ? "right follow-status-stop" : this.state.gameData.followStatus == "合作" ? "right follow-status-cooperation" : "right" },
                                         this.state.gameData.followStatus
                                     )
-                                ),
-                                React.createElement(
-                                    "div",
-                                    { className: "row" },
-                                    React.createElement(
-                                        "div",
-                                        { className: "left" },
-                                        "App Annie"
-                                    ),
-                                    React.createElement(
-                                        "div",
-                                        { className: "right" },
-                                        React.createElement(
-                                            "a",
-                                            { href: this.state.gameData.appleannie, target: "_blank" },
-                                            this.state.gameData.appleannie ? this.state.gameData.appleannie.length > 25 ? this.state.gameData.appleannie.substr(0, 25) + "..." : this.state.gameData.appleannie : ""
-                                        )
-                                    )
                                 )
                             )
                         ),
                         React.createElement(
                             "div",
-                            { className: "follow-log" },
+                            { className: "follow-log", style: this.state.contactContentChecked ? {} : { display: "none" } },
                             React.createElement(
                                 "div",
                                 { className: "follow-log-title" },
@@ -482,16 +543,10 @@ var App = function (_React$Component) {
                                             { className: "left" },
                                             d.contactDate
                                         ),
-                                        React.createElement(
-                                            "div",
-                                            { className: "middle" },
-                                            d.contactTactics
-                                        ),
-                                        React.createElement(
-                                            "div",
-                                            { className: "right" },
-                                            d.contactContent
-                                        )
+                                        React.createElement("div", { className: "middle",
+                                            dangerouslySetInnerHTML: { __html: d.contactTactics.replace(/\n/g, "<br/>") } }),
+                                        React.createElement("div", { className: "right",
+                                            dangerouslySetInnerHTML: { __html: d.contactContent.replace(/\n/g, "<br/>") } })
                                     );
                                 }) : ""
                             )
@@ -594,6 +649,35 @@ var App = function (_React$Component) {
                 gameRadioValue: value
             });
             this.chooseGameName(value);
+        }
+    }, {
+        key: "columnFilter",
+        value: function columnFilter(d) {
+            var json = {};
+            json[d + "Checked"] = !this.state[d + "Checked"];
+            this.setState(json);
+        }
+    }, {
+        key: "basicFilter",
+        value: function basicFilter() {
+            var _this6 = this;
+
+            var data = { basicChecked: !this.state.basicChecked };
+            this.state.columnsBasic.forEach(function (d) {
+                data[d.id + "Checked"] = !_this6.state.basicChecked;
+            });
+            this.setState(data);
+        }
+    }, {
+        key: "followFilter",
+        value: function followFilter() {
+            var _this7 = this;
+
+            var data = { followChecked: !this.state.followChecked };
+            this.state.columnsFollow.forEach(function (d) {
+                data[d.id + "Checked"] = !_this7.state.followChecked;
+            });
+            this.setState(data);
         }
     }]);
 

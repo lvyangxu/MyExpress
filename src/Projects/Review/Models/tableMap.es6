@@ -2,8 +2,8 @@ module.exports = {
     dataMap: (table, d)=> {
         switch (table) {
             case "getGames":
-                d = d.map(d1=> {
-                    return d1.name;
+                d = d.map(d1=>{
+                   return d1.name;
                 });
                 break;
             case "getPublishers":
@@ -23,6 +23,22 @@ module.exports = {
         let d = [];
         switch (table) {
             case "cp":
+                d = [
+                    {id: "id", name: "id", checked: false},
+                    {id: "name", name: "公司名称", checked: true},
+                    {id: "businessType", name: "业务类型", checked: true},
+                    {id: "area", name: "业务地区", checked: true},
+                    {id: "address", name: "所在地", checked: true},
+                    {id: "productType", name: "主要产品类型", checked: true},
+                    {id: "contactMan", name: "联系人", checked: true},
+                    {id: "duty", name: "职位", checked: true},
+                    {id: "contactWay", name: "联系方式", checked: true},
+                    {id: "website", name: "网站", checked: true},
+                    {id: "appannie", name: "App Annie", checked: true},
+                    {id: "manager", name: "负责人", checked: true},
+                    {id: "note", name: "备注", checked: true}
+                ];
+                break;
             case "cpDisplay":
                 d = [
                     {id: "id", name: "id", checked: false},
@@ -68,7 +84,7 @@ module.exports = {
                     {id: "agentCondition", name: "代理条件", checked: true},
                     {id: "admin", name: "负责人", checked: true},
                     {id: "followStatus", name: "跟进标签", checked: true},
-                    {id: "appleannie", name: "Apple Annie", checked: true}
+                    {id: "appannie", name: "Apple Annie", checked: true}
                 ];
                 break;
             case "contact":
@@ -76,8 +92,8 @@ module.exports = {
                     {id: "id", name: "id", checked: false},
                     {id: "name", name: "游戏名称", checked: true},
                     {id: "contactDate", name: "沟通日期", checked: true},
-                    {id: "contactTactics", name: "沟通策略", checked: true},
-                    {id: "contactContent", name: "沟通内容", checked: true}
+                    {id: "contactTactics", name: "沟通策略", checked: true, isTextarea: true},
+                    {id: "contactContent", name: "沟通内容", checked: true, isTextarea: true}
                 ];
                 break;
         }
@@ -146,18 +162,22 @@ module.exports = {
                 rowLengthArr.push(i);
             }
             rowLengthArr.forEach(i=> {
-                let sqlCommand = "update " + table + " set ? where id=" + req.body.id.split(",")[i];
-                sqlCommandArr.push(sqlCommand);
+                let defaultStrArr = [];
                 let values = {};
-                noIdFields.forEach(d=>{
+                noIdFields.forEach(d=> {
                     let id = d.Field;
                     let value;
                     let defaultValue = defaultValues.filter(d=> {
                         return d.tableName == table;
                     });
-                    if (defaultValue.length != 0 && defaultValue[0][id]) {
-                        value = defaultValue[0][id];
-                        if(value != null){
+                    if (defaultValue.length != 0) {
+                        if (defaultValue[0].hasOwnProperty(id)) {
+                            value = defaultValue[0][id];
+                            if (value != null) {
+                                defaultStrArr.push(id + "=" + value);
+                            }
+                        } else {
+                            value = req.body[id].split(",")[i];
                             values[id] = value;
                         }
                     } else {
@@ -165,6 +185,17 @@ module.exports = {
                         values[id] = value;
                     }
                 });
+                let defaultStr = defaultStrArr.join(",");
+                let valueKeyLength = 0;
+                for (let k in values) {
+                    valueKeyLength++;
+                }
+
+                if (defaultStrArr.length != 0 && valueKeyLength != 0) {
+                    defaultStr = defaultStr + ",";
+                }
+                let sqlCommand = "update " + table + " set " + defaultStr + "? where id=" + req.body.id.split(",")[i];
+                sqlCommandArr.push(sqlCommand);
                 valuesArr.push(values);
             });
         }
@@ -175,13 +206,13 @@ module.exports = {
         let values = {};
         switch (table) {
             case "getGames":
-                sqlCommand = "select distinct(name) from game";
+                sqlCommand = "select id,name from game group by name";
                 break;
             case "getPublishers":
-                sqlCommand = "select distinct(publisher) from game";
+                sqlCommand = "select id,publisher from game group by publisher";
                 break;
             case "getDevelopers":
-                sqlCommand = "select distinct(developer) from game";
+                sqlCommand = "select id,developer from game group by developer";
                 break;
             case "getGameNamesByPublisher":
                 sqlCommand = "select * from game where ?";
@@ -210,5 +241,14 @@ module.exports = {
     },
     delete: (req, res, table)=> {
 
-    }
+    },
+    attachmentRead: (req, res, table)=> {
+
+    },
+    attachmentDelete: (req, res, table)=> {
+
+    },
+    attachmentUpload: (req, res, table)=> {
+
+    },
 };

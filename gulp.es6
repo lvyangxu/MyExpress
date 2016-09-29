@@ -53,6 +53,7 @@ gulp.task("build-server", ()=> {
     //controller
     gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
         .pipe(gulp.dest("dist/" + project + "/server/js"));
+
 });
 
 gulp.task("build-util", ()=> {
@@ -111,6 +112,9 @@ gulp.task("build-client", ()=> {
     //fontawesome
     gulp.src("src/Common/Fontawesome/*/*")
         .pipe(gulp.dest("dist/" + project + "/client/fontawesome"));
+    //package.json
+    gulp.src("package.json")
+        .pipe(gulp.dest("dist/" + project));
 });
 
 gulp.task("release", ()=> {

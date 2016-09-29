@@ -85,7 +85,7 @@ var App = function (_React$Component) {
                     React.createElement(
                         "div",
                         { style: this.state.display == "game" ? {} : { display: "none" }, className: "game-panel" },
-                        React.createElement(Table, { tableId: "game", curd: "curd" })
+                        React.createElement(Table, { tableId: "game", curd: "curd", attachment: true })
                     ),
                     React.createElement(
                         "div",

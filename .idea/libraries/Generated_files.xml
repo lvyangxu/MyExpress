@@ -22,6 +22,7 @@
         <item url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
         <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
         <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/cookie.js" />
@@ -50,6 +51,7 @@
       <root url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/cookie.js" />

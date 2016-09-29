@@ -19,6 +19,9 @@ let mysql = {
                 if (err) {
                     reject(err);
                 } else {
+                    console.log("mysql excute success:");
+                    console.log(sqlCommand);
+                    console.log(values);
                     resolve(rows, fields);
                 }
             });

@@ -20,8 +20,7 @@ body {
     margin-bottom: 100px; }
     body #display .container {
       border: 1px solid #dddddd;
-      position: relative;
-      padding-right: 50px; }
+      position: relative; }
       body #display .container .nav {
         position: absolute;
         width: 200px;
@@ -44,10 +43,32 @@ body {
         vertical-align: top;
         padding-top: 20px;
         padding-bottom: 100px;
-        margin-left: 250px; }
+        margin-left: 250px;
+        padding-right: 50px; }
+        body #display .container .info .game-panel .radio-div label {
+          line-height: 34px;
+          font-weight: bold;
+          margin-right: 10px; }
         body #display .container .info .game-panel .radio-div .react-radio {
           margin-right: 30px;
           vertical-align: top; }
+        body #display .container .info .game-panel .column-filter {
+          padding-bottom: 10px;
+          border-bottom: 1px dashed black; }
+          body #display .container .info .game-panel .column-filter .label {
+            display: inline-block;
+            line-height: 26px;
+            height: 26px;
+            margin-right: 10px;
+            font-size: 12px; }
+          body #display .container .info .game-panel .column-filter .label:first-child {
+            font-weight: bold;
+            margin-right: 30px; }
+          body #display .container .info .game-panel .column-filter input[type=checkbox] {
+            width: 20px;
+            height: 20px;
+            vertical-align: bottom;
+            cursor: po; }
         body #display .container .info .game-panel .game-names {
           height: 30px;
           margin-top: 20px;

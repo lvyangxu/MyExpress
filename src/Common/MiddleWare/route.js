@@ -12,7 +12,7 @@ var router = express.Router();
 var multer = require('multer');
 var storage = multer.diskStorage({
     destination: function destination(req, file, cb) {
-        cb(null, '../data/uploads/');
+        cb(null, './server/upload/');
     },
     filename: function filename(req, file, cb) {
         cb(null, file.originalname);
@@ -46,8 +46,6 @@ router.route("/account/:action").post(function (req, res, next) {
 
 //table router
 router.route("/table/:name/:action").post(upload.any(), function (req, res, next) {
-    // let session = require("./session");
-    // global.app.use(session);
     var action = req.params.action;
     var name = req.params.name;
     if (table[action] == undefined || tableMap[action] == undefined) {

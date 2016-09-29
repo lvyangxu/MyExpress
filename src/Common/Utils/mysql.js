@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 var mysqljs = require('mysql');
 var mysql = {
@@ -21,6 +21,9 @@ var mysql = {
                 if (err) {
                     reject(err);
                 } else {
+                    console.log("mysql excute success:");
+                    console.log(sqlCommand);
+                    console.log(values);
                     resolve(rows, fields);
                 }
             });

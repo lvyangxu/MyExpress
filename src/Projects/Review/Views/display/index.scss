@@ -25,7 +25,6 @@ body {
         .container {
             border: 1px solid rgba(221, 221, 221, 1);
             position: relative;
-            padding-right: 50px;
             .nav {
                 position: absolute;
                 width: 200px;
@@ -54,12 +53,41 @@ body {
                 padding-top: 20px;
                 padding-bottom: 100px;
                 margin-left: 250px;
+                padding-right: 50px;
 
                 .game-panel {
                     .radio-div {
+                        label{
+                            line-height: 34px;
+                            font-weight: bold;
+                            margin-right: 10px;
+                        }
+
                         .react-radio {
                             margin-right: 30px;
                             vertical-align: top;
+                        }
+                    }
+
+                    .column-filter{
+                        padding-bottom: 10px;
+                        border-bottom: 1px dashed black;
+                        .label{
+                            display: inline-block;
+                            line-height: 26px;
+                            height: 26px;
+                            margin-right: 10px;
+                            font-size: 12px;
+                        }
+                        .label:first-child{
+                            font-weight: bold;
+                            margin-right: 30px;
+                        }
+                        input[type=checkbox]{
+                            width: 20px;
+                            height: 20px;
+                            vertical-align: bottom;
+                            cursor: pointer;
                         }
                     }
 

@@ -83,7 +83,6 @@ var login = function (_React$Component) {
 
             //get cookie name from server
             http.post("../account/getCookieName").then(function (d) {
-                console.log(d);
                 var usernameCookie = cookie.get(d.username);
                 var passwordCookie = cookie.get(d.password);
                 usernameCookie = usernameCookie == undefined ? "" : usernameCookie;

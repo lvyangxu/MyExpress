@@ -25,6 +25,8 @@ module.exports = {
         var d = [];
         switch (table) {
             case "cp":
+                d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "公司名称", checked: true }, { id: "businessType", name: "业务类型", checked: true }, { id: "area", name: "业务地区", checked: true }, { id: "address", name: "所在地", checked: true }, { id: "productType", name: "主要产品类型", checked: true }, { id: "contactMan", name: "联系人", checked: true }, { id: "duty", name: "职位", checked: true }, { id: "contactWay", name: "联系方式", checked: true }, { id: "website", name: "网站", checked: true }, { id: "appannie", name: "App Annie", checked: true }, { id: "manager", name: "负责人", checked: true }, { id: "note", name: "备注", checked: true }];
+                break;
             case "cpDisplay":
                 d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "公司名称", checked: true }, { id: "businessType", name: "业务类型", checked: true }, { id: "area", name: "业务地区", checked: true }, { id: "address", name: "所在地", checked: true }, { id: "productType", name: "主要产品类型", checked: true }, { id: "contactMan", name: "联系人", checked: true }, { id: "duty", name: "职位", checked: true }, { id: "contactWay", name: "联系方式", checked: true }, { id: "website", name: "网站", checked: true }, { id: "manager", name: "负责人", checked: true }, { id: "note", name: "备注", checked: true }];
                 break;
@@ -32,10 +34,10 @@ module.exports = {
                 d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "游戏名称", checked: true }, { id: "followStatus", name: "跟进标签", checked: true, radio: true }, { id: "lastContact", name: "最后联系时间", checked: true }, { id: "admin", name: "负责人", checked: true }, { id: "createTime", name: "录入时间", checked: false }, { id: "updateTime", name: "更新时间", checked: false }];
                 break;
             case "game":
-                d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "游戏名称", checked: true }, { id: "publisher", name: "发行商", checked: true }, { id: "developer", name: "研发商", checked: true }, { id: "type", name: "游戏类型", checked: true }, { id: "play", name: "玩法", checked: true }, { id: "ip", name: "IP", checked: true }, { id: "theme", name: "题材", checked: true }, { id: "online", name: "上线情况", checked: true }, { id: "performance", name: "上线表现", checked: true }, { id: "lastContact", name: "最后联系时间", checked: true }, { id: "schedule", name: "当前进度", checked: true }, { id: "contactWay", name: "沟通方式", checked: true }, { id: "agentCondition", name: "代理条件", checked: true }, { id: "admin", name: "负责人", checked: true }, { id: "followStatus", name: "跟进标签", checked: true }, { id: "appleannie", name: "Apple Annie", checked: true }];
+                d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "游戏名称", checked: true }, { id: "publisher", name: "发行商", checked: true }, { id: "developer", name: "研发商", checked: true }, { id: "type", name: "游戏类型", checked: true }, { id: "play", name: "玩法", checked: true }, { id: "ip", name: "IP", checked: true }, { id: "theme", name: "题材", checked: true }, { id: "online", name: "上线情况", checked: true }, { id: "performance", name: "上线表现", checked: true }, { id: "lastContact", name: "最后联系时间", checked: true }, { id: "schedule", name: "当前进度", checked: true }, { id: "contactWay", name: "沟通方式", checked: true }, { id: "agentCondition", name: "代理条件", checked: true }, { id: "admin", name: "负责人", checked: true }, { id: "followStatus", name: "跟进标签", checked: true }, { id: "appannie", name: "Apple Annie", checked: true }];
                 break;
             case "contact":
-                d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "游戏名称", checked: true }, { id: "contactDate", name: "沟通日期", checked: true }, { id: "contactTactics", name: "沟通策略", checked: true }, { id: "contactContent", name: "沟通内容", checked: true }];
+                d = [{ id: "id", name: "id", checked: false }, { id: "name", name: "游戏名称", checked: true }, { id: "contactDate", name: "沟通日期", checked: true }, { id: "contactTactics", name: "沟通策略", checked: true, isTextarea: true }, { id: "contactContent", name: "沟通内容", checked: true, isTextarea: true }];
                 break;
         }
         return d;
@@ -106,8 +108,7 @@ module.exports = {
                     rowLengthArr.push(i);
                 }
                 rowLengthArr.forEach(function (i) {
-                    var sqlCommand = "update " + table + " set ? where id=" + req.body.id.split(",")[i];
-                    sqlCommandArr.push(sqlCommand);
+                    var defaultStrArr = [];
                     var values = {};
                     noIdFields.forEach(function (d) {
                         var id = d.Field;
@@ -115,9 +116,14 @@ module.exports = {
                         var defaultValue = defaultValues.filter(function (d) {
                             return d.tableName == table;
                         });
-                        if (defaultValue.length != 0 && defaultValue[0][id]) {
-                            value = defaultValue[0][id];
-                            if (value != null) {
+                        if (defaultValue.length != 0) {
+                            if (defaultValue[0].hasOwnProperty(id)) {
+                                value = defaultValue[0][id];
+                                if (value != null) {
+                                    defaultStrArr.push(id + "=" + value);
+                                }
+                            } else {
+                                value = req.body[id].split(",")[i];
                                 values[id] = value;
                             }
                         } else {
@@ -125,6 +131,17 @@ module.exports = {
                             values[id] = value;
                         }
                     });
+                    var defaultStr = defaultStrArr.join(",");
+                    var valueKeyLength = 0;
+                    for (var k in values) {
+                        valueKeyLength++;
+                    }
+
+                    if (defaultStrArr.length != 0 && valueKeyLength != 0) {
+                        defaultStr = defaultStr + ",";
+                    }
+                    var sqlCommand = "update " + table + " set " + defaultStr + "? where id=" + req.body.id.split(",")[i];
+                    sqlCommandArr.push(sqlCommand);
                     valuesArr.push(values);
                 });
             })();
@@ -136,13 +153,13 @@ module.exports = {
         var values = {};
         switch (table) {
             case "getGames":
-                sqlCommand = "select distinct(name) from game";
+                sqlCommand = "select id,name from game group by name";
                 break;
             case "getPublishers":
-                sqlCommand = "select distinct(publisher) from game";
+                sqlCommand = "select id,publisher from game group by publisher";
                 break;
             case "getDevelopers":
-                sqlCommand = "select distinct(developer) from game";
+                sqlCommand = "select id,developer from game group by developer";
                 break;
             case "getGameNamesByPublisher":
                 sqlCommand = "select * from game where ?";
@@ -169,7 +186,10 @@ module.exports = {
         }
         return { sqlCommand: sqlCommand, values: values };
     },
-    delete: function _delete(req, res, table) {}
+    delete: function _delete(req, res, table) {},
+    attachmentRead: function attachmentRead(req, res, table) {},
+    attachmentDelete: function attachmentDelete(req, res, table) {},
+    attachmentUpload: function attachmentUpload(req, res, table) {}
 };
 
 //# sourceMappingURL=tableMap.js.map

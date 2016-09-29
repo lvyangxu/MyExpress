@@ -21,7 +21,7 @@ module.exports = {
         }
     },
     logout: function logout() {},
-    relogin: function relogin() {
+    relogin: function relogin(req, res) {
         var username = req.cookies[global.accountConfig.usernameCookie];
         var password = req.cookies[global.accountConfig.passwordCookie];
         if (username == global.accountConfig.username && password == global.accountConfig.password) {

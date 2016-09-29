@@ -48,7 +48,7 @@ class App extends React.Component {
                 </div>
                 <div className="info">
                     <div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">
-                        <Table tableId="game" curd="curd"/>
+                        <Table tableId="game" curd="curd" attachment/>
                     </div>
                     <div style={this.state.display == "cp" ? {} : {display: "none"}} className="cp-panel">
                         <Table tableId="cp" curd="curd"/>

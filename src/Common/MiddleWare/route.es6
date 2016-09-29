@@ -3,14 +3,14 @@ let tableMap = require("./tableMap");
 let response = require("./response");
 let account = require("./account");
 
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
 //upload
 let multer = require('multer');
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '../data/uploads/')
+        cb(null, './server/upload/')
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname)
@@ -44,8 +44,6 @@ router.route("/account/:action").post((req, res, next)=> {
 
 //table router
 router.route("/table/:name/:action").post(upload.any(), (req, res, next)=> {
-    // let session = require("./session");
-    // global.app.use(session);
     let action = req.params.action;
     let name = req.params.name;
     if (table[action] == undefined || tableMap[action] == undefined) {

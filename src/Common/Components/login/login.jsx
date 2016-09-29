@@ -45,7 +45,6 @@ class login extends React.Component {
     getCookieName() {
         //get cookie name from server
         http.post("../account/getCookieName").then(d=> {
-            console.log(d);
             let usernameCookie = cookie.get(d.username);
             let passwordCookie = cookie.get(d.password);
             usernameCookie = (usernameCookie == undefined) ? "" : usernameCookie;

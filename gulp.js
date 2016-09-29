@@ -76,6 +76,8 @@ gulp.task("build-client", function () {
     gulp.src("src/Common/Icon/favicon.ico").pipe(gulp.dest("dist/" + project + "/client"));
     //fontawesome
     gulp.src("src/Common/Fontawesome/*/*").pipe(gulp.dest("dist/" + project + "/client/fontawesome"));
+    //package.json
+    gulp.src("package.json").pipe(gulp.dest("dist/" + project));
 });
 
 gulp.task("release", function () {

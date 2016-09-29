@@ -1,8 +1,9 @@
 let response = require("./response");
 let tableMap = require("./tableMap");
+let fs = require("fs");
 
 module.exports = {
-    init: (req, res, table, map)=> {
+    init: (req, res, table)=> {
         let d = tableMap.init(table);
         if (d.length == 0) {
             response.fail(res, "unknown table");
@@ -50,7 +51,7 @@ module.exports = {
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    delete: (req, res, table, map)=> {
+    delete: (req, res, table)=> {
         let sqlCommand = "delete from " + table + " where id in (" + req.body.id + ")";
         global.mysql.excuteQuery(sqlCommand, {}).then(d=> {
             response.success(res, d);
@@ -59,5 +60,43 @@ module.exports = {
             console.log(sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
-    }
+    },
+    attachmentRead: (req, res, table)=> {
+        let path = "./client/data/" + table + "/" + req.body.id + "/";
+        if (fs.existsSync(path)) {
+            let attachementList = fs.readdirSync(path);
+            attachementList = attachementList.map(d=> {
+                d = d.base64Encode();
+                return d;
+            });
+            response.success(res, attachementList);
+        } else {
+            response.success(res, []);
+        }
+    },
+    attachmentDelete: (req, res, table)=> {
+        let name = req.body.name;
+        let path = "./client/data/" + table + "/" + req.body.id + "/";
+        if (fs.existsSync(path)) {
+            fs.unlinkSync(path + name);
+            response.success(res);
+        } else {
+            response.fail(res, "dir do not exist");
+        }
+
+    },
+    attachmentUpload: (req, res, table)=> {
+        if (req.files[0] == undefined) {
+            response.fail("no file");
+            return;
+        }
+        let sourcePath = "./server/upload/";
+        let destPath = "./client/data/" + table + "/" + req.query.id + "/";
+        let filename = req.files[0].filename;
+        if(!fs.existsSync(destPath)){
+            fs.mkdirSync(destPath);
+        }
+        fs.renameSync(sourcePath + filename, destPath + filename);
+        response.success(res);
+    },
 };

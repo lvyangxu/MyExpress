@@ -19,8 +19,7 @@ body {
     padding-top: 100px;
     margin-bottom: 100px; }
     body #manage .container {
-      position: relative;
-      padding-right: 50px; }
+      position: relative; }
       body #manage .container .nav {
         position: absolute;
         width: 200px;
@@ -44,10 +43,14 @@ body {
         padding-top: 20px;
         padding-bottom: 100px;
         margin-left: 250px; }
+        body #manage .container .info table tbody tr td {
+          min-width: 80px; }
+        body #manage .container .info table tbody tr td.checkbox {
+          min-width: 0; }
         body #manage .container .info .game-panel table thead tr th[data-columnId=lastContact] {
           width: 90px; }
-        body #manage .container .info .game-panel table thead tr th[data-columnId=appleannie] {
-          max-width: 300px; }
+        body #manage .container .info .game-panel table thead tr th[data-columnId=appannie] {
+          min-width: 300px; }
         body #manage .container .info .game-panel table tbody tr td[data=初步沟通等待出包],
         body #manage .container .info .game-panel table tbody tr td[data=已收到包，评测中],
         body #manage .container .info .game-panel table tbody tr td[data=包完成度不够，跟进新包],
@@ -72,7 +75,7 @@ body {
         body #manage .container .info .game-panel table tbody tr td[data-columnId=lastContact] {
           width: 90px;
           text-align: center; }
-        body #manage .container .info .game-panel table tbody tr td[data-columnId=appleannie] {
+        body #manage .container .info .game-panel table tbody tr td[data-columnId=appannie] {
           max-width: 300px; }
         body #manage .container .info .contact-panel table thead tr th[data-columnId=contactDate] {
           width: 90px; }

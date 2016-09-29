@@ -1,6 +1,7 @@
 let http = require("./http");
 let React = require("react");
 let Select = require("./select");
+let upload = require("./upload");
 
 class table extends React.Component {
     constructor(props) {
@@ -19,6 +20,9 @@ class table extends React.Component {
             createLineNum: 10,
             ct: [],
             ut: [],
+            attachmentList: [],
+            attachmentProgress: "0%"
+
         };
         let bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck",
             "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
@@ -127,11 +131,18 @@ class table extends React.Component {
                             }}><i className="fa fa-refresh"></i>刷新
                             </button>
                         </div>
-                        <div className="refresh"
+                        <div className="delete"
                              style={this.state.curd.includes("d") ? {marginLeft: "20px"} : {display: "none"}}>
                             <button onClick={()=> {
                                 this.delete();
                             }}><i className="fa fa-times"></i>删除
+                            </button>
+                        </div>
+                        <div className="attachment"
+                             style={this.props.attachment ? {marginLeft: "20px"} : {display: "none"}}>
+                            <button onClick={()=> {
+                                this.attachment();
+                            }}><i className="fa fa-paperclip"></i>附件
                             </button>
                         </div>
                     </div>
@@ -287,12 +298,12 @@ class table extends React.Component {
                                                 {
                                                     d1.isTextarea ?
                                                         <textarea disabled={d1.updateReadonly}
-                                                                  value={(this.state.ut.length == 0) ? "" : this.state.ut[i][d1.id]}
+                                                                  value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
                                                                   onChange={(e)=> {
                                                                       this.updateTdChange(e, i, d1.id);
                                                                   }}/> :
                                                         <input disabled={d1.updateReadonly}
-                                                               value={(this.state.ut.length == 0) ? "" : this.state["ut" + i + "_" + d1.id]}
+                                                               value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
                                                                onChange={(e)=> {
                                                                    this.updateTdChange(e, i, d1.id);
                                                                }}/>
@@ -301,6 +312,46 @@ class table extends React.Component {
                                         })
                                     }</tr>;
                             })
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div className="panel-attachment" style={this.state.panel == "attachment" ? {} : {display: "none"}}>
+                    <div className="panel-head">
+                        <button className="backToMain" onClick={()=> {
+                            this.backToMain();
+                        }}><i className="fa fa-arrow-left"></i>返回表格主界面
+                        </button>
+                    </div>
+                    <div className="upload">
+                        <input type="file"/>
+                        <div className="progress">{this.state.attachmentProgress}</div>
+                        <button onClick={(e)=> {
+                            this.uploadAttachment(e);
+                        }}>上传附件
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>附件名称</th>
+                            <th>删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            (this.state.attachmentList.length == 0) ?
+                                <tr>
+                                    <td colSpan="2">no attachment</td>
+                                </tr> :
+                                this.state.attachmentList.map(d=> {
+                                    return <tr key={d}>
+                                        <td>{d}</td>
+                                        <td><i className="fa fa-times" onClick={()=> {
+                                            this.deleteAttachment(d);
+                                        }}></i></td>
+                                    </tr>
+                                })
                         }
                         </tbody>
                     </table>
@@ -534,7 +585,6 @@ class table extends React.Component {
     }
 
     updateTdChange(e, i, id) {
-        let displayData = this.state.displayData;
         let json = {};
         json["ut" + i + "_" + id] = e.target.value;
         this.setState(json);
@@ -563,6 +613,70 @@ class table extends React.Component {
                 alert("删除失败:" + d);
             });
         }
+    }
+
+    attachment() {
+        let checkedData = this.state.displayData.filter(d=> {
+            return d.checkboxChecked;
+        });
+        if (checkedData.length != 1) {
+            alert("请选择一行数据");
+            return;
+        }
+        let attachmentId = checkedData.map(d=> {
+            return d.id;
+        })[0];
+        this.setState({
+            panel: "attachment",
+            attachmentId: attachmentId
+        });
+        this.refreshAttachment(attachmentId);
+    }
+
+    refreshAttachment(id) {
+        let tableId = this.props.tableId;
+        http.post("../table/" + tableId + "/attachmentRead", {id: id.toString()}).then(d=> {
+            let attachment = d.map(d1=> {
+                d1 = d1.base64Decode();
+                return d1;
+            });
+            this.setState({
+                panel: "attachment",
+                attachmentList: attachment
+            });
+        }).catch(d=> {
+            alert("获取附件列表失败:" + d);
+        });
+    }
+
+    deleteAttachment(d) {
+        let id = this.state.attachmentId;
+        let tableId = this.props.tableId;
+        let data = {
+            id: id.toString(),
+            name: d
+        };
+        http.post("../table/" + tableId + "/attachmentDelete", data).then(d1=> {
+            this.refreshAttachment(id);
+            alert("删除成功");
+        }).catch(d1=> {
+            alert("删除失败:" + d1);
+        })
+    }
+
+    uploadAttachment(e) {
+        let id = this.state.attachmentId;
+        let tableId = this.props.tableId;
+        upload.do("../table/" + tableId + "/attachmentUpload?id=" + id.toString().base64UrlEncode(), e.target.parentNode.childNodes[0], d=> {
+            this.setState({
+                attachmentProgress: d + "%"
+            });
+        }).then(d=> {
+            this.refreshAttachment(id);
+            alert("上传成功");
+        }).catch(d=> {
+            alert("上传失败:" + d);
+        });
     }
 }
 

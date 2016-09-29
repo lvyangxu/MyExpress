@@ -21,7 +21,7 @@ module.exports = {
     logout: ()=> {
 
     },
-    relogin: ()=> {
+    relogin: (req, res)=> {
         let username = req.cookies[global.accountConfig.usernameCookie];
         let password = req.cookies[global.accountConfig.passwordCookie];
         if (username == global.accountConfig.username && password == global.accountConfig.password) {

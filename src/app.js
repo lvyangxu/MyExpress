@@ -44,9 +44,18 @@ myString.extend();
 var param = require("./param");
 app.use(param);
 
+var session = require("./session");
+app.use(session);
+
 //route
 var route = require("./route");
 app.use("/", route);
+
+//upload dir
+var fs = require("fs");
+if (!fs.existsSync("./server/upload/")) {
+    fs.mkdirSync("./server/upload/");
+}
 
 //global config
 var xml = require("../../util/xml");

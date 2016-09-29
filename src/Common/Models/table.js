@@ -2,9 +2,10 @@
 
 var response = require("./response");
 var tableMap = require("./tableMap");
+var fs = require("fs");
 
 module.exports = {
-    init: function init(req, res, table, map) {
+    init: function init(req, res, table) {
         var d = tableMap.init(table);
         if (d.length == 0) {
             response.fail(res, "unknown table");
@@ -58,7 +59,7 @@ module.exports = {
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    delete: function _delete(req, res, table, map) {
+    delete: function _delete(req, res, table) {
         var sqlCommand = "delete from " + table + " where id in (" + req.body.id + ")";
         global.mysql.excuteQuery(sqlCommand, {}).then(function (d) {
             response.success(res, d);
@@ -67,6 +68,43 @@ module.exports = {
             console.log(sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
+    },
+    attachmentRead: function attachmentRead(req, res, table) {
+        var path = "./client/data/" + table + "/" + req.body.id + "/";
+        if (fs.existsSync(path)) {
+            var attachementList = fs.readdirSync(path);
+            attachementList = attachementList.map(function (d) {
+                d = d.base64Encode();
+                return d;
+            });
+            response.success(res, attachementList);
+        } else {
+            response.success(res, []);
+        }
+    },
+    attachmentDelete: function attachmentDelete(req, res, table) {
+        var name = req.body.name;
+        var path = "./client/data/" + table + "/" + req.body.id + "/";
+        if (fs.existsSync(path)) {
+            fs.unlinkSync(path + name);
+            response.success(res);
+        } else {
+            response.fail(res, "dir do not exist");
+        }
+    },
+    attachmentUpload: function attachmentUpload(req, res, table) {
+        if (req.files[0] == undefined) {
+            response.fail("no file");
+            return;
+        }
+        var sourcePath = "./server/upload/";
+        var destPath = "./client/data/" + table + "/" + req.query.id + "/";
+        var filename = req.files[0].filename;
+        if (!fs.existsSync(destPath)) {
+            fs.mkdirSync(destPath);
+        }
+        fs.renameSync(sourcePath + filename, destPath + filename);
+        response.success(res);
     }
 };
 

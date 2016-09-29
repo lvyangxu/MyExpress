@@ -11,6 +11,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var http = require("./http");
 var React = require("react");
 var Select = require("./select");
+var upload = require("./upload");
 
 var table = function (_React$Component) {
     _inherits(table, _React$Component);
@@ -33,7 +34,10 @@ var table = function (_React$Component) {
             sortColumnId: "",
             createLineNum: 10,
             ct: [],
-            ut: []
+            ut: [],
+            attachmentList: [],
+            attachmentProgress: "0%"
+
         };
         var bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck", "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
         bindArr.forEach(function (d) {
@@ -193,7 +197,7 @@ var table = function (_React$Component) {
                         ),
                         React.createElement(
                             "div",
-                            { className: "refresh",
+                            { className: "delete",
                                 style: this.state.curd.includes("d") ? { marginLeft: "20px" } : { display: "none" } },
                             React.createElement(
                                 "button",
@@ -202,6 +206,19 @@ var table = function (_React$Component) {
                                     } },
                                 React.createElement("i", { className: "fa fa-times" }),
                                 "删除"
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "attachment",
+                                style: this.props.attachment ? { marginLeft: "20px" } : { display: "none" } },
+                            React.createElement(
+                                "button",
+                                { onClick: function onClick() {
+                                        _this3.attachment();
+                                    } },
+                                React.createElement("i", { className: "fa fa-paperclip" }),
+                                "附件"
                             )
                         )
                     ),
@@ -410,16 +427,101 @@ var table = function (_React$Component) {
                                             "td",
                                             { key: d1.id },
                                             d1.isTextarea ? React.createElement("textarea", { disabled: d1.updateReadonly,
-                                                value: _this3.state.ut.length == 0 ? "" : _this3.state.ut[i][d1.id],
+                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
                                                 onChange: function onChange(e) {
                                                     _this3.updateTdChange(e, i, d1.id);
                                                 } }) : React.createElement("input", { disabled: d1.updateReadonly,
-                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id],
+                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
                                                 onChange: function onChange(e) {
                                                     _this3.updateTdChange(e, i, d1.id);
                                                 } })
                                         );
                                     })
+                                );
+                            })
+                        )
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { className: "panel-attachment", style: this.state.panel == "attachment" ? {} : { display: "none" } },
+                    React.createElement(
+                        "div",
+                        { className: "panel-head" },
+                        React.createElement(
+                            "button",
+                            { className: "backToMain", onClick: function onClick() {
+                                    _this3.backToMain();
+                                } },
+                            React.createElement("i", { className: "fa fa-arrow-left" }),
+                            "返回表格主界面"
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "upload" },
+                        React.createElement("input", { type: "file" }),
+                        React.createElement(
+                            "div",
+                            { className: "progress" },
+                            this.state.attachmentProgress
+                        ),
+                        React.createElement(
+                            "button",
+                            { onClick: function onClick(e) {
+                                    _this3.uploadAttachment(e);
+                                } },
+                            "上传附件"
+                        )
+                    ),
+                    React.createElement(
+                        "table",
+                        null,
+                        React.createElement(
+                            "thead",
+                            null,
+                            React.createElement(
+                                "tr",
+                                null,
+                                React.createElement(
+                                    "th",
+                                    null,
+                                    "附件名称"
+                                ),
+                                React.createElement(
+                                    "th",
+                                    null,
+                                    "删除"
+                                )
+                            )
+                        ),
+                        React.createElement(
+                            "tbody",
+                            null,
+                            this.state.attachmentList.length == 0 ? React.createElement(
+                                "tr",
+                                null,
+                                React.createElement(
+                                    "td",
+                                    { colSpan: "2" },
+                                    "no attachment"
+                                )
+                            ) : this.state.attachmentList.map(function (d) {
+                                return React.createElement(
+                                    "tr",
+                                    { key: d },
+                                    React.createElement(
+                                        "td",
+                                        null,
+                                        d
+                                    ),
+                                    React.createElement(
+                                        "td",
+                                        null,
+                                        React.createElement("i", { className: "fa fa-times", onClick: function onClick() {
+                                                _this3.deleteAttachment(d);
+                                            } })
+                                    )
                                 );
                             })
                         )
@@ -682,7 +784,6 @@ var table = function (_React$Component) {
     }, {
         key: "updateTdChange",
         value: function updateTdChange(e, i, id) {
-            var displayData = this.state.displayData;
             var json = {};
             json["ut" + i + "_" + id] = e.target.value;
             this.setState(json);
@@ -714,6 +815,80 @@ var table = function (_React$Component) {
                     alert("删除失败:" + d);
                 });
             }
+        }
+    }, {
+        key: "attachment",
+        value: function attachment() {
+            var checkedData = this.state.displayData.filter(function (d) {
+                return d.checkboxChecked;
+            });
+            if (checkedData.length != 1) {
+                alert("请选择一行数据");
+                return;
+            }
+            var attachmentId = checkedData.map(function (d) {
+                return d.id;
+            })[0];
+            this.setState({
+                panel: "attachment",
+                attachmentId: attachmentId
+            });
+            this.refreshAttachment(attachmentId);
+        }
+    }, {
+        key: "refreshAttachment",
+        value: function refreshAttachment(id) {
+            var _this9 = this;
+
+            var tableId = this.props.tableId;
+            http.post("../table/" + tableId + "/attachmentRead", { id: id.toString() }).then(function (d) {
+                var attachment = d.map(function (d1) {
+                    d1 = d1.base64Decode();
+                    return d1;
+                });
+                _this9.setState({
+                    panel: "attachment",
+                    attachmentList: attachment
+                });
+            }).catch(function (d) {
+                alert("获取附件列表失败:" + d);
+            });
+        }
+    }, {
+        key: "deleteAttachment",
+        value: function deleteAttachment(d) {
+            var _this10 = this;
+
+            var id = this.state.attachmentId;
+            var tableId = this.props.tableId;
+            var data = {
+                id: id.toString(),
+                name: d
+            };
+            http.post("../table/" + tableId + "/attachmentDelete", data).then(function (d1) {
+                _this10.refreshAttachment(id);
+                alert("删除成功");
+            }).catch(function (d1) {
+                alert("删除失败:" + d1);
+            });
+        }
+    }, {
+        key: "uploadAttachment",
+        value: function uploadAttachment(e) {
+            var _this11 = this;
+
+            var id = this.state.attachmentId;
+            var tableId = this.props.tableId;
+            upload.do("../table/" + tableId + "/attachmentUpload?id=" + id.toString().base64UrlEncode(), e.target.parentNode.childNodes[0], function (d) {
+                _this11.setState({
+                    attachmentProgress: d + "%"
+                });
+            }).then(function (d) {
+                _this11.refreshAttachment(id);
+                alert("上传成功");
+            }).catch(function (d) {
+                alert("上传失败:" + d);
+            });
         }
     }]);
 
