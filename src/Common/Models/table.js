@@ -98,11 +98,15 @@ module.exports = {
             return;
         }
         var sourcePath = "./server/upload/";
-        var destPath = "./client/data/" + table + "/" + req.query.id + "/";
-        var filename = req.files[0].filename;
+        var destPath = "./client/data/" + table + "/";
         if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
+        destPath += req.query.id + "/";
+        if (!fs.existsSync(destPath)) {
+            fs.mkdirSync(destPath);
+        }
+        var filename = req.files[0].filename;
         fs.renameSync(sourcePath + filename, destPath + filename);
         response.success(res);
     }

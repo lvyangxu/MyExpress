@@ -82,6 +82,7 @@ body {
                         .label:first-child{
                             font-weight: bold;
                             margin-right: 30px;
+                            font-size: 14px;
                         }
                         input[type=checkbox]{
                             width: 20px;
@@ -121,6 +122,7 @@ body {
                         display: inline-block;
                         min-width: 150px;
                         margin-right: 20px;
+                        vertical-align: top;
                         .up {
                             margin-top: 20px;
                             font-size: 12px;
@@ -230,15 +232,15 @@ body {
 
                 .follow-panel {
                     table tbody tr {
-                        td[data=初步沟通等待出包],
-                        td[data=已收到包，评测中],
-                        td[data=包完成度不够，跟进新包],
-                        td[data=评测通过，等待上线数据] {
+                        td[data=等待出包],
+                        td[data=评测中],
+                        td[data=跟进新包，包完成度不够],
+                        td[data=等待上线数据] {
                             background-color: #FF6666;
                             color: white;
                         }
-                        td[data=评测通过，初步沟通合作意向],
-                        td[data=已上线产品，初步沟通合作意向] {
+                        td[data=初步沟通合作意向\(评测通过\)],
+                        td[data=初步沟通合作意向\(已上线产品\)] {
                             background-color: #FFCC33;
                             color: white;
                         }

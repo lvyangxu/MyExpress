@@ -45,7 +45,7 @@ var App = function (_React$Component) {
         value: function componentDidMount() {
             var hash = window.location.hash.replace(/#/g, "");
             var columnsBasic = [{ id: "type", name: "游戏类型" }, { id: "play", name: "玩法" }, { id: "ip", name: "IP" }, { id: "theme", name: "题材" }, { id: "online", name: "上线情况" }, { id: "performance", name: "上线表现" }, { id: "appannie", name: "Apple Annie" }, { id: "screenshot", name: "截图" }];
-            var columnsFollow = [{ id: "lastContact", name: "最后联系时间" }, { id: "schedule", name: "当前进度" }, { id: "contactWay", name: "沟通方式" }, { id: "agentCondition", name: "代理条件" }, { id: "admin", name: "负责人" }, { id: "createTime", name: "创建时间" }, { id: "updateTime", name: "更新时间" }, { id: "followStatus", name: "跟进状态" }, { id: "contactContent", name: "沟通内容" }];
+            var columnsFollow = [{ id: "schedule", name: "当前进度" }, { id: "contactWay", name: "沟通方式" }, { id: "agentCondition", name: "代理条件" }, { id: "admin", name: "负责人" }, { id: "lastContact", name: "最后联系时间" }, { id: "createTime", name: "创建时间" }, { id: "updateTime", name: "更新时间" }, { id: "followStatus", name: "跟进状态" }, { id: "contactContent", name: "沟通内容" }];
             var data = {
                 columnsBasic: columnsBasic,
                 columnsFollow: columnsFollow
@@ -392,30 +392,16 @@ var App = function (_React$Component) {
                                 { className: "follow-status-text" },
                                 React.createElement(
                                     "div",
-                                    { className: "row", style: this.state.lastContactChecked ? {} : { display: "none" } },
+                                    { className: "row", style: this.state.adminChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
-                                        "最后联系时间"
+                                        "负责人"
                                     ),
                                     React.createElement(
                                         "div",
                                         { className: "right" },
-                                        this.state.gameData.lastContact
-                                    )
-                                ),
-                                React.createElement(
-                                    "div",
-                                    { className: "row", style: this.state.scheduleChecked ? {} : { display: "none" } },
-                                    React.createElement(
-                                        "div",
-                                        { className: "left" },
-                                        "当前进度"
-                                    ),
-                                    React.createElement(
-                                        "div",
-                                        { className: "right" },
-                                        this.state.gameData.schedule
+                                        this.state.gameData.admin
                                     )
                                 ),
                                 React.createElement(
@@ -434,30 +420,16 @@ var App = function (_React$Component) {
                                 ),
                                 React.createElement(
                                     "div",
-                                    { className: "row", style: this.state.agentConditionChecked ? {} : { display: "none" } },
+                                    { className: "row", style: this.state.lastContactChecked ? {} : { display: "none" } },
                                     React.createElement(
                                         "div",
                                         { className: "left" },
-                                        "代理条件"
+                                        "最后联系时间"
                                     ),
                                     React.createElement(
                                         "div",
                                         { className: "right" },
-                                        this.state.gameData.agentCondition
-                                    )
-                                ),
-                                React.createElement(
-                                    "div",
-                                    { className: "row", style: this.state.adminChecked ? {} : { display: "none" } },
-                                    React.createElement(
-                                        "div",
-                                        { className: "left" },
-                                        "负责人"
-                                    ),
-                                    React.createElement(
-                                        "div",
-                                        { className: "right" },
-                                        this.state.gameData.admin
+                                        this.state.gameData.lastContact
                                     )
                                 ),
                                 React.createElement(
@@ -494,12 +466,26 @@ var App = function (_React$Component) {
                                     React.createElement(
                                         "div",
                                         { className: "left" },
-                                        "跟进状态"
+                                        "跟进标签"
                                     ),
                                     React.createElement(
                                         "div",
                                         { className: this.state.gameData.followStatus == "等包" ? "right follow-status-wait" : this.state.gameData.followStatus == "商谈" ? "right follow-status-discuss" : this.state.gameData.followStatus == "不合作" ? "right follow-status-stop" : this.state.gameData.followStatus == "合作" ? "right follow-status-cooperation" : "right" },
                                         this.state.gameData.followStatus
+                                    )
+                                ),
+                                React.createElement(
+                                    "div",
+                                    { className: "row", style: this.state.agentConditionChecked ? {} : { display: "none" } },
+                                    React.createElement(
+                                        "div",
+                                        { className: "left" },
+                                        "代理条件"
+                                    ),
+                                    React.createElement(
+                                        "div",
+                                        { className: "right" },
+                                        this.state.gameData.agentCondition
                                     )
                                 )
                             )

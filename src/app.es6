@@ -54,6 +54,10 @@ let fs = require("fs");
 if(!fs.existsSync("./server/upload/")){
     fs.mkdirSync("./server/upload/");
 }
+//client data
+if(!fs.existsSync("./client/data/")){
+    fs.mkdirSync("./client/data/");
+}
 
 //global config
 let xml = require("../../util/xml");

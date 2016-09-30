@@ -6,21 +6,33 @@ var del = require('del');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
+var browserify = require('gulp-browserify');
 
 let project = "Review";
-let viewModules = ["login", "display", "manage"];
+let isProduction = true;
+let viewModules = {
+    Review: ["login", "display", "manage"]
+};
 let mysqlConfig = {
-    user: "root",
-    password: "root",
-    database: "Review"
+    Review: {
+        user: "root",
+        password: "root",
+        database: "Review"
+    }
 };
 let accountConfig = {
-    username: "radiumme",
-    password: "radiumme",
-    usernameCookie: "reviewUsername",
-    passwordCookie: "reviewPassword",
-    loginRedirect:"display"
+    Review: {
+        username: "radiumme",
+        password: "radiumme",
+        usernameCookie: "reviewUsername",
+        passwordCookie: "reviewPassword",
+        loginRedirect: "display"
+    }
 };
+process.env.NODE_ENV = (isProduction) ? "production" : "development";
+if (isProduction) {
+    mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
+}
 
 gulp.task("build", ["build-util", "build-server", "build-client"], ()=> {
 
@@ -39,16 +51,16 @@ gulp.task("build-server", ()=> {
         .pipe(gulp.dest("dist/" + project + "/server/js"));
     //config
     gulp.src("src/Common/Config/mysql.xml")
-        .pipe(replace(/\{user}/g, mysqlConfig.user))
-        .pipe(replace(/\{password}/g, mysqlConfig.password))
-        .pipe(replace(/\{database}/g, mysqlConfig.database))
+        .pipe(replace(/\{user}/g, mysqlConfig[project].user))
+        .pipe(replace(/\{password}/g, mysqlConfig[project].password))
+        .pipe(replace(/\{database}/g, mysqlConfig[project].database))
         .pipe(gulp.dest("dist/" + project + "/server/config"));
     gulp.src("src/Common/Config/account.xml")
-        .pipe(replace(/\{username}/g, accountConfig.username))
-        .pipe(replace(/\{password}/g, accountConfig.password))
-        .pipe(replace(/\{usernameCookie}/g, accountConfig.usernameCookie))
-        .pipe(replace(/\{passwordCookie}/g, accountConfig.passwordCookie))
-        .pipe(replace(/\{loginRedirect}/g, accountConfig.loginRedirect))
+        .pipe(replace(/\{username}/g, accountConfig[project].username))
+        .pipe(replace(/\{password}/g, accountConfig[project].password))
+        .pipe(replace(/\{usernameCookie}/g, accountConfig[project].usernameCookie))
+        .pipe(replace(/\{passwordCookie}/g, accountConfig[project].passwordCookie))
+        .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
         .pipe(gulp.dest("dist/" + project + "/server/config"));
     //controller
     gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
@@ -58,9 +70,9 @@ gulp.task("build-server", ()=> {
 
 gulp.task("build-util", ()=> {
     //component
-    let componentArr = ["login","radio","select","table"];
-    componentArr.map(d=>{
-        gulp.src("src/Common/Components/"+d+"/*.js")
+    let componentArr = ["login", "radio", "select", "table"];
+    componentArr.map(d=> {
+        gulp.src("src/Common/Components/" + d + "/*.js")
             .pipe(gulp.dest("dist/" + project + "/util"));
     });
 
@@ -75,12 +87,33 @@ gulp.task("build-client", ()=> {
     //views js
     gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
         .pipe(gulp.dest("dist/" + project + "/browserify"));
+    // if (isProduction) {
+    //     gulp.src("dist/" + project + "/browserify/*/main.js")
+    //         .pipe(browserify({
+    //             insertGlobals: true,
+    //             debug: !gulp.env.production
+    //         }))
+    //         .pipe(rename({basename: "bundle"}))
+    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
+    //         .pipe(uglify())
+    //         .pipe(gulp.dest("dist/" + project + "/client"));
+    // }else{
+    //     gulp.src("dist/" + project + "/browserify/*/main.js")
+    //         .pipe(browserify({
+    //             insertGlobals: true,
+    //             debug: !gulp.env.production
+    //         }))
+    //         .pipe(rename({basename: "bundle"}))
+    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
+    //         .pipe(gulp.dest("dist/" + project + "/client"));
+    // }
+
     //views html minify
     gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest("dist/" + project + "/client"));
     //views css bundle and minify
-    viewModules.map(d=> {
+    viewModules[project].map(d=> {
         let srcArr = [];
         switch (d) {
             case "login":
@@ -115,11 +148,19 @@ gulp.task("build-client", ()=> {
     //package.json
     gulp.src("package.json")
         .pipe(gulp.dest("dist/" + project));
+
+
 });
 
-gulp.task("release", ()=> {
-    //client js minify
-    gulp.src("dist/" + project + "/client/*/bundle.js")
-        .pipe(uglify())
-        .pipe(gulp.dest("dist/" + project + "/client"));
+
+// gulp.watch("dist/" + project + "/browserify/*/bundle.js",(event)=>{
+//     console.log(event);
+// });
+
+gulp.task("move", ()=> {
+    let stream = gulp.src("dist/" + project + "/browserify/*/bundle.js");
+    if (isProduction) {
+        stream = stream.pipe(uglify());
+    }
+    stream.pipe(gulp.dest("dist/" + project + "/client"));
 });

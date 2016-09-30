@@ -21,7 +21,8 @@ class table extends React.Component {
             ct: [],
             ut: [],
             attachmentList: [],
-            attachmentProgress: "0%"
+            attachmentProgress: "0%",
+            loading: false
 
         };
         let bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck",
@@ -126,9 +127,9 @@ class table extends React.Component {
                         </div>
                         <div className="refresh"
                              style={this.state.curd.includes("r") ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button onClick={()=> {
+                            <button className={this.state.loading ? "loading" : ""} onClick={()=> {
                                 this.refresh();
-                            }}><i className="fa fa-refresh"></i>刷新
+                            }}><i className={this.state.loading ? "fa fa-refresh loading" : "fa fa-refresh"}></i>刷新
                             </button>
                         </div>
                         <div className="delete"
@@ -242,18 +243,34 @@ class table extends React.Component {
                                             let filter = (d1.id == "id")
                                             return !filter;
                                         }).map(d1=> {
-                                            return <td key={d1.id}>
-                                                {d1.isTextarea ?
-                                                    <textarea disabled={d1.createReadonly} value={d[d1.id]}
-                                                              onChange={(e)=> {
-                                                                  this.createTdChange(e, i, d1.id);
-                                                              }}/> :
-                                                    <input disabled={d1.createReadonly} value={d[d1.id]}
-                                                           onChange={(e)=> {
-                                                               this.createTdChange(e, i, d1.id);
-                                                           }}/>
-                                                }
-                                            </td>;
+                                            let td;
+                                            switch (d1.type) {
+                                                case "textarea":
+                                                    td = <textarea disabled={d1.createReadonly} value={d[d1.id]}
+                                                                   onChange={(e)=> {
+                                                                       this.createTdChange(e, i, d1.id);
+                                                                   }}/>;
+                                                    break;
+                                                case "radio":
+                                                    td = <select disabled={d1.createReadonly}
+                                                                 value={d[d1.id]}
+                                                                 onChange={(e)=> {
+                                                                     this.createTdChange(e, i, d1.id);
+                                                                 }}>
+                                                        <option></option>
+                                                        {d1.radioArr.map((d2, j)=> {
+                                                            return <option key={j}>{d2}</option>;
+                                                        })}</select>;
+                                                    break;
+                                                default:
+                                                    td = <input disabled={d1.createReadonly} value={d[d1.id]}
+                                                                onChange={(e)=> {
+                                                                    this.createTdChange(e, i, d1.id);
+                                                                }}/>;
+                                                    break;
+                                            }
+                                            td = <td key={d1.id}>{td}</td>;
+                                            return td;
                                         })
                                     }</tr>;
                             })
@@ -277,7 +294,7 @@ class table extends React.Component {
                         <tr>
                             {
                                 this.state.columns.filter(d=> {
-                                    let filter = (d.id == "id")
+                                    let filter = (d.id == "id");
                                     return !filter;
                                 }).map(d=> {
                                     return <th key={d.id}>{d.name}</th>;
@@ -294,21 +311,35 @@ class table extends React.Component {
                                             let filter = (d1.id == "id")
                                             return !filter;
                                         }).map(d1=> {
-                                            return <td key={d1.id}>
-                                                {
-                                                    d1.isTextarea ?
-                                                        <textarea disabled={d1.updateReadonly}
-                                                                  value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
-                                                                  onChange={(e)=> {
-                                                                      this.updateTdChange(e, i, d1.id);
-                                                                  }}/> :
-                                                        <input disabled={d1.updateReadonly}
-                                                               value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
-                                                               onChange={(e)=> {
-                                                                   this.updateTdChange(e, i, d1.id);
-                                                               }}/>
-                                                }
-                                            </td>;
+                                            let td;
+                                            switch (d1.type) {
+                                                case "textarea":
+                                                    td = <textarea disabled={d1.updateReadonly}
+                                                                   value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
+                                                                   onChange={(e)=> {
+                                                                       this.updateTdChange(e, i, d1.id);
+                                                                   }}/>;
+                                                    break;
+                                                case "radio":
+                                                    td = <select disabled={d1.updateReadonly}
+                                                                 value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
+                                                                 onChange={(e)=> {
+                                                                     this.updateTdChange(e, i, d1.id);
+                                                                 }}>
+                                                        {d1.radioArr.map((d2, j)=> {
+                                                            return <option key={j}>{d2}</option>;
+                                                        })}</select>;
+                                                    break;
+                                                default:
+                                                    td = <input disabled={d1.updateReadonly}
+                                                                value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
+                                                                onChange={(e)=> {
+                                                                    this.updateTdChange(e, i, d1.id);
+                                                                }}/>;
+                                                    break;
+                                            }
+                                            td = <td key={d1.id}>{td}</td>;
+                                            return td;
                                         })
                                     }</tr>;
                             })
@@ -385,12 +416,16 @@ class table extends React.Component {
 
     refresh() {
         let tableId = this.props.tableId;
+        this.setState({
+            loading: true
+        });
         http.post("../table/" + tableId + "/read").then(d=> {
             d = d.map(d1=> {
                 d1.checkboxChecked = false;
                 return d1;
             });
             this.setState({
+                loading: false,
                 sourceData: d,
                 filterData: d,
                 displayData: d,
@@ -398,6 +433,9 @@ class table extends React.Component {
                 rowAllCheck: false
             });
         }).catch(d=> {
+            this.setState({
+                loading: false
+            });
             alert("刷新数据失败:" + d);
         });
     }
@@ -494,9 +532,33 @@ class table extends React.Component {
     }
 
     create() {
-        this.setState({
-            panel: "create"
-        });
+        let data = {panel: "create"};
+        if (this.props.createButtonCallback) {
+            let checkedData = this.state.displayData.filter(d=> {
+                return d.checkboxChecked;
+            });
+            if (checkedData.length != 0) {
+                let defaultCreateValue = this.props.createButtonCallback(checkedData);
+                let ct = defaultCreateValue.concat();
+                for (let i = 0; i < this.state.createLineNum; i++) {
+                    if (defaultCreateValue[i]) {
+                        this.state.columns.forEach(d=> {
+                            if (!defaultCreateValue[i].hasOwnProperty(d.id)) {
+                                ct[i][d.id] = "";
+                            }
+                        });
+                    } else {
+                        let row = {};
+                        this.state.columns.forEach(d=> {
+                            row[d.id] = "";
+                        });
+                        ct.push(row);
+                    }
+                }
+                data.ct = ct;
+            }
+        }
+        this.setState(data);
     }
 
     createSubmit() {

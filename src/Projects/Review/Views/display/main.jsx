@@ -37,11 +37,11 @@ class App extends React.Component {
             {id: "screenshot", name: "截图"}
         ];
         let columnsFollow = [
-            {id: "lastContact", name: "最后联系时间"},
             {id: "schedule", name: "当前进度"},
             {id: "contactWay", name: "沟通方式"},
             {id: "agentCondition", name: "代理条件"},
             {id: "admin", name: "负责人"},
+            {id: "lastContact", name: "最后联系时间"},
             {id: "createTime", name: "创建时间"},
             {id: "updateTime", name: "更新时间"},
             {id: "followStatus", name: "跟进状态"},
@@ -229,25 +229,17 @@ class App extends React.Component {
                              this.state.createTimeChecked || this.state.updateTimeChecked || this.state.followStatusChecked) ? {} : {display: "none"}}>
                             <div className="follow-status-title">跟进情况</div>
                             <div className="follow-status-text">
-                                <div className="row" style={this.state.lastContactChecked ? {} : {display: "none"}}>
-                                    <div className="left">最后联系时间</div>
-                                    <div className="right">{this.state.gameData.lastContact}</div>
-                                </div>
-                                <div className="row" style={this.state.scheduleChecked ? {} : {display: "none"}}>
-                                    <div className="left">当前进度</div>
-                                    <div className="right">{this.state.gameData.schedule}</div>
+                                <div className="row" style={this.state.adminChecked ? {} : {display: "none"}}>
+                                    <div className="left">负责人</div>
+                                    <div className="right">{this.state.gameData.admin}</div>
                                 </div>
                                 <div className="row" style={this.state.contactWayChecked ? {} : {display: "none"}}>
                                     <div className="left">沟通方式</div>
                                     <div className="right">{this.state.gameData.contactWay}</div>
                                 </div>
-                                <div className="row" style={this.state.agentConditionChecked ? {} : {display: "none"}}>
-                                    <div className="left">代理条件</div>
-                                    <div className="right">{this.state.gameData.agentCondition}</div>
-                                </div>
-                                <div className="row" style={this.state.adminChecked ? {} : {display: "none"}}>
-                                    <div className="left">负责人</div>
-                                    <div className="right">{this.state.gameData.admin}</div>
+                                <div className="row" style={this.state.lastContactChecked ? {} : {display: "none"}}>
+                                    <div className="left">最后联系时间</div>
+                                    <div className="right">{this.state.gameData.lastContact}</div>
                                 </div>
                                 <div className="row" style={this.state.createTimeChecked ? {} : {display: "none"}}>
                                     <div className="left">创建时间</div>
@@ -258,7 +250,7 @@ class App extends React.Component {
                                     <div className="right">{this.state.gameData.updateTime}</div>
                                 </div>
                                 <div className="row" style={this.state.followStatusChecked ? {} : {display: "none"}}>
-                                    <div className="left">跟进状态</div>
+                                    <div className="left">跟进标签</div>
                                     {
                                         <div className={this.state.gameData.followStatus == "等包" ?
                                             "right follow-status-wait" :
@@ -272,7 +264,10 @@ class App extends React.Component {
                                             )
                                         }>{this.state.gameData.followStatus}</div>
                                     }
-
+                                </div>
+                                <div className="row" style={this.state.agentConditionChecked ? {} : {display: "none"}}>
+                                    <div className="left">代理条件</div>
+                                    <div className="right">{this.state.gameData.agentCondition}</div>
                                 </div>
                             </div>
                         </div>

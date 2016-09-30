@@ -36,7 +36,8 @@ var table = function (_React$Component) {
             ct: [],
             ut: [],
             attachmentList: [],
-            attachmentProgress: "0%"
+            attachmentProgress: "0%",
+            loading: false
 
         };
         var bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck", "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
@@ -188,10 +189,10 @@ var table = function (_React$Component) {
                                 style: this.state.curd.includes("r") ? { marginLeft: "20px" } : { display: "none" } },
                             React.createElement(
                                 "button",
-                                { onClick: function onClick() {
+                                { className: this.state.loading ? "loading" : "", onClick: function onClick() {
                                         _this3.refresh();
                                     } },
-                                React.createElement("i", { className: "fa fa-refresh" }),
+                                React.createElement("i", { className: this.state.loading ? "fa fa-refresh loading" : "fa fa-refresh" }),
                                 "刷新"
                             )
                         ),
@@ -351,17 +352,45 @@ var table = function (_React$Component) {
                                         var filter = d1.id == "id";
                                         return !filter;
                                     }).map(function (d1) {
-                                        return React.createElement(
+                                        var td = void 0;
+                                        switch (d1.type) {
+                                            case "textarea":
+                                                td = React.createElement("textarea", { disabled: d1.createReadonly, value: d[d1.id],
+                                                    onChange: function onChange(e) {
+                                                        _this3.createTdChange(e, i, d1.id);
+                                                    } });
+                                                break;
+                                            case "radio":
+                                                td = React.createElement(
+                                                    "select",
+                                                    { disabled: d1.createReadonly,
+                                                        value: d[d1.id],
+                                                        onChange: function onChange(e) {
+                                                            _this3.createTdChange(e, i, d1.id);
+                                                        } },
+                                                    React.createElement("option", null),
+                                                    d1.radioArr.map(function (d2, j) {
+                                                        return React.createElement(
+                                                            "option",
+                                                            { key: j },
+                                                            d2
+                                                        );
+                                                    })
+                                                );
+                                                break;
+                                            default:
+                                                td = React.createElement("input", { disabled: d1.createReadonly, value: d[d1.id],
+                                                    onChange: function onChange(e) {
+                                                        _this3.createTdChange(e, i, d1.id);
+                                                    } });
+                                                break;
+                                        }
+                                        td = React.createElement(
                                             "td",
                                             { key: d1.id },
-                                            d1.isTextarea ? React.createElement("textarea", { disabled: d1.createReadonly, value: d[d1.id],
-                                                onChange: function onChange(e) {
-                                                    _this3.createTdChange(e, i, d1.id);
-                                                } }) : React.createElement("input", { disabled: d1.createReadonly, value: d[d1.id],
-                                                onChange: function onChange(e) {
-                                                    _this3.createTdChange(e, i, d1.id);
-                                                } })
+                                            td
                                         );
+                                        return td;
                                     })
                                 );
                             })
@@ -423,19 +452,46 @@ var table = function (_React$Component) {
                                         var filter = d1.id == "id";
                                         return !filter;
                                     }).map(function (d1) {
-                                        return React.createElement(
+                                        var td = void 0;
+                                        switch (d1.type) {
+                                            case "textarea":
+                                                td = React.createElement("textarea", { disabled: d1.updateReadonly,
+                                                    value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
+                                                    onChange: function onChange(e) {
+                                                        _this3.updateTdChange(e, i, d1.id);
+                                                    } });
+                                                break;
+                                            case "radio":
+                                                td = React.createElement(
+                                                    "select",
+                                                    { disabled: d1.updateReadonly,
+                                                        value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
+                                                        onChange: function onChange(e) {
+                                                            _this3.updateTdChange(e, i, d1.id);
+                                                        } },
+                                                    d1.radioArr.map(function (d2, j) {
+                                                        return React.createElement(
+                                                            "option",
+                                                            { key: j },
+                                                            d2
+                                                        );
+                                                    })
+                                                );
+                                                break;
+                                            default:
+                                                td = React.createElement("input", { disabled: d1.updateReadonly,
+                                                    value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
+                                                    onChange: function onChange(e) {
+                                                        _this3.updateTdChange(e, i, d1.id);
+                                                    } });
+                                                break;
+                                        }
+                                        td = React.createElement(
                                             "td",
                                             { key: d1.id },
-                                            d1.isTextarea ? React.createElement("textarea", { disabled: d1.updateReadonly,
-                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
-                                                onChange: function onChange(e) {
-                                                    _this3.updateTdChange(e, i, d1.id);
-                                                } }) : React.createElement("input", { disabled: d1.updateReadonly,
-                                                value: _this3.state.ut.length == 0 ? "" : _this3.state["ut" + i + "_" + d1.id] == undefined ? "" : _this3.state["ut" + i + "_" + d1.id],
-                                                onChange: function onChange(e) {
-                                                    _this3.updateTdChange(e, i, d1.id);
-                                                } })
+                                            td
                                         );
+                                        return td;
                                     })
                                 );
                             })
@@ -560,12 +616,16 @@ var table = function (_React$Component) {
             var _this4 = this;
 
             var tableId = this.props.tableId;
+            this.setState({
+                loading: true
+            });
             http.post("../table/" + tableId + "/read").then(function (d) {
                 d = d.map(function (d1) {
                     d1.checkboxChecked = false;
                     return d1;
                 });
                 _this4.setState({
+                    loading: false,
                     sourceData: d,
                     filterData: d,
                     displayData: d,
@@ -573,6 +633,9 @@ var table = function (_React$Component) {
                     rowAllCheck: false
                 });
             }).catch(function (d) {
+                _this4.setState({
+                    loading: false
+                });
                 alert("刷新数据失败:" + d);
             });
         }
@@ -680,14 +743,49 @@ var table = function (_React$Component) {
     }, {
         key: "create",
         value: function create() {
-            this.setState({
-                panel: "create"
-            });
+            var _this6 = this;
+
+            var data = { panel: "create" };
+            if (this.props.createButtonCallback) {
+                var checkedData = this.state.displayData.filter(function (d) {
+                    return d.checkboxChecked;
+                });
+                if (checkedData.length != 0) {
+                    (function () {
+                        var defaultCreateValue = _this6.props.createButtonCallback(checkedData);
+                        var ct = defaultCreateValue.concat();
+
+                        var _loop2 = function _loop2(i) {
+                            if (defaultCreateValue[i]) {
+                                _this6.state.columns.forEach(function (d) {
+                                    if (!defaultCreateValue[i].hasOwnProperty(d.id)) {
+                                        ct[i][d.id] = "";
+                                    }
+                                });
+                            } else {
+                                (function () {
+                                    var row = {};
+                                    _this6.state.columns.forEach(function (d) {
+                                        row[d.id] = "";
+                                    });
+                                    ct.push(row);
+                                })();
+                            }
+                        };
+
+                        for (var i = 0; i < _this6.state.createLineNum; i++) {
+                            _loop2(i);
+                        }
+                        data.ct = ct;
+                    })();
+                }
+            }
+            this.setState(data);
         }
     }, {
         key: "createSubmit",
         value: function createSubmit() {
-            var _this6 = this;
+            var _this7 = this;
 
             var rows = this.state.ct.filter(function (d) {
                 var isEmpty = true;
@@ -706,15 +804,15 @@ var table = function (_React$Component) {
             if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
                 (function () {
                     var data = { requestRowsLength: rows.length.toString() };
-                    _this6.state.columns.forEach(function (d) {
+                    _this7.state.columns.forEach(function (d) {
                         var v = rows.map(function (d1) {
                             return d1[d.id];
                         }).join(",");
                         data[d.id] = v;
                     });
-                    var tableId = _this6.props.tableId;
+                    var tableId = _this7.props.tableId;
                     http.post("../table/" + tableId + "/create", data).then(function (d) {
-                        _this6.refresh();
+                        _this7.refresh();
                         alert("提交成功");
                     }).catch(function (d) {
                         alert("提交失败:" + d);
@@ -755,25 +853,25 @@ var table = function (_React$Component) {
     }, {
         key: "updateSubmit",
         value: function updateSubmit() {
-            var _this7 = this;
+            var _this8 = this;
 
             var rows = this.state.ut;
             if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
                 (function () {
                     var data = { requestRowsLength: rows.length.toString() };
-                    _this7.state.columns.forEach(function (d) {
+                    _this8.state.columns.forEach(function (d) {
                         var v = "";
                         for (var i = 0; i < rows.length; i++) {
-                            v += _this7.state["ut" + i + "_" + d.id];
+                            v += _this8.state["ut" + i + "_" + d.id];
                             if (i != rows.length - 1) {
                                 v += ",";
                             }
                         }
                         data[d.id] = v;
                     });
-                    var tableId = _this7.props.tableId;
+                    var tableId = _this8.props.tableId;
                     http.post("../table/" + tableId + "/update", data).then(function (d) {
-                        _this7.refresh();
+                        _this8.refresh();
                         alert("提交成功");
                     }).catch(function (d) {
                         alert("提交失败:" + d);
@@ -791,7 +889,7 @@ var table = function (_React$Component) {
     }, {
         key: "delete",
         value: function _delete() {
-            var _this8 = this;
+            var _this9 = this;
 
             var checkedData = this.state.displayData.filter(function (d) {
                 return d.checkboxChecked;
@@ -809,7 +907,7 @@ var table = function (_React$Component) {
             if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
                 var tableId = this.props.tableId;
                 http.post("../table/" + tableId + "/delete", data).then(function (d) {
-                    _this8.refresh();
+                    _this9.refresh();
                     alert("删除成功");
                 }).catch(function (d) {
                     alert("删除失败:" + d);
@@ -838,7 +936,7 @@ var table = function (_React$Component) {
     }, {
         key: "refreshAttachment",
         value: function refreshAttachment(id) {
-            var _this9 = this;
+            var _this10 = this;
 
             var tableId = this.props.tableId;
             http.post("../table/" + tableId + "/attachmentRead", { id: id.toString() }).then(function (d) {
@@ -846,7 +944,7 @@ var table = function (_React$Component) {
                     d1 = d1.base64Decode();
                     return d1;
                 });
-                _this9.setState({
+                _this10.setState({
                     panel: "attachment",
                     attachmentList: attachment
                 });
@@ -857,7 +955,7 @@ var table = function (_React$Component) {
     }, {
         key: "deleteAttachment",
         value: function deleteAttachment(d) {
-            var _this10 = this;
+            var _this11 = this;
 
             var id = this.state.attachmentId;
             var tableId = this.props.tableId;
@@ -866,7 +964,7 @@ var table = function (_React$Component) {
                 name: d
             };
             http.post("../table/" + tableId + "/attachmentDelete", data).then(function (d1) {
-                _this10.refreshAttachment(id);
+                _this11.refreshAttachment(id);
                 alert("删除成功");
             }).catch(function (d1) {
                 alert("删除失败:" + d1);
@@ -875,16 +973,16 @@ var table = function (_React$Component) {
     }, {
         key: "uploadAttachment",
         value: function uploadAttachment(e) {
-            var _this11 = this;
+            var _this12 = this;
 
             var id = this.state.attachmentId;
             var tableId = this.props.tableId;
             upload.do("../table/" + tableId + "/attachmentUpload?id=" + id.toString().base64UrlEncode(), e.target.parentNode.childNodes[0], function (d) {
-                _this11.setState({
+                _this12.setState({
                     attachmentProgress: d + "%"
                 });
             }).then(function (d) {
-                _this11.refreshAttachment(id);
+                _this12.refreshAttachment(id);
                 alert("上传成功");
             }).catch(function (d) {
                 alert("上传失败:" + d);

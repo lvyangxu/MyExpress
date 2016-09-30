@@ -54,7 +54,11 @@ class App extends React.Component {
                         <Table tableId="cp" curd="curd"/>
                     </div>
                     <div style={this.state.display == "contact" ? {} : {display: "none"}} className="contact-panel">
-                        <Table tableId="contact" curd="curd"/>
+                        <Table tableId="contact" curd="curd" createButtonCallback={checkedData=> {
+                            let firstCheckedName = checkedData[0].name;
+                            let data = [{name: firstCheckedName}];
+                            return data;
+                        }}/>
                     </div>
                 </div>
             </div>

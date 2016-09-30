@@ -16,6 +16,7 @@
     "babel-preset-react": "^6.11.1",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
+    "gulp-browserify": "^0.5.1",
     "gulp-clean-css": "^2.0.12",
     "gulp-concat-css": "^2.3.0",
     "gulp-css-url-rebase": "^0.2.2",

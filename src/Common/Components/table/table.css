@@ -30,6 +30,15 @@
       background-color: white;
       outline: none;
       cursor: pointer; }
+      .react-table .table-head .create button i.loading, .react-table .table-head .update button i.loading, .react-table .table-head .refresh button i.loading, .react-table .table-head .delete button i.loading, .react-table .table-head .attachment button i.loading {
+        animation: loading 5s infinite linear; }
+@keyframes loading {
+  from {
+    transform: rotateZ(0deg); }
+  to {
+    transform: rotateZ(360deg); } }
+    .react-table .table-head .create button.loading, .react-table .table-head .update button.loading, .react-table .table-head .refresh button.loading, .react-table .table-head .delete button.loading, .react-table .table-head .attachment button.loading {
+      background-color: #ccc; }
 .react-table .panel-head {
   margin-bottom: 50px; }
   .react-table .panel-head .backToMain, .react-table .panel-head .submit {
@@ -124,7 +133,11 @@
         width: 120px;
         height: 30px;
         padding-left: 10px;
-        padding-right: 10px; }
+        padding-right: 10px;
+        border: 1px solid #cccccc; }
+      .react-table table tbody tr td select {
+        height: 36px;
+        border: 1px solid #cccccc; }
       .react-table table tbody tr td a {
         text-decoration: none;
         color: #14c864; }

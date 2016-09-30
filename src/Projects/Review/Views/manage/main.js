@@ -95,7 +95,11 @@ var App = function (_React$Component) {
                     React.createElement(
                         "div",
                         { style: this.state.display == "contact" ? {} : { display: "none" }, className: "contact-panel" },
-                        React.createElement(Table, { tableId: "contact", curd: "curd" })
+                        React.createElement(Table, { tableId: "contact", curd: "curd", createButtonCallback: function createButtonCallback(checkedData) {
+                                var firstCheckedName = checkedData[0].name;
+                                var data = [{ name: firstCheckedName }];
+                                return data;
+                            } })
                     )
                 )
             );

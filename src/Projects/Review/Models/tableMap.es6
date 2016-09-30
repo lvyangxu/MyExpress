@@ -2,8 +2,8 @@ module.exports = {
     dataMap: (table, d)=> {
         switch (table) {
             case "getGames":
-                d = d.map(d1=>{
-                   return d1.name;
+                d = d.map(d1=> {
+                    return d1.name;
                 });
                 break;
             case "getPublishers":
@@ -79,11 +79,19 @@ module.exports = {
                     {id: "online", name: "上线情况", checked: true},
                     {id: "performance", name: "上线表现", checked: true},
                     {id: "lastContact", name: "最后联系时间", checked: true},
-                    {id: "schedule", name: "当前进度", checked: true},
-                    {id: "contactWay", name: "沟通方式", checked: true},
+                    {id: "contactWay", name: "沟通方式", checked: true, type: "radio", radioArr: [
+                         "初步网上/电话沟通","网上/电话长期跟进资料","网上/电话深度沟通（合作意向尚不明确）",
+                        "网上/电话深度沟通（已明确合作意向）","已约定见面（去对方公司拜访）","已约定见面（来我公司拜访）",
+                        "已见面（去对方公司拜访）","已见面（来我公司拜访）","已见面（已互相拜访）"
+                    ]},
                     {id: "agentCondition", name: "代理条件", checked: true},
                     {id: "admin", name: "负责人", checked: true},
-                    {id: "followStatus", name: "跟进标签", checked: true},
+                    {id: "followStatus", name: "跟进标签", checked: true, type: "radio", radioArr: [
+                        "等待出包","评测中","跟进新包，包完成度不够","等待上线数据",
+                        "初步沟通合作意向(评测通过)","初步沟通合作意向(已上线产品)",
+                        "已被其他公司代理","开发自己发行","我方主动放弃","合作协议推进失败",
+                        "双方明确合作意向","签订测试协议","签订代理协议"
+                    ]},
                     {id: "appannie", name: "Apple Annie", checked: true}
                 ];
                 break;
@@ -92,8 +100,8 @@ module.exports = {
                     {id: "id", name: "id", checked: false},
                     {id: "name", name: "游戏名称", checked: true},
                     {id: "contactDate", name: "沟通日期", checked: true},
-                    {id: "contactTactics", name: "沟通策略", checked: true, isTextarea: true},
-                    {id: "contactContent", name: "沟通内容", checked: true, isTextarea: true}
+                    {id: "contactTactics", name: "沟通策略", checked: true, type: "textarea"},
+                    {id: "contactContent", name: "沟通内容", checked: true, type: "textarea"}
                 ];
                 break;
         }

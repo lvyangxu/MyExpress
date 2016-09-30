@@ -37,6 +37,21 @@
                 background-color: white;
                 outline: none;
                 cursor: pointer;
+                i.loading {
+                    animation: loading 5s infinite linear;
+                }
+
+                @keyframes loading {
+                    from {
+                        transform: rotateZ(0deg)
+                    }
+                    to {
+                        transform: rotateZ(360deg)
+                    }
+                }
+            }
+            button.loading {
+                background-color: #ccc;
             }
         }
     }
@@ -57,7 +72,7 @@
     }
 
     .panel-attachment {
-        .upload{
+        .upload {
             margin-bottom: 20px;
             input {
                 height: 20px;
@@ -109,7 +124,7 @@
             tbody tr {
                 td {
                     text-align: center;
-                    i{
+                    i {
                         cursor: pointer;
                     }
                 }
@@ -170,6 +185,11 @@
                         height: 30px;
                         padding-left: 10px;
                         padding-right: 10px;
+                        border: 1px solid rgba(204, 204, 204, 1);
+                    }
+                    select {
+                        height: 36px;
+                        border: 1px solid rgba(204, 204, 204, 1);
                     }
                     a {
                         text-decoration: none;

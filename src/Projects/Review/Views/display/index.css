@@ -63,12 +63,13 @@ body {
             font-size: 12px; }
           body #display .container .info .game-panel .column-filter .label:first-child {
             font-weight: bold;
-            margin-right: 30px; }
+            margin-right: 30px;
+            font-size: 14px; }
           body #display .container .info .game-panel .column-filter input[type=checkbox] {
             width: 20px;
             height: 20px;
             vertical-align: bottom;
-            cursor: po; }
+            cursor: pointer; }
         body #display .container .info .game-panel .game-names {
           height: 30px;
           margin-top: 20px;
@@ -93,7 +94,8 @@ body {
         body #display .container .info .game-panel .game-company {
           display: inline-block;
           min-width: 150px;
-          margin-right: 20px; }
+          margin-right: 20px;
+          vertical-align: top; }
           body #display .container .info .game-panel .game-company .up {
             margin-top: 20px;
             font-size: 12px; }
@@ -159,14 +161,14 @@ body {
           text-align: center; }
           body #display .container .info .cp-panel table tbody tr td[data-columnId=website] a:first-child {
             margin-right: 15px; }
-        body #display .container .info .follow-panel table tbody tr td[data=初步沟通等待出包],
-        body #display .container .info .follow-panel table tbody tr td[data=已收到包，评测中],
-        body #display .container .info .follow-panel table tbody tr td[data=包完成度不够，跟进新包],
-        body #display .container .info .follow-panel table tbody tr td[data=评测通过，等待上线数据] {
+        body #display .container .info .follow-panel table tbody tr td[data=等待出包],
+        body #display .container .info .follow-panel table tbody tr td[data=评测中],
+        body #display .container .info .follow-panel table tbody tr td[data=跟进新包，包完成度不够],
+        body #display .container .info .follow-panel table tbody tr td[data=等待上线数据] {
           background-color: #FF6666;
           color: white; }
-        body #display .container .info .follow-panel table tbody tr td[data=评测通过，初步沟通合作意向],
-        body #display .container .info .follow-panel table tbody tr td[data=已上线产品，初步沟通合作意向] {
+        body #display .container .info .follow-panel table tbody tr td[data=，初步沟通合作意向\(评测通过\)],
+        body #display .container .info .follow-panel table tbody tr td[data=初步沟通合作意向\(已上线产品\)] {
           background-color: #FFCC33;
           color: white; }
         body #display .container .info .follow-panel table tbody tr td[data=已被其他公司代理],
