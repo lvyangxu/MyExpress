@@ -97,8 +97,18 @@ var App = function (_React$Component) {
                         { style: this.state.display == "contact" ? {} : { display: "none" }, className: "contact-panel" },
                         React.createElement(Table, { tableId: "contact", curd: "curd", createButtonCallback: function createButtonCallback(checkedData) {
                                 var firstCheckedName = checkedData[0].name;
-                                var data = [{ name: firstCheckedName }];
-                                return data;
+                                var callbackPromise = new Promise(function (resolve, reject) {
+                                    http.post("../table/contactByName/read", { name: firstCheckedName }).then(function (d) {
+                                        var data = {
+                                            defaultData: [{ name: firstCheckedName }],
+                                            displayData: d
+                                        };
+                                        resolve(data);
+                                    }).catch(function (d) {
+                                        reject(d);
+                                    });
+                                });
+                                return callbackPromise;
                             } })
                     )
                 )

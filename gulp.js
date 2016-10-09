@@ -65,27 +65,19 @@ gulp.task("build-util", function () {
 
 gulp.task("build-client", function () {
     //views js
-    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"]).pipe(gulp.dest("dist/" + project + "/browserify"));
-    // if (isProduction) {
-    //     gulp.src("dist/" + project + "/browserify/*/main.js")
-    //         .pipe(browserify({
-    //             insertGlobals: true,
-    //             debug: !gulp.env.production
-    //         }))
-    //         .pipe(rename({basename: "bundle"}))
-    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
-    //         .pipe(uglify())
-    //         .pipe(gulp.dest("dist/" + project + "/client"));
-    // }else{
-    //     gulp.src("dist/" + project + "/browserify/*/main.js")
-    //         .pipe(browserify({
-    //             insertGlobals: true,
-    //             debug: !gulp.env.production
-    //         }))
-    //         .pipe(rename({basename: "bundle"}))
-    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
-    //         .pipe(gulp.dest("dist/" + project + "/client"));
-    // }
+    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"]).pipe(gulp.dest("dist/" + project + "/browserify")).on("end", function () {
+        if (isProduction) {
+            gulp.src("dist/" + project + "/browserify/*/main.js").pipe(browserify({
+                insertGlobals: true,
+                debug: !gulp.env.production
+            })).pipe(rename({ basename: "bundle" })).pipe(gulp.dest("dist/" + project + "/browserify")).pipe(uglify()).pipe(gulp.dest("dist/" + project + "/client"));
+        } else {
+            gulp.src("dist/" + project + "/browserify/*/main.js").pipe(browserify({
+                insertGlobals: true,
+                debug: !gulp.env.production
+            })).pipe(rename({ basename: "bundle" })).pipe(gulp.dest("dist/" + project + "/browserify")).pipe(gulp.dest("dist/" + project + "/client"));
+        }
+    });
 
     //views html minify
     gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"]).pipe(htmlmin({ collapseWhitespace: true })).pipe(gulp.dest("dist/" + project + "/client"));
@@ -111,18 +103,6 @@ gulp.task("build-client", function () {
     gulp.src("src/Common/Fontawesome/*/*").pipe(gulp.dest("dist/" + project + "/client/fontawesome"));
     //package.json
     gulp.src("package.json").pipe(gulp.dest("dist/" + project));
-});
-
-// gulp.watch("dist/" + project + "/browserify/*/bundle.js",(event)=>{
-//     console.log(event);
-// });
-
-gulp.task("move", function () {
-    var stream = gulp.src("dist/" + project + "/browserify/*/bundle.js");
-    if (isProduction) {
-        stream = stream.pipe(uglify());
-    }
-    stream.pipe(gulp.dest("dist/" + project + "/client"));
 });
 
 //# sourceMappingURL=gulp.js.map

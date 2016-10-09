@@ -1,6 +1,7 @@
 .react-radio {
     display: inline-block;
     $width: 150px;
+    font-size: 12px;
     .input {
         width: $width;
         height: 16px;
@@ -32,6 +33,7 @@
     .panel {
         z-index: 2;
         position: absolute;
+        height: 370px;
         background: white;
         padding: 5px;
         border: 1px solid rgba(174, 174, 174, 1);
@@ -50,21 +52,46 @@
         }
 
         .options {
-            .column{
-                display: inline-block;
-                margin-top:10px;
-                vertical-align: top;
-                div {
-                    padding: 5px;
+            div {
+                height: 30px;
+                line-height: 30px;
+            }
+            .option {
+                padding-left: 5px;
+                padding-right: 5px;
+                cursor: pointer;
+            }
+            .option:hover {
+                background-color: rgba(238, 238, 238, 1);
+            }
+            .page {
+                position: absolute;
+                bottom:10px;
+                width: 100%;
+                text-align: center;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                button {
+                    border: none;
+                    outline: none;
+                    background-color: transparent;
+                    font-weight: bolder;
+                    font-size: 14px;
                     cursor: pointer;
-                    height: 30px;
-                    line-height: 30px;
+                    padding-left: 20px;
+                    padding-right: 20px;
                 }
-                div:hover{
+                button:hover {
                     background-color: rgba(238, 238, 238, 1);
                 }
+                button.page-left {
+                    margin-right: 5px;
+                }
+                button.page-right {
+                    margin-left: 5px;
+                }
             }
-
         }
 
     }

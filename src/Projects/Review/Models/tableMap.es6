@@ -59,9 +59,9 @@ module.exports = {
                 d = [
                     {id: "id", name: "id", checked: false},
                     {id: "name", name: "游戏名称", checked: true},
-                    {id: "followStatus", name: "跟进标签", checked: true, radio: true},
+                    {id: "followStatus", name: "跟进标签", checked: true, select: true},
                     {id: "lastContact", name: "最后联系时间", checked: true},
-                    {id: "admin", name: "负责人", checked: true},
+                    {id: "admin", name: "负责人", checked: true, select: true},
                     {id: "createTime", name: "录入时间", checked: false},
                     {id: "updateTime", name: "更新时间", checked: false}
                 ];
@@ -79,19 +79,23 @@ module.exports = {
                     {id: "online", name: "上线情况", checked: true},
                     {id: "performance", name: "上线表现", checked: true},
                     {id: "lastContact", name: "最后联系时间", checked: true},
-                    {id: "contactWay", name: "沟通方式", checked: true, type: "radio", radioArr: [
-                         "初步网上/电话沟通","网上/电话长期跟进资料","网上/电话深度沟通（合作意向尚不明确）",
-                        "网上/电话深度沟通（已明确合作意向）","已约定见面（去对方公司拜访）","已约定见面（来我公司拜访）",
-                        "已见面（去对方公司拜访）","已见面（来我公司拜访）","已见面（已互相拜访）"
-                    ]},
+                    {
+                        id: "contactWay", name: "沟通方式", checked: true, type: "radio", radioArr: [
+                        "初步网上/电话沟通", "网上/电话长期跟进资料", "网上/电话深度沟通（合作意向尚不明确）",
+                        "网上/电话深度沟通（已明确合作意向）", "已约定见面（去对方公司拜访）", "已约定见面（来我公司拜访）",
+                        "已见面（去对方公司拜访）", "已见面（来我公司拜访）", "已见面（已互相拜访）"
+                    ]
+                    },
                     {id: "agentCondition", name: "代理条件", checked: true},
                     {id: "admin", name: "负责人", checked: true},
-                    {id: "followStatus", name: "跟进标签", checked: true, type: "radio", radioArr: [
-                        "等待出包","评测中","跟进新包，包完成度不够","等待上线数据",
-                        "初步沟通合作意向(评测通过)","初步沟通合作意向(已上线产品)",
-                        "已被其他公司代理","开发自己发行","我方主动放弃","合作协议推进失败",
-                        "双方明确合作意向","签订测试协议","签订代理协议"
-                    ]},
+                    {
+                        id: "followStatus", name: "跟进标签", checked: true, type: "radio", radioArr: [
+                        "等待出包", "评测中", "跟进新包，包完成度不够", "等待上线数据",
+                        "初步沟通合作意向(评测通过)", "初步沟通合作意向(已上线产品)",
+                        "已被其他公司代理", "开发自己发行", "我方主动放弃", "合作协议推进失败",
+                        "双方明确合作意向", "签订测试协议", "签订代理协议"
+                    ]
+                    },
                     {id: "appannie", name: "Apple Annie", checked: true}
                 ];
                 break;
@@ -231,7 +235,7 @@ module.exports = {
                 values = {publisher: req.body.developer};
                 break;
             case "followLog":
-                sqlCommand = "select * from contact where ?";
+                sqlCommand = "select * from contact where ? order by contactDate";
                 values = {name: req.body.name};
                 break;
             case "follow":
@@ -240,6 +244,13 @@ module.exports = {
             case "cpDisplay":
                 let w = "concat(\"<a href='\",website,\"' target='_blank'>\",'主页','</a>',\"<a href='\",appannie,\"' target='_blank'>\",'annie','</a>')";
                 sqlCommand = "select name,businessType,area,address,productType,contactMan,duty,contactWay," + w + " as website,manager,note from cp";
+                break;
+            case "contact":
+                sqlCommand = "select * from contact order by name";
+                break;
+            case "contactByName":
+                sqlCommand = "select * from contact where ?";
+                values = {name: req.body.name};
                 break;
             default:
                 sqlCommand = "select * from " + table;

@@ -8,10 +8,12 @@ class radio extends React.Component {
             panelShow: false,
             sourceData: [],
             value: "",
-            filterOptionData: [],
-            filterValue: ""
+            filterData: [],
+            pageData: [],
+            filterValue: "",
+            pageIndex: 0
         };
-        let bindArr = ["radioBlur", "panelToggle", "filterChange", "filterBlur", "select", "setOptionHtml", "setFilterOptionData"];
+        let bindArr = ["radioBlur", "panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -20,11 +22,12 @@ class radio extends React.Component {
     componentDidMount() {
         if (this.props.url != undefined) {
             http.post(this.props.url).then(d=> {
-                let filterOptionData = this.setFilterOptionData(d);
+                let pageData = this.slicePageData(d, 0);
                 this.setState({
                     value: this.props.defaultBlank ? "" : d[0],
                     sourceData: d,
-                    filterOptionData: filterOptionData
+                    filterData: d,
+                    pageData: pageData
                 });
             }).catch(d=> {
                 console.log("init radio failed:" + d);
@@ -32,11 +35,12 @@ class radio extends React.Component {
 
         } else {
             let data = this.props.data;
-            let filterOptionData = this.setFilterOptionData(data);
+            let pageData = this.slicePageData(data, 0);
             this.setState({
                 value: this.props.defaultBlank ? "" : data[0],
                 sourceData: data,
-                filterOptionData: filterOptionData,
+                filterData: data,
+                pageData: pageData
             });
         }
     }
@@ -51,30 +55,39 @@ class radio extends React.Component {
 
     render() {
         return (
-            <div className="react-radio" tabIndex="0" onBlur={this.radioBlur}>
+            <div className="react-radio react-radio-child" tabIndex="0" onBlur={this.radioBlur}>
                 <div className="input" onClick={this.panelToggle}>
                     {this.state.value}<i className="fa fa-caret-down"></i>
                 </div>
-                <div className="panel" style={(this.state.panelShow) ? {} : {display: "none"}}>
+                <div className="react-radio-child panel" style={(this.state.panelShow) ? {} : {display: "none"}}>
                     <div className="filter">
                         <i className="fa fa-search"></i>
-                        <input onChange={this.filterChange} onBlur={this.filterBlur} value={this.state.filterValue}
+                        <input className="react-radio-child" onChange={this.filterChange}
+                               value={this.state.filterValue}
                                placeholder="filter"/>
                     </div>
                     <div className="options">
                         {
-                            this.state.filterOptionData.map((d, i)=> {
-                                return <div key={i} className="column">
-                                    {
-                                        d.map((d1, j)=> {
-                                            return <div className="option" onClick={()=> {
-                                                this.select(d1)
-                                            }} key={j} dangerouslySetInnerHTML={this.setOptionHtml(d1)}></div>;
-                                        })
-                                    }
-                                </div>
+                            this.state.pageData.map((d, i)=> {
+                                return <div key={i} className="option" onClick={()=> {
+                                    this.select(d)
+                                }} dangerouslySetInnerHTML={this.setOptionHtml(d)}></div>
                             })
                         }
+                        <div className="page">
+                            <button className="react-radio-child page-left" onClick={()=> {
+                                this.pageLeft();
+                            }}>
+                                <i className="fa fa-angle-left"></i>
+                            </button>
+                            {(this.state.pageIndex + 1) + "/" + ((Math.ceil(this.state.filterData.length / 10) == 0)
+                                ? 1 : Math.ceil(this.state.filterData.length / 10))}
+                            <button className="react-radio-child page-right" onClick={()=> {
+                                this.pageRight();
+                            }}>
+                                <i className="fa fa-angle-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,15 +95,7 @@ class radio extends React.Component {
     }
 
     radioBlur(e) {
-        let panel = e.target.getElementsByClassName("panel")[0];
-        if (panel == undefined) {
-            this.setState({
-                panelShow: false
-            });
-            return;
-        }
-        let selfInput = panel.getElementsByClassName("filter")[0].getElementsByTagName("input")[0];
-        if (e.relatedTarget != selfInput) {
+        if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
             this.setState({
                 panelShow: false
             });
@@ -104,19 +109,16 @@ class radio extends React.Component {
     }
 
     filterChange(e) {
-        let filterOptionData = this.state.sourceData.filter(d=> {
+        let filterData = this.state.sourceData.filter(d=> {
             return d.toString().includes(e.target.value);
         });
-        filterOptionData = this.setFilterOptionData(filterOptionData);
+        let pageData = this.slicePageData(filterData, 0);
         this.setState({
             filterValue: e.target.value,
-            filterOptionData: filterOptionData
+            pageIndex: 0,
+            filterData: filterData,
+            pageData: pageData
         });
-    }
-
-    filterBlur(e) {
-        e.preventDefault();
-        e.stopPropagation();
     }
 
     select(d) {
@@ -144,16 +146,37 @@ class radio extends React.Component {
         }
     }
 
-    setFilterOptionData(d) {
-        let columnDataArr = [];
-        for (let i = 0; i < d.length; i = i + 10) {
-            let end = (i + 10) > d.length ? d.length : i + 10;
-            let columnData = d.slice(i, end);
-            columnDataArr.push(columnData);
-        }
-        return columnDataArr;
+    slicePageData(data, i) {
+        let filterData = data;
+        let start = i * 10;
+        let end = i * 10 + 10;
+        end = end > filterData.length ? filterData.length : end;
+        let columnData = filterData.slice(start, end);
+        return columnData;
     }
 
+    pageLeft() {
+        let i = this.state.pageIndex;
+        if (i != 0) {
+            i--;
+        }
+        this.setState({
+            pageIndex: i,
+            pageData: this.slicePageData(this.state.filterData, i)
+        });
+    }
+
+    pageRight() {
+        let i = this.state.pageIndex;
+        let end = Math.ceil(this.state.filterData.length / 10);
+        if (i < end - 1) {
+            i++;
+        }
+        this.setState({
+            pageIndex: i,
+            pageData: this.slicePageData(this.state.filterData, i)
+        });
+    }
 
 }
 

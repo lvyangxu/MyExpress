@@ -86,27 +86,30 @@ gulp.task("build-util", ()=> {
 gulp.task("build-client", ()=> {
     //views js
     gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/browserify"));
-    // if (isProduction) {
-    //     gulp.src("dist/" + project + "/browserify/*/main.js")
-    //         .pipe(browserify({
-    //             insertGlobals: true,
-    //             debug: !gulp.env.production
-    //         }))
-    //         .pipe(rename({basename: "bundle"}))
-    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
-    //         .pipe(uglify())
-    //         .pipe(gulp.dest("dist/" + project + "/client"));
-    // }else{
-    //     gulp.src("dist/" + project + "/browserify/*/main.js")
-    //         .pipe(browserify({
-    //             insertGlobals: true,
-    //             debug: !gulp.env.production
-    //         }))
-    //         .pipe(rename({basename: "bundle"}))
-    //         .pipe(gulp.dest("dist/" + project + "/browserify"))
-    //         .pipe(gulp.dest("dist/" + project + "/client"));
-    // }
+        .pipe(gulp.dest("dist/" + project + "/browserify"))
+        .on("end",()=>{
+            if (isProduction) {
+                gulp.src("dist/" + project + "/browserify/*/main.js")
+                    .pipe(browserify({
+                        insertGlobals: true,
+                        debug: !gulp.env.production
+                    }))
+                    .pipe(rename({basename: "bundle"}))
+                    .pipe(gulp.dest("dist/" + project + "/browserify"))
+                    .pipe(uglify())
+                    .pipe(gulp.dest("dist/" + project + "/client"));
+            }else{
+                gulp.src("dist/" + project + "/browserify/*/main.js")
+                    .pipe(browserify({
+                        insertGlobals: true,
+                        debug: !gulp.env.production
+                    }))
+                    .pipe(rename({basename: "bundle"}))
+                    .pipe(gulp.dest("dist/" + project + "/browserify"))
+                    .pipe(gulp.dest("dist/" + project + "/client"));
+            }
+        });
+
 
     //views html minify
     gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
@@ -150,17 +153,4 @@ gulp.task("build-client", ()=> {
         .pipe(gulp.dest("dist/" + project));
 
 
-});
-
-
-// gulp.watch("dist/" + project + "/browserify/*/bundle.js",(event)=>{
-//     console.log(event);
-// });
-
-gulp.task("move", ()=> {
-    let stream = gulp.src("dist/" + project + "/browserify/*/bundle.js");
-    if (isProduction) {
-        stream = stream.pipe(uglify());
-    }
-    stream.pipe(gulp.dest("dist/" + project + "/client"));
 });

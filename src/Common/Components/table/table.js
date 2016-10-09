@@ -32,13 +32,14 @@ var table = function (_React$Component) {
             rowAllChecked: false,
             sortDesc: true,
             sortColumnId: "",
-            createLineNum: 10,
+            createLineNum: 5,
             ct: [],
             ut: [],
             attachmentList: [],
             attachmentProgress: "0%",
-            loading: false
-
+            loading: false,
+            selectFilter: [],
+            createReferTableData: []
         };
         var bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck", "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
         bindArr.forEach(function (d) {
@@ -74,12 +75,27 @@ var table = function (_React$Component) {
                     for (var i = 0; i < _this2.state.createLineNum; i++) {
                         _loop(i);
                     }
+                    var selectFilter = d[0].filter(function (d1) {
+                        return d1.select;
+                    }).map(function (d1) {
+                        var values = [];
+                        var data = [];
+                        d[1].forEach(function (d2, j) {
+                            if (!values.includes(d2[d1.id])) {
+                                values.push(d2[d1.id]);
+                                data.push({ id: j, name: d2[d1.id], checked: true });
+                            }
+                        });
+                        return { id: d1.id, name: d1.name, data: data };
+                    });
+
                     _this2.setState({
                         columns: d[0],
                         sourceData: d[1],
                         filterData: d[1],
                         displayData: d[1],
-                        ct: ct
+                        ct: ct,
+                        selectFilter: selectFilter
                     });
                 }).catch(function (d) {
                     console.log("init table failed:" + d);
@@ -121,41 +137,6 @@ var table = function (_React$Component) {
                             { className: "row-filter" },
                             React.createElement("input", { onChange: this.rowFilterChange, placeholder: "行过滤",
                                 value: this.state.rowFilterValue })
-                        ),
-                        React.createElement(
-                            "div",
-                            { className: "radio-filter", style: this.state.columns.filter(function (d) {
-                                    return d.radio;
-                                }).length > 0 ? { marginLeft: "20px" } : {} },
-                            this.state.columns.filter(function (d) {
-                                return d.radio;
-                            }).map(function (d) {
-                                var radioValues = [];
-                                _this3.state.sourceData.forEach(function (d1) {
-                                    if (!radioValues.includes(d1[d.id])) {
-                                        radioValues.push(d1[d.id]);
-                                    }
-                                });
-                                var select = React.createElement(
-                                    "select",
-                                    { key: d.id, onChange: function onChange(e) {
-                                            _this3.radioFilterChange(e, d);
-                                        } },
-                                    React.createElement(
-                                        "option",
-                                        null,
-                                        d.name
-                                    ),
-                                    radioValues.map(function (d1) {
-                                        return React.createElement(
-                                            "option",
-                                            { key: d1 },
-                                            d1
-                                        );
-                                    })
-                                );
-                                return select;
-                            })
                         ),
                         React.createElement(
                             "div",
@@ -221,6 +202,20 @@ var table = function (_React$Component) {
                                 React.createElement("i", { className: "fa fa-paperclip" }),
                                 "附件"
                             )
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "select-filter", style: this.state.columns.filter(function (d) {
+                                    return d.select;
+                                }).length > 0 ? { marginTop: "20px" } : {} },
+                            this.state.selectFilter.map(function (d, i) {
+                                var select = React.createElement(Select, { key: i, data: d.data, text: d.name,
+                                    callback: function callback(d1) {
+                                        _this3.rowFilterCallback(d.id, d1);
+                                    },
+                                    optionNumPerColumn: 5 });
+                                return select;
+                            })
                         )
                     ),
                     React.createElement(
@@ -344,6 +339,19 @@ var table = function (_React$Component) {
                         React.createElement(
                             "tbody",
                             null,
+                            this.state.createReferTableData.map(function (d, i) {
+                                return React.createElement(
+                                    "tr",
+                                    { key: i },
+                                    _this3.state.columns.filter(function (d1) {
+                                        var filter = d1.id == "id";
+                                        return !filter;
+                                    }).map(function (d1) {
+                                        var td = React.createElement("td", { "data-columnId": d1.id, key: d1.id, dangerouslySetInnerHTML: { __html: d[d1.id].toString().replace(/\n/g, "<br/>") } });
+                                        return td;
+                                    })
+                                );
+                            }),
                             this.state.ct.map(function (d, i) {
                                 return React.createElement(
                                     "tr",
@@ -611,6 +619,48 @@ var table = function (_React$Component) {
             });
         }
     }, {
+        key: "rowFilterCallback",
+        value: function rowFilterCallback(id, data) {
+            var checkedValues = data.filter(function (d) {
+                return d.checked;
+            }).map(function (d) {
+                return d.name;
+            });
+            var filterData = this.state.sourceData.filter(function (d) {
+                var isFind = false;
+                checkedValues.forEach(function (d1) {
+                    if (d[id] != null && d[id].toString().toLowerCase() == d1.toString().toLowerCase()) {
+                        isFind = true;
+                    }
+                });
+                return isFind;
+            });
+            this.state.selectFilter.filter(function (d) {
+                return d.id != id;
+            }).map(function (d) {
+                var checkedValues = d.data.filter(function (d1) {
+                    return d1.checked;
+                });
+
+                filterData = filterData.filter(function (d1) {
+                    var isFind = false;
+                    checkedValues.forEach(function (d2) {
+                        var tdValue = d1[d.id];
+                        var matchValue = d2.name.toString().toLowerCase();
+                        if (tdValue != null && tdValue.toString().toLowerCase() == matchValue) {
+                            isFind = true;
+                        }
+                    });
+                    return isFind;
+                });
+            });
+
+            this.setState({
+                filterData: filterData,
+                displayData: filterData
+            });
+        }
+    }, {
         key: "refresh",
         value: function refresh() {
             var _this4 = this;
@@ -745,28 +795,32 @@ var table = function (_React$Component) {
         value: function create() {
             var _this6 = this;
 
-            var data = { panel: "create" };
+            var data = { panel: "create", createReferTableData: [] };
             if (this.props.createButtonCallback) {
                 var checkedData = this.state.displayData.filter(function (d) {
                     return d.checkboxChecked;
                 });
                 if (checkedData.length != 0) {
-                    (function () {
-                        var defaultCreateValue = _this6.props.createButtonCallback(checkedData);
+                    this.props.createButtonCallback(checkedData).then(function (d) {
+                        var defaultCreateValue = d.defaultData;
+                        if (d.hasOwnProperty("displayData")) {
+                            data.createReferTableData = d.displayData;
+                        }
+
                         var ct = defaultCreateValue.concat();
 
                         var _loop2 = function _loop2(i) {
                             if (defaultCreateValue[i]) {
-                                _this6.state.columns.forEach(function (d) {
-                                    if (!defaultCreateValue[i].hasOwnProperty(d.id)) {
-                                        ct[i][d.id] = "";
+                                _this6.state.columns.forEach(function (d1) {
+                                    if (!defaultCreateValue[i].hasOwnProperty(d1.id)) {
+                                        ct[i][d1.id] = "";
                                     }
                                 });
                             } else {
                                 (function () {
                                     var row = {};
-                                    _this6.state.columns.forEach(function (d) {
-                                        row[d.id] = "";
+                                    _this6.state.columns.forEach(function (d1) {
+                                        row[d1.id] = "";
                                     });
                                     ct.push(row);
                                 })();
@@ -777,10 +831,16 @@ var table = function (_React$Component) {
                             _loop2(i);
                         }
                         data.ct = ct;
-                    })();
+                        _this6.setState(data);
+                    }).catch(function (d) {
+                        _this6.setState(data);
+                    });
+                } else {
+                    this.setState(data);
                 }
+            } else {
+                this.setState(data);
             }
-            this.setState(data);
         }
     }, {
         key: "createSubmit",
@@ -814,6 +874,7 @@ var table = function (_React$Component) {
                     http.post("../table/" + tableId + "/create", data).then(function (d) {
                         _this7.refresh();
                         alert("提交成功");
+                        _this7.setState({ panel: "main" });
                     }).catch(function (d) {
                         alert("提交失败:" + d);
                     });
@@ -873,6 +934,7 @@ var table = function (_React$Component) {
                     http.post("../table/" + tableId + "/update", data).then(function (d) {
                         _this8.refresh();
                         alert("提交成功");
+                        _this8.setState({ panel: "main" });
                     }).catch(function (d) {
                         alert("提交失败:" + d);
                     });

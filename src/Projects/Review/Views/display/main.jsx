@@ -16,9 +16,11 @@ class App extends React.Component {
             cpRowFilterValue: "",
             gameRadioValue: "",
             basicChecked: true,
-            followChecked: true
+            followChecked: true,
+            screenshotData: [],
+            isLandscape: true
         };
-        let bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback", "columnFilter", "basicFilter", "followFilter"];
+        let bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback", "columnFilter", "basicFilter", "followFilter", "sliceScreenshotData"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -33,7 +35,7 @@ class App extends React.Component {
             {id: "theme", name: "题材"},
             {id: "online", name: "上线情况"},
             {id: "performance", name: "上线表现"},
-            {id: "appannie", name: "Apple Annie"},
+            {id: "appannie", name: "App Annie"},
             {id: "screenshot", name: "截图"}
         ];
         let columnsFollow = [
@@ -165,16 +167,7 @@ class App extends React.Component {
                             <div className="screenshot-title">游戏截图</div>
                             <div className="screenshot-image">
                                 {
-                                    this.state.screenshotData ?
-                                        (this.state.screenshotData.length == 0 ? "无截图" :
-                                            this.state.screenshotData.map((d, i)=> {
-                                                return <div key={i} className="row">{
-                                                    d.map((d1, j)=> {
-                                                        return <img key={j}
-                                                                    src={"../data/game/" + d1.id + "/" + d1.imageName}/>
-                                                    })
-                                                }</div>
-                                            })) : ""
+                                    this.sliceScreenshotData()
                                 }
                             </div>
                         </div>
@@ -351,20 +344,10 @@ class App extends React.Component {
             let gameData = d1[0].filter(d2=> {
                 return d2.name == d;
             })[0];
-            let screenshotData = [];
-            for (let i = 0; i < d1[1].length; i = i + 2) {
-                let row = [];
-                if (i == d1[1].length - 1) {
-                    row.push(d1[1][i]);
-                } else {
-                    row.push(d1[1][i]);
-                    row.push(d1[1][i + 1]);
-                }
-                screenshotData.push(row);
-            }
             this.setState({
                 gameData: gameData,
-                screenshotData: screenshotData,
+                screenshotData: d1[1].dir,
+                isLandscape: d1[1].isLandscape,
                 contactData: d1[2]
             });
         }).catch(d=> {
@@ -405,6 +388,40 @@ class App extends React.Component {
             data[d.id + "Checked"] = !this.state.followChecked;
         });
         this.setState(data);
+    }
+
+    sliceScreenshotData() {
+        let data = this.state.screenshotData;
+        let screenshotDom;
+        if (data.length == 0) {
+            return "无截图";
+        }
+        let sliceData = [];
+        for (let i = 0; i < data.length; i = i + 2) {
+            let row = [];
+            if (i == data.length - 1) {
+                row.push(data[i]);
+            } else {
+                row.push(data[i]);
+                row.push(data[i + 1]);
+            }
+            sliceData.push(row);
+        }
+        if (this.state.isLandscape) {
+            screenshotDom = sliceData.map((d1, i)=> {
+                return <div key={i} className="row">{
+                    d1.map((d2, j)=> {
+                        return <img key={j} style={{width: "400px"}}
+                                    src={"../data/game/" + d2.id + "/" + d2.imageName}/>
+                    })
+                }</div>
+            });
+        } else {
+            screenshotDom = data.map((d1, i)=> {
+                return <img key={i} style={{width: "200px"}} src={"../data/game/" + d1.id + "/" + d1.imageName}/>
+            });
+        }
+        return screenshotDom;
     }
 }
 

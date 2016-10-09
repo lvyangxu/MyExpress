@@ -1,5 +1,6 @@
 .react-radio {
-  display: inline-block; }
+  display: inline-block;
+  font-size: 12px; }
   .react-radio .input {
     width: 150px;
     height: 16px;
@@ -23,6 +24,7 @@
   .react-radio .panel {
     z-index: 2;
     position: absolute;
+    height: 370px;
     background: white;
     padding: 5px;
     border: 1px solid #aeaeae;
@@ -36,16 +38,37 @@
         padding: 5px 4px 5px 4px;
         border: none;
         outline: none; }
-    .react-radio .panel .options .column {
-      display: inline-block;
-      margin-top: 10px;
-      vertical-align: top; }
-      .react-radio .panel .options .column div {
-        padding: 5px;
+    .react-radio .panel .options div {
+      height: 30px;
+      line-height: 30px; }
+    .react-radio .panel .options .option {
+      padding-left: 5px;
+      padding-right: 5px;
+      cursor: pointer; }
+    .react-radio .panel .options .option:hover {
+      background-color: #eeeeee; }
+    .react-radio .panel .options .page {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-user-select: none; }
+      .react-radio .panel .options .page button {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        font-weight: bolder;
+        font-size: 14px;
         cursor: pointer;
-        height: 30px;
-        line-height: 30px; }
-      .react-radio .panel .options .column div:hover {
+        padding-left: 20px;
+        padding-right: 20px; }
+      .react-radio .panel .options .page button:hover {
         background-color: #eeeeee; }
+      .react-radio .panel .options .page button.page-left {
+        margin-right: 5px; }
+      .react-radio .panel .options .page button.page-right {
+        margin-left: 5px; }
 
 /*# sourceMappingURL=radio.css.map */

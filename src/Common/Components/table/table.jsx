@@ -17,13 +17,14 @@ class table extends React.Component {
             rowAllChecked: false,
             sortDesc: true,
             sortColumnId: "",
-            createLineNum: 10,
+            createLineNum: 5,
             ct: [],
             ut: [],
             attachmentList: [],
             attachmentProgress: "0%",
-            loading: false
-
+            loading: false,
+            selectFilter: [],
+            createReferTableData: []
         };
         let bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck",
             "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
@@ -50,12 +51,27 @@ class table extends React.Component {
                     });
                     ct.push(ctRow);
                 }
+                let selectFilter = d[0].filter(d1=> {
+                    return d1.select;
+                }).map(d1=> {
+                    let values = [];
+                    let data = [];
+                    d[1].forEach((d2, j)=> {
+                        if (!values.includes(d2[d1.id])) {
+                            values.push(d2[d1.id]);
+                            data.push({id: j, name: d2[d1.id], checked: true});
+                        }
+                    });
+                    return {id: d1.id, name: d1.name, data: data};
+                });
+
                 this.setState({
                     columns: d[0],
                     sourceData: d[1],
                     filterData: d[1],
                     displayData: d[1],
-                    ct: ct
+                    ct: ct,
+                    selectFilter: selectFilter
                 });
             }).catch(d=> {
                 console.log("init table failed:" + d);
@@ -86,30 +102,6 @@ class table extends React.Component {
                         <div className="row-filter">
                             <input onChange={this.rowFilterChange} placeholder="行过滤"
                                    value={this.state.rowFilterValue}/>
-                        </div>
-                        <div className="radio-filter" style={this.state.columns.filter(d=> {
-                            return d.radio;
-                        }).length > 0 ? {marginLeft: "20px"} : {}}>
-                            {
-                                this.state.columns.filter(d=> {
-                                    return d.radio;
-                                }).map(d=> {
-                                    let radioValues = [];
-                                    this.state.sourceData.forEach(d1=> {
-                                        if (!radioValues.includes(d1[d.id])) {
-                                            radioValues.push(d1[d.id]);
-                                        }
-                                    });
-                                    let select = <select key={d.id} onChange={(e)=> {
-                                        this.radioFilterChange(e, d);
-                                    }}>
-                                        <option>{d.name}</option>
-                                        {radioValues.map(d1=> {
-                                            return <option key={d1}>{d1}</option>;
-                                        })}</select>;
-                                    return select;
-                                })
-                            }
                         </div>
                         <div className="create"
                              style={this.state.curd.includes("c") ? {marginLeft: "20px"} : {display: "none"}}>
@@ -145,6 +137,20 @@ class table extends React.Component {
                                 this.attachment();
                             }}><i className="fa fa-paperclip"></i>附件
                             </button>
+                        </div>
+                        <div className="select-filter" style={this.state.columns.filter(d=> {
+                            return d.select;
+                        }).length > 0 ? {marginTop: "20px"} : {}}>
+                            {
+                                this.state.selectFilter.map((d, i)=> {
+                                    let select = <Select key={i} data={d.data} text={d.name}
+                                                         callback={(d1=> {
+                                                             this.rowFilterCallback(d.id, d1);
+                                                         })}
+                                                         optionNumPerColumn={5}/>;
+                                    return select;
+                                })
+                            }
                         </div>
                     </div>
                     <div className="table-body">
@@ -226,7 +232,7 @@ class table extends React.Component {
                         <tr>
                             {
                                 this.state.columns.filter(d=> {
-                                    let filter = (d.id == "id")
+                                    let filter = (d.id == "id");
                                     return !filter;
                                 }).map(d=> {
                                     return <th key={d.id}>{d.name}</th>;
@@ -236,11 +242,26 @@ class table extends React.Component {
                         </thead>
                         <tbody>
                         {
+                            this.state.createReferTableData.map((d, i)=> {
+                                return <tr key={i}>
+                                    {
+                                        this.state.columns.filter(d1=> {
+                                            let filter = (d1.id == "id");
+                                            return !filter;
+                                        }).map(d1=> {
+                                            let td = <td data-columnId={d1.id} key={d1.id} dangerouslySetInnerHTML={{__html:d[d1.id].toString().replace(/\n/g, "<br/>")}}></td>;
+                                            return td;
+                                        })
+                                    }
+                                </tr>
+                            })
+                        }
+                        {
                             this.state.ct.map((d, i)=> {
                                 return <tr key={i}>
                                     {
                                         this.state.columns.filter(d1=> {
-                                            let filter = (d1.id == "id")
+                                            let filter = (d1.id == "id");
                                             return !filter;
                                         }).map(d1=> {
                                             let td;
@@ -308,7 +329,7 @@ class table extends React.Component {
                                 return <tr key={i}>
                                     {
                                         this.state.columns.filter(d1=> {
-                                            let filter = (d1.id == "id")
+                                            let filter = (d1.id == "id");
                                             return !filter;
                                         }).map(d1=> {
                                             let td;
@@ -411,6 +432,47 @@ class table extends React.Component {
             filterData: filterData,
             displayData: filterData,
             rowFilterValue: matchValue
+        });
+    }
+
+    rowFilterCallback(id, data) {
+        let checkedValues = data.filter(d=> {
+            return d.checked;
+        }).map(d=> {
+            return d.name;
+        });
+        let filterData = this.state.sourceData.filter(d=> {
+            let isFind = false;
+            checkedValues.forEach(d1=> {
+                if (d[id] != null && d[id].toString().toLowerCase() == d1.toString().toLowerCase()) {
+                    isFind = true;
+                }
+            });
+            return isFind;
+        });
+        this.state.selectFilter.filter(d=> {
+            return d.id != id;
+        }).map(d=> {
+            let checkedValues = d.data.filter(d1=> {
+                return d1.checked;
+            });
+
+            filterData = filterData.filter(d1=> {
+                let isFind = false;
+                checkedValues.forEach(d2=> {
+                    let tdValue = d1[d.id];
+                    let matchValue = d2.name.toString().toLowerCase();
+                    if (tdValue != null && tdValue.toString().toLowerCase() == matchValue) {
+                        isFind = true;
+                    }
+                });
+                return isFind;
+            })
+        });
+
+        this.setState({
+            filterData: filterData,
+            displayData: filterData
         });
     }
 
@@ -532,33 +594,45 @@ class table extends React.Component {
     }
 
     create() {
-        let data = {panel: "create"};
+        let data = {panel: "create", createReferTableData: []};
         if (this.props.createButtonCallback) {
             let checkedData = this.state.displayData.filter(d=> {
                 return d.checkboxChecked;
             });
             if (checkedData.length != 0) {
-                let defaultCreateValue = this.props.createButtonCallback(checkedData);
-                let ct = defaultCreateValue.concat();
-                for (let i = 0; i < this.state.createLineNum; i++) {
-                    if (defaultCreateValue[i]) {
-                        this.state.columns.forEach(d=> {
-                            if (!defaultCreateValue[i].hasOwnProperty(d.id)) {
-                                ct[i][d.id] = "";
-                            }
-                        });
-                    } else {
-                        let row = {};
-                        this.state.columns.forEach(d=> {
-                            row[d.id] = "";
-                        });
-                        ct.push(row);
+                this.props.createButtonCallback(checkedData).then(d=> {
+                    let defaultCreateValue = d.defaultData;
+                    if (d.hasOwnProperty("displayData")) {
+                        data.createReferTableData = d.displayData;
                     }
-                }
-                data.ct = ct;
+
+                    let ct = defaultCreateValue.concat();
+                    for (let i = 0; i < this.state.createLineNum; i++) {
+                        if (defaultCreateValue[i]) {
+                            this.state.columns.forEach(d1=> {
+                                if (!defaultCreateValue[i].hasOwnProperty(d1.id)) {
+                                    ct[i][d1.id] = "";
+                                }
+                            });
+                        } else {
+                            let row = {};
+                            this.state.columns.forEach(d1=> {
+                                row[d1.id] = "";
+                            });
+                            ct.push(row);
+                        }
+                    }
+                    data.ct = ct;
+                    this.setState(data);
+                }).catch(d=> {
+                    this.setState(data);
+                });
+            } else {
+                this.setState(data);
             }
+        } else {
+            this.setState(data);
         }
-        this.setState(data);
     }
 
     createSubmit() {
@@ -588,6 +662,7 @@ class table extends React.Component {
             http.post("../table/" + tableId + "/create", data).then(d=> {
                 this.refresh();
                 alert("提交成功");
+                this.setState({panel: "main"});
             }).catch(d=> {
                 alert("提交失败:" + d);
             });
@@ -640,6 +715,7 @@ class table extends React.Component {
             http.post("../table/" + tableId + "/update", data).then(d=> {
                 this.refresh();
                 alert("提交成功");
+                this.setState({panel: "main"});
             }).catch(d=> {
                 alert("提交失败:" + d);
             });

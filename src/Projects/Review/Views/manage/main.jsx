@@ -56,8 +56,18 @@ class App extends React.Component {
                     <div style={this.state.display == "contact" ? {} : {display: "none"}} className="contact-panel">
                         <Table tableId="contact" curd="curd" createButtonCallback={checkedData=> {
                             let firstCheckedName = checkedData[0].name;
-                            let data = [{name: firstCheckedName}];
-                            return data;
+                            let callbackPromise = new Promise(function (resolve, reject) {
+                                http.post("../table/contactByName/read", {name: firstCheckedName}).then(d=> {
+                                    let data = {
+                                        defaultData: [{name: firstCheckedName}],
+                                        displayData: d
+                                    };
+                                    resolve(data);
+                                }).catch(d=> {
+                                    reject(d);
+                                });
+                            });
+                            return callbackPromise;
                         }}/>
                     </div>
                 </div>

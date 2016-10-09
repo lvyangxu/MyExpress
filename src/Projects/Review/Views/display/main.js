@@ -31,9 +31,11 @@ var App = function (_React$Component) {
             cpRowFilterValue: "",
             gameRadioValue: "",
             basicChecked: true,
-            followChecked: true
+            followChecked: true,
+            screenshotData: [],
+            isLandscape: true
         };
-        var bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback", "columnFilter", "basicFilter", "followFilter"];
+        var bindArr = ["nav", "chooseGameName", "turnToCp", "nameTdCallback", "columnFilter", "basicFilter", "followFilter", "sliceScreenshotData"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -44,7 +46,7 @@ var App = function (_React$Component) {
         key: "componentDidMount",
         value: function componentDidMount() {
             var hash = window.location.hash.replace(/#/g, "");
-            var columnsBasic = [{ id: "type", name: "游戏类型" }, { id: "play", name: "玩法" }, { id: "ip", name: "IP" }, { id: "theme", name: "题材" }, { id: "online", name: "上线情况" }, { id: "performance", name: "上线表现" }, { id: "appannie", name: "Apple Annie" }, { id: "screenshot", name: "截图" }];
+            var columnsBasic = [{ id: "type", name: "游戏类型" }, { id: "play", name: "玩法" }, { id: "ip", name: "IP" }, { id: "theme", name: "题材" }, { id: "online", name: "上线情况" }, { id: "performance", name: "上线表现" }, { id: "appannie", name: "App Annie" }, { id: "screenshot", name: "截图" }];
             var columnsFollow = [{ id: "schedule", name: "当前进度" }, { id: "contactWay", name: "沟通方式" }, { id: "agentCondition", name: "代理条件" }, { id: "admin", name: "负责人" }, { id: "lastContact", name: "最后联系时间" }, { id: "createTime", name: "创建时间" }, { id: "updateTime", name: "更新时间" }, { id: "followStatus", name: "跟进状态" }, { id: "contactContent", name: "沟通内容" }];
             var data = {
                 columnsBasic: columnsBasic,
@@ -250,16 +252,7 @@ var App = function (_React$Component) {
                             React.createElement(
                                 "div",
                                 { className: "screenshot-image" },
-                                this.state.screenshotData ? this.state.screenshotData.length == 0 ? "无截图" : this.state.screenshotData.map(function (d, i) {
-                                    return React.createElement(
-                                        "div",
-                                        { key: i, className: "row" },
-                                        d.map(function (d1, j) {
-                                            return React.createElement("img", { key: j,
-                                                src: "../data/game/" + d1.id + "/" + d1.imageName });
-                                        })
-                                    );
-                                }) : ""
+                                this.sliceScreenshotData()
                             )
                         ),
                         React.createElement(
@@ -601,20 +594,10 @@ var App = function (_React$Component) {
                 var gameData = d1[0].filter(function (d2) {
                     return d2.name == d;
                 })[0];
-                var screenshotData = [];
-                for (var i = 0; i < d1[1].length; i = i + 2) {
-                    var row = [];
-                    if (i == d1[1].length - 1) {
-                        row.push(d1[1][i]);
-                    } else {
-                        row.push(d1[1][i]);
-                        row.push(d1[1][i + 1]);
-                    }
-                    screenshotData.push(row);
-                }
                 _this5.setState({
                     gameData: gameData,
-                    screenshotData: screenshotData,
+                    screenshotData: d1[1].dir,
+                    isLandscape: d1[1].isLandscape,
                     contactData: d1[2]
                 });
             }).catch(function (d) {
@@ -664,6 +647,43 @@ var App = function (_React$Component) {
                 data[d.id + "Checked"] = !_this7.state.followChecked;
             });
             this.setState(data);
+        }
+    }, {
+        key: "sliceScreenshotData",
+        value: function sliceScreenshotData() {
+            var data = this.state.screenshotData;
+            var screenshotDom = void 0;
+            if (data.length == 0) {
+                return "无截图";
+            }
+            var sliceData = [];
+            for (var i = 0; i < data.length; i = i + 2) {
+                var row = [];
+                if (i == data.length - 1) {
+                    row.push(data[i]);
+                } else {
+                    row.push(data[i]);
+                    row.push(data[i + 1]);
+                }
+                sliceData.push(row);
+            }
+            if (this.state.isLandscape) {
+                screenshotDom = sliceData.map(function (d1, i) {
+                    return React.createElement(
+                        "div",
+                        { key: i, className: "row" },
+                        d1.map(function (d2, j) {
+                            return React.createElement("img", { key: j, style: { width: "400px" },
+                                src: "../data/game/" + d2.id + "/" + d2.imageName });
+                        })
+                    );
+                });
+            } else {
+                screenshotDom = data.map(function (d1, i) {
+                    return React.createElement("img", { key: i, style: { width: "200px" }, src: "../data/game/" + d1.id + "/" + d1.imageName });
+                });
+            }
+            return screenshotDom;
         }
     }]);
 

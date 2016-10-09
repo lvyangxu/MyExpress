@@ -12,13 +12,10 @@
       outline: none;
       width: 120px;
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
-  .react-table .table-head .radio-filter {
-    display: inline-block; }
-    .react-table .table-head .radio-filter select {
-      height: 34px;
-      border: 1px solid #ccc;
-      outline: none;
-      cursor: pointer; }
+  .react-table .table-head .select-filter {
+    margin-top: 20px; }
+    .react-table .table-head .select-filter .react-select {
+      margin-right: 20px; }
   .react-table .table-head .create, .react-table .table-head .update, .react-table .table-head .refresh, .react-table .table-head .delete, .react-table .table-head .attachment {
     display: inline-block; }
     .react-table .table-head .create button, .react-table .table-head .update button, .react-table .table-head .refresh button, .react-table .table-head .delete button, .react-table .table-head .attachment button {
@@ -138,6 +135,8 @@
       .react-table table tbody tr td select {
         height: 36px;
         border: 1px solid #cccccc; }
+      .react-table table tbody tr td textarea {
+        overflow-y: visible; }
       .react-table table tbody tr td a {
         text-decoration: none;
         color: #14c864; }

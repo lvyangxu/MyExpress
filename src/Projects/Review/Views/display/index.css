@@ -4,7 +4,7 @@ body {
   overflow-y: scroll; }
   body .top {
     position: fixed;
-    z-index: 2;
+    z-index: 10;
     width: 100%;
     height: 60px;
     font-size: 16px;
@@ -115,12 +115,11 @@ body {
             font-size: 18px;
             margin-top: 30px;
             margin-bottom: 30px; }
-          body #display .container .info .game-panel .screenshot .screenshot-image .row {
+          body #display .container .info .game-panel .screenshot .screenshot-image img {
+            margin-right: 50px;
             margin-bottom: 50px; }
-            body #display .container .info .game-panel .screenshot .screenshot-image .row img {
-              width: 450px; }
-            body #display .container .info .game-panel .screenshot .screenshot-image .row img:first-child {
-              margin-right: 50px; }
+          body #display .container .info .game-panel .screenshot .screenshot-image img:last-child {
+            margin-right: 0px; }
         body #display .container .info .game-panel .basic-info .basic-info-title, body #display .container .info .game-panel .basic-info .follow-status-title, body #display .container .info .game-panel .basic-info .follow-log-title, body #display .container .info .game-panel .follow-status .basic-info-title, body #display .container .info .game-panel .follow-status .follow-status-title, body #display .container .info .game-panel .follow-status .follow-log-title, body #display .container .info .game-panel .follow-log .basic-info-title, body #display .container .info .game-panel .follow-log .follow-status-title, body #display .container .info .game-panel .follow-log .follow-log-title {
           color: #33ba95;
           font-size: 18px;
@@ -167,7 +166,7 @@ body {
         body #display .container .info .follow-panel table tbody tr td[data=等待上线数据] {
           background-color: #FF6666;
           color: white; }
-        body #display .container .info .follow-panel table tbody tr td[data=，初步沟通合作意向\(评测通过\)],
+        body #display .container .info .follow-panel table tbody tr td[data=初步沟通合作意向\(评测通过\)],
         body #display .container .info .follow-panel table tbody tr td[data=初步沟通合作意向\(已上线产品\)] {
           background-color: #FFCC33;
           color: white; }

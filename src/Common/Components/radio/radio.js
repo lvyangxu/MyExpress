@@ -23,10 +23,12 @@ var radio = function (_React$Component) {
             panelShow: false,
             sourceData: [],
             value: "",
-            filterOptionData: [],
-            filterValue: ""
+            filterData: [],
+            pageData: [],
+            filterValue: "",
+            pageIndex: 0
         };
-        var bindArr = ["radioBlur", "panelToggle", "filterChange", "filterBlur", "select", "setOptionHtml", "setFilterOptionData"];
+        var bindArr = ["radioBlur", "panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -40,22 +42,24 @@ var radio = function (_React$Component) {
 
             if (this.props.url != undefined) {
                 http.post(this.props.url).then(function (d) {
-                    var filterOptionData = _this2.setFilterOptionData(d);
+                    var pageData = _this2.slicePageData(d, 0);
                     _this2.setState({
                         value: _this2.props.defaultBlank ? "" : d[0],
                         sourceData: d,
-                        filterOptionData: filterOptionData
+                        filterData: d,
+                        pageData: pageData
                     });
                 }).catch(function (d) {
                     console.log("init radio failed:" + d);
                 });
             } else {
                 var data = this.props.data;
-                var filterOptionData = this.setFilterOptionData(data);
+                var pageData = this.slicePageData(data, 0);
                 this.setState({
                     value: this.props.defaultBlank ? "" : data[0],
                     sourceData: data,
-                    filterOptionData: filterOptionData
+                    filterData: data,
+                    pageData: pageData
                 });
             }
         }
@@ -75,7 +79,7 @@ var radio = function (_React$Component) {
 
             return React.createElement(
                 "div",
-                { className: "react-radio", tabIndex: "0", onBlur: this.radioBlur },
+                { className: "react-radio react-radio-child", tabIndex: "0", onBlur: this.radioBlur },
                 React.createElement(
                     "div",
                     { className: "input", onClick: this.panelToggle },
@@ -84,28 +88,42 @@ var radio = function (_React$Component) {
                 ),
                 React.createElement(
                     "div",
-                    { className: "panel", style: this.state.panelShow ? {} : { display: "none" } },
+                    { className: "react-radio-child panel", style: this.state.panelShow ? {} : { display: "none" } },
                     React.createElement(
                         "div",
                         { className: "filter" },
                         React.createElement("i", { className: "fa fa-search" }),
-                        React.createElement("input", { onChange: this.filterChange, onBlur: this.filterBlur, value: this.state.filterValue,
+                        React.createElement("input", { className: "react-radio-child", onChange: this.filterChange,
+                            value: this.state.filterValue,
                             placeholder: "filter" })
                     ),
                     React.createElement(
                         "div",
                         { className: "options" },
-                        this.state.filterOptionData.map(function (d, i) {
-                            return React.createElement(
-                                "div",
-                                { key: i, className: "column" },
-                                d.map(function (d1, j) {
-                                    return React.createElement("div", { className: "option", onClick: function onClick() {
-                                            _this3.select(d1);
-                                        }, key: j, dangerouslySetInnerHTML: _this3.setOptionHtml(d1) });
-                                })
-                            );
-                        })
+                        this.state.pageData.map(function (d, i) {
+                            return React.createElement("div", { key: i, className: "option", onClick: function onClick() {
+                                    _this3.select(d);
+                                }, dangerouslySetInnerHTML: _this3.setOptionHtml(d) });
+                        }),
+                        React.createElement(
+                            "div",
+                            { className: "page" },
+                            React.createElement(
+                                "button",
+                                { className: "react-radio-child page-left", onClick: function onClick() {
+                                        _this3.pageLeft();
+                                    } },
+                                React.createElement("i", { className: "fa fa-angle-left" })
+                            ),
+                            this.state.pageIndex + 1 + "/" + (Math.ceil(this.state.filterData.length / 10) == 0 ? 1 : Math.ceil(this.state.filterData.length / 10)),
+                            React.createElement(
+                                "button",
+                                { className: "react-radio-child page-right", onClick: function onClick() {
+                                        _this3.pageRight();
+                                    } },
+                                React.createElement("i", { className: "fa fa-angle-right" })
+                            )
+                        )
                     )
                 )
             );
@@ -113,15 +131,7 @@ var radio = function (_React$Component) {
     }, {
         key: "radioBlur",
         value: function radioBlur(e) {
-            var panel = e.target.getElementsByClassName("panel")[0];
-            if (panel == undefined) {
-                this.setState({
-                    panelShow: false
-                });
-                return;
-            }
-            var selfInput = panel.getElementsByClassName("filter")[0].getElementsByTagName("input")[0];
-            if (e.relatedTarget != selfInput) {
+            if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
                 this.setState({
                     panelShow: false
                 });
@@ -137,20 +147,16 @@ var radio = function (_React$Component) {
     }, {
         key: "filterChange",
         value: function filterChange(e) {
-            var filterOptionData = this.state.sourceData.filter(function (d) {
+            var filterData = this.state.sourceData.filter(function (d) {
                 return d.toString().includes(e.target.value);
             });
-            filterOptionData = this.setFilterOptionData(filterOptionData);
+            var pageData = this.slicePageData(filterData, 0);
             this.setState({
                 filterValue: e.target.value,
-                filterOptionData: filterOptionData
+                pageIndex: 0,
+                filterData: filterData,
+                pageData: pageData
             });
-        }
-    }, {
-        key: "filterBlur",
-        value: function filterBlur(e) {
-            e.preventDefault();
-            e.stopPropagation();
         }
     }, {
         key: "select",
@@ -180,15 +186,39 @@ var radio = function (_React$Component) {
             }
         }
     }, {
-        key: "setFilterOptionData",
-        value: function setFilterOptionData(d) {
-            var columnDataArr = [];
-            for (var i = 0; i < d.length; i = i + 10) {
-                var end = i + 10 > d.length ? d.length : i + 10;
-                var columnData = d.slice(i, end);
-                columnDataArr.push(columnData);
+        key: "slicePageData",
+        value: function slicePageData(data, i) {
+            var filterData = data;
+            var start = i * 10;
+            var end = i * 10 + 10;
+            end = end > filterData.length ? filterData.length : end;
+            var columnData = filterData.slice(start, end);
+            return columnData;
+        }
+    }, {
+        key: "pageLeft",
+        value: function pageLeft() {
+            var i = this.state.pageIndex;
+            if (i != 0) {
+                i--;
             }
-            return columnDataArr;
+            this.setState({
+                pageIndex: i,
+                pageData: this.slicePageData(this.state.filterData, i)
+            });
+        }
+    }, {
+        key: "pageRight",
+        value: function pageRight() {
+            var i = this.state.pageIndex;
+            var end = Math.ceil(this.state.filterData.length / 10);
+            if (i < end - 1) {
+                i++;
+            }
+            this.setState({
+                pageIndex: i,
+                pageData: this.slicePageData(this.state.filterData, i)
+            });
         }
     }]);
 
