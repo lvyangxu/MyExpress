@@ -86,7 +86,7 @@ module.exports = {
 
     },
     attachmentUpload: (req, res, table)=> {
-        if (req.files[0] == undefined) {
+        if (req.files.length == 0) {
             response.fail("no file");
             return;
         }
@@ -99,8 +99,10 @@ module.exports = {
         if(!fs.existsSync(destPath)){
             fs.mkdirSync(destPath);
         }
-        let filename = req.files[0].filename;
-        fs.renameSync(sourcePath + filename, destPath + filename);
+        req.files.forEach(d=>{
+            let filename = d.filename;
+            fs.renameSync(sourcePath + filename, destPath + filename);
+        });
         response.success(res);
     },
 };

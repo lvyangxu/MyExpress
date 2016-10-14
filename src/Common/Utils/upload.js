@@ -18,13 +18,15 @@ var upload = function () {
         value: function _do(url, input, progressCallback) {
 
             return new Promise(function (resolve, reject) {
-                if (input.files[0] == undefined) {
-                    alert("请选择一个文件");
+                if (input.files.length == 0) {
+                    alert("请至少选择一个文件");
                     return;
                 }
 
                 var uploadFile = new FormData();
-                uploadFile.append(0, input.files[0]);
+                for (var i = 0; i < input.files.length; i++) {
+                    uploadFile.append(i, input.files[i]);
+                }
                 var xhr = new XMLHttpRequest();
                 xhr.upload.addEventListener("progress", function (evt) {
                     if (evt.lengthComputable) {

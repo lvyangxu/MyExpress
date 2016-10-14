@@ -95,6 +95,7 @@ class radio extends React.Component {
     }
 
     radioBlur(e) {
+        console.log(e.relatedTarget.className);
         if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
             this.setState({
                 panelShow: false

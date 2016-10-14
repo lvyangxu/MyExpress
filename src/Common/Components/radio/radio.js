@@ -131,6 +131,7 @@ var radio = function (_React$Component) {
     }, {
         key: "radioBlur",
         value: function radioBlur(e) {
+            console.log(e.relatedTarget.className);
             if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
                 this.setState({
                     panelShow: false

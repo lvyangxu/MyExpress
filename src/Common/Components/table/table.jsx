@@ -376,7 +376,7 @@ class table extends React.Component {
                         </button>
                     </div>
                     <div className="upload">
-                        <input type="file"/>
+                        <input type="file" multiple="multiple"/>
                         <div className="progress">{this.state.attachmentProgress}</div>
                         <button onClick={(e)=> {
                             this.uploadAttachment(e);

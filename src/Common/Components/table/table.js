@@ -524,7 +524,7 @@ var table = function (_React$Component) {
                     React.createElement(
                         "div",
                         { className: "upload" },
-                        React.createElement("input", { type: "file" }),
+                        React.createElement("input", { type: "file", multiple: "multiple" }),
                         React.createElement(
                             "div",
                             { className: "progress" },

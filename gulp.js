@@ -10,16 +10,23 @@ var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
 var browserify = require('gulp-browserify');
 
-var project = "Review";
-var isProduction = true;
+var project = "Maintence";
+// let project = "Review";
+var isProduction = false;
 var viewModules = {
-    Review: ["login", "display", "manage"]
+    Review: ["login", "display", "manage"],
+    Maintence: ["login", "manage"]
 };
 var mysqlConfig = {
     Review: {
         user: "root",
         password: "root",
         database: "Review"
+    },
+    Maintence: {
+        user: "root",
+        password: "root",
+        database: "MaintenceSystem"
     }
 };
 var accountConfig = {
@@ -29,14 +36,25 @@ var accountConfig = {
         usernameCookie: "reviewUsername",
         passwordCookie: "reviewPassword",
         loginRedirect: "display"
+    },
+    Maintence: {
+        username: "radiumme",
+        password: "radiumme",
+        usernameCookie: "maintenceUsername",
+        passwordCookie: "maintencePassword",
+        loginRedirect: "manage"
     }
 };
 process.env.NODE_ENV = isProduction ? "production" : "development";
 if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
+    mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
 }
 
-gulp.task("build", ["build-util", "build-server", "build-client"], function () {});
+gulp.task("build", ["build-util", "build-server", "build-client"], function () {
+    // gulp.task();
+
+});
 
 gulp.task("build-server", function () {
     //app

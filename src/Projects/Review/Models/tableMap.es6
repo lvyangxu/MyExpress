@@ -246,7 +246,9 @@ module.exports = {
                 sqlCommand = "select name,businessType,area,address,productType,contactMan,duty,contactWay," + w + " as website,manager,note from cp";
                 break;
             case "contact":
-                sqlCommand = "select * from contact order by name";
+            case "cp":
+            case "game":
+                sqlCommand = "select * from "+table+" order by id desc";
                 break;
             case "contactByName":
                 sqlCommand = "select * from contact where ?";
