@@ -112,7 +112,7 @@ gulp.task("build-client", function () {
     //icon
     gulp.src("src/Common/Icon/favicon.ico").pipe(gulp.dest("dist/" + project + "/client"));
     //package.json
-    gulp.src("package.json").pipe(gulp.dest("dist/" + project));
+    gulp.src("package.json").pipe(replace(/"name": "MyExpress"/g, "\"name\":\"" + project + "\"")).pipe(gulp.dest("dist/" + project));
 });
 
 //# sourceMappingURL=gulp.js.map

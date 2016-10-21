@@ -1,5 +1,5 @@
 {
-  "name": "koa2",
+  "name": "MyExpress",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -30,8 +30,8 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "karl-component-radio": "^0.1.10",
-    "karl-cookie": "^0.1.0",
-    "karl-http": "^1.1.5",
+    "karl-cookie": "^0.1.1",
+    "karl-http": "^1.1.7",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "react": "^15.3.1",

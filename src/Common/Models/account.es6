@@ -22,11 +22,13 @@ module.exports = {
 
     },
     relogin: (req, res)=> {
-        let username = req.cookies[global.accountConfig.usernameCookie];
-        let password = req.cookies[global.accountConfig.passwordCookie];
-        if (username == global.accountConfig.username && password == global.accountConfig.password) {
+        let [username,password] = ["username", "password"].map(d=> {
+            d = req.cookies[global.accountConfig[d + "Cookie"]];
+            return d;
+        });
+        if (username == global.accountConfig.username.md5Encode() && password == global.accountConfig.password.md5Encode()) {
             //set session
-            req.session.username = username;
+            req.session.username = global.accountConfig.username;
             return true;
         } else {
             return false;

@@ -151,6 +151,7 @@ gulp.task("build-client", ()=> {
         .pipe(gulp.dest("dist/" + project + "/client"));
     //package.json
     gulp.src("package.json")
+        .pipe(replace(/"name": "MyExpress"/g, "\"name\":\""+project+"\""))
         .pipe(gulp.dest("dist/" + project));
 
 
