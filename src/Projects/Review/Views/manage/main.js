@@ -10,9 +10,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require("react");
 var ReactDom = require("react-dom");
-require("../../util/myString").extend();
-var Radio = require("../../util/radio");
-var http = require("../../util/http");
+require("karl-extend");
+var Radio = require("karl-component-radio");
+var http = require("karl-http");
 
 var Table = require("../../util/table");
 

@@ -1,7 +1,7 @@
-.react-radio {
+.react-nav {
   display: inline-block;
   font-size: 12px; }
-  .react-radio .input {
+  .react-nav .input {
     width: 150px;
     height: 16px;
     padding: 8px;
@@ -16,12 +16,12 @@
     text-shadow: 0 1px 0 #f2f2f2;
     font-weight: bold;
     text-align: left; }
-    .react-radio .input i {
+    .react-nav .input i {
       float: right; }
-  .react-radio .input:hover {
+  .react-nav .input:hover {
     background: linear-gradient(to bottom, #ededed, #dbdbdb);
     box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
-  .react-radio .panel {
+  .react-nav .panel {
     z-index: 2;
     position: absolute;
     height: 370px;
@@ -30,24 +30,24 @@
     border: 1px solid #aeaeae;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     margin-top: 4px; }
-    .react-radio .panel .filter {
+    .react-nav .panel .filter {
       border: 1px solid #cccccc; }
-      .react-radio .panel .filter i {
+      .react-nav .panel .filter i {
         margin-left: 5px; }
-      .react-radio .panel .filter input {
+      .react-nav .panel .filter input {
         padding: 5px 4px 5px 4px;
         border: none;
         outline: none; }
-    .react-radio .panel .options div {
+    .react-nav .panel .options div {
       height: 30px;
       line-height: 30px; }
-    .react-radio .panel .options .option {
+    .react-nav .panel .options .option {
       padding-left: 5px;
       padding-right: 5px;
       cursor: pointer; }
-    .react-radio .panel .options .option:hover {
+    .react-nav .panel .options .option:hover {
       background-color: #eeeeee; }
-    .react-radio .panel .options .page {
+    .react-nav .panel .options .page {
       position: absolute;
       bottom: 10px;
       width: 100%;
@@ -55,7 +55,7 @@
       -moz-user-select: none;
       -ms-user-select: none;
       -webkit-user-select: none; }
-      .react-radio .panel .options .page button {
+      .react-nav .panel .options .page button {
         border: none;
         outline: none;
         background-color: transparent;
@@ -64,11 +64,11 @@
         cursor: pointer;
         padding-left: 20px;
         padding-right: 20px; }
-      .react-radio .panel .options .page button:hover {
+      .react-nav .panel .options .page button:hover {
         background-color: #eeeeee; }
-      .react-radio .panel .options .page button.page-left {
+      .react-nav .panel .options .page button.page-left {
         margin-right: 5px; }
-      .react-radio .panel .options .page button.page-right {
+      .react-nav .panel .options .page button.page-right {
         margin-left: 5px; }
 
-/*# sourceMappingURL=radio.css.map */
+/*# sourceMappingURL=nav.css.map */

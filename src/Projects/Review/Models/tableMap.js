@@ -78,7 +78,7 @@ module.exports = {
                         if (defaultValue.length != 0 && defaultValue[0][id]) {
                             value = defaultValue[0][id];
                         } else {
-                            value = req.body[id].split(",")[i];
+                            value = req.body[id][i];
                             if (!type.includes("int") && type != "float" && type != "double") {
                                 value = "'" + value + "'";
                             }
@@ -127,11 +127,19 @@ module.exports = {
                                     defaultStrArr.push(id + "=" + value);
                                 }
                             } else {
-                                value = req.body[id].split(",")[i];
+                                if (Array.isArray(req.body[id])) {
+                                    value = req.body[id][i];
+                                } else {
+                                    value = req.body[id];
+                                }
                                 values[id] = value;
                             }
                         } else {
-                            value = req.body[id].split(",")[i];
+                            if (Array.isArray(req.body[id])) {
+                                value = req.body[id][i];
+                            } else {
+                                value = req.body[id];
+                            }
                             values[id] = value;
                         }
                     });
@@ -144,7 +152,7 @@ module.exports = {
                     if (defaultStrArr.length != 0 && valueKeyLength != 0) {
                         defaultStr = defaultStr + ",";
                     }
-                    var sqlCommand = "update " + table + " set " + defaultStr + "? where id=" + req.body.id.split(",")[i];
+                    var sqlCommand = "update " + table + " set " + defaultStr + "? where id=" + req.body.id[i];
                     sqlCommandArr.push(sqlCommand);
                     valuesArr.push(values);
                 });

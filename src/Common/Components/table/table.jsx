@@ -1,4 +1,4 @@
-let http = require("./http");
+let http = require("karl-http");
 let React = require("react");
 let Select = require("./select");
 let upload = require("./upload");
@@ -702,12 +702,9 @@ class table extends React.Component {
         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
             let data = {requestRowsLength: rows.length.toString()};
             this.state.columns.forEach(d=> {
-                let v = "";
+                let v = [];
                 for (let i = 0; i < rows.length; i++) {
-                    v += this.state["ut" + i + "_" + d.id];
-                    if (i != rows.length - 1) {
-                        v += ",";
-                    }
+                    v.push(this.state["ut" + i + "_" + d.id]);
                 }
                 data[d.id] = v;
             });

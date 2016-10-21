@@ -34,13 +34,9 @@ app.use((req, res, next)=> {
     next();
 });
 
-//string extend
-let myString = require("../../util/myString");
-myString.extend();
+//extend
+require("karl-extend");
 
-//param url and base64 decode
-let param = require("./param");
-app.use(param);
 
 let session = require("./session");
 app.use(session);

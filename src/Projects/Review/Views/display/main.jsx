@@ -1,8 +1,8 @@
 let React = require("react");
 let ReactDom = require("react-dom");
-require("../../util/myString").extend();
-let Radio = require("../../util/radio");
-let http = require("../../util/http");
+require("karl-extend");
+let Radio = require("karl-component-radio");
+let http = require("karl-http");
 
 let Table = require("../../util/table");
 
@@ -90,15 +90,15 @@ class App extends React.Component {
                     <div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">
                         <div className="radio-div">
                             <label>游戏名称</label>
-                            <Radio defaultBlank url="../table/getGames/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getGames/read" selectCallback={(d)=> {
                                 this.chooseGameName(d);
                             }} value={this.state.gameRadioValue}></Radio>
                             <label>发行商</label>
-                            <Radio defaultBlank url="../table/getPublishers/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getPublishers/read" selectCallback={(d)=> {
                                 this.selectPublisher(d);
                             }}></Radio>
                             <label>研发商</label>
-                            <Radio defaultBlank url="../table/getDevelopers/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getDevelopers/read" selectCallback={(d)=> {
                                 this.selectDeveloper(d);
                             }}></Radio>
                         </div>

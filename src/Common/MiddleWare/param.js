@@ -2,10 +2,22 @@
 
 module.exports = function (req, res, next) {
     for (var k in req.query) {
-        req.query[k] = req.query[k].urlBase64Decode();
+        if (req.query[k].includes(",")) {
+            req.query[k] = req.query[k].split(",").map(function (d) {
+                return d.urlBase64Decode();
+            });
+        } else {
+            req.query[k] = req.query[k].urlBase64Decode();
+        }
     }
     for (var _k in req.body) {
-        req.body[_k] = req.body[_k].urlBase64Decode();
+        if (req.body[_k].includes(",")) {
+            req.body[_k] = req.body[_k].split(",").map(function (d) {
+                return d.urlBase64Decode();
+            });
+        } else {
+            req.body[_k] = req.body[_k].urlBase64Decode();
+        }
     }
     next();
 };

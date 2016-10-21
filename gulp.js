@@ -8,10 +8,11 @@ var del = require('del');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
-var browserify = require('gulp-browserify');
+var webpack = require('webpack-stream');
+var gutil = require('gulp-util');
 
-var project = "Maintence";
-// let project = "Review";
+// let project = "Maintence";
+var project = "Review";
 var isProduction = false;
 var viewModules = {
     Review: ["login", "display", "manage"],
@@ -72,7 +73,7 @@ gulp.task("build-server", function () {
 
 gulp.task("build-util", function () {
     //component
-    var componentArr = ["login", "radio", "select", "table"];
+    var componentArr = ["login", "select", "table", "nav"];
     componentArr.map(function (d) {
         gulp.src("src/Common/Components/" + d + "/*.js").pipe(gulp.dest("dist/" + project + "/util"));
     });
@@ -83,18 +84,11 @@ gulp.task("build-util", function () {
 
 gulp.task("build-client", function () {
     //views js
-    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"]).pipe(gulp.dest("dist/" + project + "/browserify")).on("end", function () {
-        if (isProduction) {
-            gulp.src("dist/" + project + "/browserify/*/main.js").pipe(browserify({
-                insertGlobals: true,
-                debug: !gulp.env.production
-            })).pipe(rename({ basename: "bundle" })).pipe(gulp.dest("dist/" + project + "/browserify")).pipe(uglify()).pipe(gulp.dest("dist/" + project + "/client"));
-        } else {
-            gulp.src("dist/" + project + "/browserify/*/main.js").pipe(browserify({
-                insertGlobals: true,
-                debug: !gulp.env.production
-            })).pipe(rename({ basename: "bundle" })).pipe(gulp.dest("dist/" + project + "/browserify")).pipe(gulp.dest("dist/" + project + "/client"));
-        }
+    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"]).pipe(gulp.dest("dist/" + project + "/webpack")).on("end", function () {
+        var webpackConfig = require('./webpack.config.js');
+        viewModules[project].map(function (d) {
+            gulp.src("dist/" + project + "/webpack/" + d + "/main.js").pipe(webpack(webpackConfig)).pipe(gulp.dest("dist/" + project + "/client/" + d));
+        });
     });
 
     //views html minify
@@ -117,8 +111,6 @@ gulp.task("build-client", function () {
     });
     //icon
     gulp.src("src/Common/Icon/favicon.ico").pipe(gulp.dest("dist/" + project + "/client"));
-    //fontawesome
-    gulp.src("src/Common/Fontawesome/*/*").pipe(gulp.dest("dist/" + project + "/client/fontawesome"));
     //package.json
     gulp.src("package.json").pipe(gulp.dest("dist/" + project));
 });

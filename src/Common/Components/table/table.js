@@ -8,7 +8,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var http = require("./http");
+var http = require("karl-http");
 var React = require("react");
 var Select = require("./select");
 var upload = require("./upload");
@@ -921,12 +921,9 @@ var table = function (_React$Component) {
                 (function () {
                     var data = { requestRowsLength: rows.length.toString() };
                     _this8.state.columns.forEach(function (d) {
-                        var v = "";
+                        var v = [];
                         for (var i = 0; i < rows.length; i++) {
-                            v += _this8.state["ut" + i + "_" + d.id];
-                            if (i != rows.length - 1) {
-                                v += ",";
-                            }
+                            v.push(_this8.state["ut" + i + "_" + d.id]);
                         }
                         data[d.id] = v;
                     });

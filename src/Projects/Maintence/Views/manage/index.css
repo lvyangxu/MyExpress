@@ -15,30 +15,16 @@ body {
         line-height: 40px; }
         body #manage .nav .nav1 i {
           margin-right: 5px; }
-        body #manage .nav .nav1 .list {
+        body #manage .nav .nav1 .nav-body {
           height: 0; }
-          body #manage .nav .nav1 .list .nav2 {
+          body #manage .nav .nav1 .nav-body .nav2 {
             font-size: 12px;
             height: 40px;
             padding-left: 20px; }
-          body #manage .nav .nav1 .list .nav2.active {
+          body #manage .nav .nav1 .nav-body .nav2.active {
             color: #33ba95; }
-          body #manage .nav .nav1 .list .nav2:hover {
+          body #manage .nav .nav1 .nav-body .nav2:hover {
             color: rgba(51, 186, 200, 0.8); }
-        body #manage .nav .nav1 .list-appear {
-          opacity: 0.01;
-          transition: opacity 2s ease-in; }
-        body #manage .nav .nav1 .list-appear.list-appear-active {
-          opacity: 0.2; }
-        body #manage .nav .nav1 .list-enter {
-          color: #010101;
-          transition: color 2s; }
-        body #manage .nav .nav1 .list-enter.list-enter-active {
-          color: white; }
-        body #manage .nav .nav1 .list-leave {
-          opacity: 0.01; }
-        body #manage .nav .nav1 .list-leave.list-leave-active {
-          opacity: 0.2; }
     body #manage .main {
       margin-left: 200px; }
 

@@ -1,8 +1,8 @@
 let React = require("react");
 let ReactDom = require("react-dom");
-require("../../util/myString").extend();
-let Radio = require("../../util/radio");
-let http = require("../../util/http");
+require("karl-extend");
+let Radio = require("karl-component-radio");
+let http = require("karl-http");
 
 let Table = require("../../util/table");
 

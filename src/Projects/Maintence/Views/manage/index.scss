@@ -19,7 +19,7 @@ body {
                     margin-right: 5px;
                 }
 
-                .list {
+                .nav-body {
                     height: 0;
                     .nav2 {
                         font-size: 12px;
@@ -34,27 +34,6 @@ body {
                     .nav2:hover {
                         color: rgba(51, 186, 200, 0.8);
                     }
-                }
-
-                .list-appear {
-                    opacity: 0.01;
-                    transition: opacity 2s ease-in;
-                }
-                .list-appear.list-appear-active{
-                    opacity: 0.2;
-                }
-                .list-enter {
-                    color: rgba(1,1,1,1);
-                    transition:color 2s;
-                }
-                .list-enter.list-enter-active{
-                    color: rgba(255,255,255,1);
-                }
-                .list-leave {
-                    opacity: 0.01;
-                }
-                .list-leave.list-leave-active{
-                    opacity: 0.2;
                 }
 
             }

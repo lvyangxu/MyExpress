@@ -6,14 +6,15 @@ var del = require('del');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
-var browserify = require('gulp-browserify');
+var webpack = require('webpack-stream');
+var gutil = require('gulp-util');
 
-let project = "Maintence";
-// let project = "Review";
+// let project = "Maintence";
+let project = "Review";
 let isProduction = false;
 let viewModules = {
     Review: ["login", "display", "manage"],
-    Maintence:["login","manage"]
+    Maintence: ["login", "manage"]
 };
 let mysqlConfig = {
     Review: {
@@ -21,7 +22,7 @@ let mysqlConfig = {
         password: "root",
         database: "Review"
     },
-    Maintence:{
+    Maintence: {
         user: "root",
         password: "root",
         database: "MaintenceSystem"
@@ -35,7 +36,7 @@ let accountConfig = {
         passwordCookie: "reviewPassword",
         loginRedirect: "display"
     },
-    Maintence:{
+    Maintence: {
         username: "radiumme",
         password: "radiumme",
         usernameCookie: "maintenceUsername",
@@ -49,7 +50,7 @@ if (isProduction) {
     mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
 }
 
-gulp.task("build", ["build-util", "build-server","build-client"], ()=> {
+gulp.task("build", ["build-util", "build-server", "build-client"], ()=> {
     // gulp.task();
 
 });
@@ -85,7 +86,7 @@ gulp.task("build-server", ()=> {
 
 gulp.task("build-util", ()=> {
     //component
-    let componentArr = ["login", "radio", "select", "table"];
+    let componentArr = ["login", "select", "table", "nav"];
     componentArr.map(d=> {
         gulp.src("src/Common/Components/" + d + "/*.js")
             .pipe(gulp.dest("dist/" + project + "/util"));
@@ -100,28 +101,17 @@ gulp.task("build-util", ()=> {
 gulp.task("build-client", ()=> {
     //views js
     gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/browserify"))
-        .on("end",()=>{
-            if (isProduction) {
-                gulp.src("dist/" + project + "/browserify/*/main.js")
-                    .pipe(browserify({
-                        insertGlobals: true,
-                        debug: !gulp.env.production
-                    }))
-                    .pipe(rename({basename: "bundle"}))
-                    .pipe(gulp.dest("dist/" + project + "/browserify"))
-                    .pipe(uglify())
-                    .pipe(gulp.dest("dist/" + project + "/client"));
-            }else{
-                gulp.src("dist/" + project + "/browserify/*/main.js")
-                    .pipe(browserify({
-                        insertGlobals: true,
-                        debug: !gulp.env.production
-                    }))
-                    .pipe(rename({basename: "bundle"}))
-                    .pipe(gulp.dest("dist/" + project + "/browserify"))
-                    .pipe(gulp.dest("dist/" + project + "/client"));
-            }
+        .pipe(gulp.dest("dist/" + project + "/webpack"))
+        .on("end", ()=> {
+            let webpackConfig = require('./webpack.config.js');
+            viewModules[project].map(d=> {
+                gulp.src("dist/" + project + "/webpack/" + d + "/main.js")
+                    .pipe(webpack(webpackConfig))
+                    .pipe(gulp.dest("dist/" + project + "/client/" + d))
+
+            });
+
+
         });
 
 
@@ -159,9 +149,6 @@ gulp.task("build-client", ()=> {
     //icon
     gulp.src("src/Common/Icon/favicon.ico")
         .pipe(gulp.dest("dist/" + project + "/client"));
-    //fontawesome
-    gulp.src("src/Common/Fontawesome/*/*")
-        .pipe(gulp.dest("dist/" + project + "/client/fontawesome"));
     //package.json
     gulp.src("package.json")
         .pipe(gulp.dest("dist/" + project));

@@ -1,9 +1,9 @@
 let React = require("react");
 let ReactDom = require("react-dom");
-require("../../util/myString").extend();
-let Radio = require("../../util/radio");
+require("karl-extend");
+let Nav = require("../../util/nav");
 let http = require("../../util/http");
-let ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+let ReactTransitionGroup  = require('react-addons-transition-group');
 
 let Table = require("../../util/table");
 
@@ -55,6 +55,10 @@ class App extends React.Component {
         });
     }
 
+    componentDidAppear(){
+        console.log(2);
+    }
+
     componentDidMount() {
         let hash = window.location.hash.replace(/#/g, "");
         let nav = this.state.nav;
@@ -85,59 +89,15 @@ class App extends React.Component {
     render() {
         return (
             <div className="container">
-                <div className="nav">
-                    {
-                        this.state.nav.map((d, i)=> {
-                            return <div className="nav1" key={i}>
-                                <div className="title"><i className={d.open ? "fa fa-minus" : "fa fa-plus"}></i>{d.name}</div>
-                                <ReactCSSTransitionGroup className="list"
-                                                         transitionName="list"
-                                                         transitionAppear={true}
-                                                         transitionAppearTimeout={5000000}
-                                                         transitionLeaveTimeout={300}
-                                                         transitionEnterTimeout={300}>
-                                    {
-                                        d.child.map((d1, j)=> {
-                                            return <div className="nav2" key={j}>{d1.name}</div>
-                                        })
-                                    }
-                                </ReactCSSTransitionGroup>
-                            </div>
-                        })
-                    }
-                </div>
+
+                <Nav data={[1,2,3]}></Nav>
+
                 <div className="main">
                     <div style={this.state.currentNav == "serverManage" ? {} : {display: "none"}}>
                         <Table tableId="server_info" curd="curd" attachment/>
                     </div>
 
                 </div>
-
-                {/*<div className="info">*/}
-                {/*<div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">*/}
-                {/*<Table tableId="game" curd="curd" attachment/>*/}
-                {/*</div>*/}
-                {/*<div style={this.state.display == "cp" ? {} : {display: "none"}} className="cp-panel">*/}
-                {/*<Table tableId="cp" curd="curd"/>*/}
-                {/*</div>*/}
-                {/*<div style={this.state.display == "contact" ? {} : {display: "none"}} className="contact-panel">*/}
-                {/*<Table tableId="contact" curd="curd" createButtonCallback={checkedData=> {*/}
-                {/*let firstCheckedName = checkedData[0].name;*/}
-                {/*let callbackPromise = new Promise(function (resolve, reject) {*/}
-                {/*http.post("../table/contactByName/read", {name: firstCheckedName}).then(d=> {*/}
-                {/*let data = {*/}
-                {/*defaultData: [{name: firstCheckedName}],*/}
-                {/*displayData: d*/}
-                {/*};*/}
-                {/*resolve(data);*/}
-                {/*}).catch(d=> {*/}
-                {/*reject(d);*/}
-                {/*});*/}
-                {/*});*/}
-                {/*return callbackPromise;*/}
-                {/*}}/>*/}
-                {/*</div>*/}
-                {/*</div>*/}
             </div>
         );
     }

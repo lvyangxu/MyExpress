@@ -10,10 +10,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require("react");
 var ReactDom = require("react-dom");
-require("../../util/myString").extend();
-var Radio = require("../../util/radio");
+require("karl-extend");
+var Nav = require("../../util/nav");
 var http = require("../../util/http");
-var ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+var ReactTransitionGroup = require('react-addons-transition-group');
 
 var Table = require("../../util/table");
 
@@ -52,6 +52,11 @@ var App = function (_React$Component) {
     }
 
     _createClass(App, [{
+        key: "componentDidAppear",
+        value: function componentDidAppear() {
+            console.log(2);
+        }
+    }, {
         key: "componentDidMount",
         value: function componentDidMount() {
             var hash = window.location.hash.replace(/#/g, "");
@@ -85,38 +90,7 @@ var App = function (_React$Component) {
             return React.createElement(
                 "div",
                 { className: "container" },
-                React.createElement(
-                    "div",
-                    { className: "nav" },
-                    this.state.nav.map(function (d, i) {
-                        return React.createElement(
-                            "div",
-                            { className: "nav1", key: i },
-                            React.createElement(
-                                "div",
-                                { className: "title" },
-                                React.createElement("i", { className: d.open ? "fa fa-minus" : "fa fa-plus" }),
-                                d.name
-                            ),
-                            React.createElement(
-                                ReactCSSTransitionGroup,
-                                { className: "list",
-                                    transitionName: "list",
-                                    transitionAppear: true,
-                                    transitionAppearTimeout: 5000000,
-                                    transitionLeaveTimeout: 300,
-                                    transitionEnterTimeout: 300 },
-                                d.child.map(function (d1, j) {
-                                    return React.createElement(
-                                        "div",
-                                        { className: "nav2", key: j },
-                                        d1.name
-                                    );
-                                })
-                            )
-                        );
-                    })
-                ),
+                React.createElement(Nav, { data: [1, 2, 3] }),
                 React.createElement(
                     "div",
                     { className: "main" },

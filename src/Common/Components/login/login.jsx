@@ -1,5 +1,5 @@
-let http = require("./http");
-let cookie = require("./cookie");
+let http = require("karl-http");
+let cookie = require("karl-cookie");
 let React = require("react");
 
 class login extends React.Component {

@@ -1,4 +1,4 @@
-let http = require("./http");
+let http = require("karl-http");
 let React = require("react");
 
 class select extends React.Component {
