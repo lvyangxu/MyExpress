@@ -863,11 +863,11 @@ var table = function (_React$Component) {
             }
             if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
                 (function () {
-                    var data = { requestRowsLength: rows.length.toString() };
+                    var data = { requestRowsLength: rows.length };
                     _this7.state.columns.forEach(function (d) {
                         var v = rows.map(function (d1) {
                             return d1[d.id];
-                        }).join(",");
+                        });
                         data[d.id] = v;
                     });
                     var tableId = _this7.props.tableId;
@@ -919,7 +919,7 @@ var table = function (_React$Component) {
             var rows = this.state.ut;
             if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
                 (function () {
-                    var data = { requestRowsLength: rows.length.toString() };
+                    var data = { requestRowsLength: rows.length };
                     _this8.state.columns.forEach(function (d) {
                         var v = [];
                         for (var i = 0; i < rows.length; i++) {
@@ -998,7 +998,7 @@ var table = function (_React$Component) {
             var _this10 = this;
 
             var tableId = this.props.tableId;
-            http.post("../table/" + tableId + "/attachmentRead", { id: id.toString() }).then(function (d) {
+            http.post("../table/" + tableId + "/attachmentRead", { id: id }).then(function (d) {
                 var attachment = d.map(function (d1) {
                     d1 = d1.base64Decode();
                     return d1;
@@ -1019,7 +1019,7 @@ var table = function (_React$Component) {
             var id = this.state.attachmentId;
             var tableId = this.props.tableId;
             var data = {
-                id: id.toString(),
+                id: id,
                 name: d
             };
             http.post("../table/" + tableId + "/attachmentDelete", data).then(function (d1) {
@@ -1036,7 +1036,7 @@ var table = function (_React$Component) {
 
             var id = this.state.attachmentId;
             var tableId = this.props.tableId;
-            upload.do("../table/" + tableId + "/attachmentUpload?id=" + id.toString().base64UrlEncode(), e.target.parentNode.childNodes[0], function (d) {
+            upload.do("../table/" + tableId + "/attachmentUpload?id=" + id, e.target.parentNode.childNodes[0], function (d) {
                 _this12.setState({
                     attachmentProgress: d + "%"
                 });

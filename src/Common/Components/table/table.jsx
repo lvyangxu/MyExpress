@@ -651,11 +651,11 @@ class table extends React.Component {
             return;
         }
         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
-            let data = {requestRowsLength: rows.length.toString()};
+            let data = {requestRowsLength: rows.length};
             this.state.columns.forEach(d=> {
                 let v = rows.map(d1=> {
                     return d1[d.id];
-                }).join(",");
+                });
                 data[d.id] = v;
             });
             let tableId = this.props.tableId;
@@ -700,7 +700,7 @@ class table extends React.Component {
     updateSubmit() {
         let rows = this.state.ut;
         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
-            let data = {requestRowsLength: rows.length.toString()};
+            let data = {requestRowsLength: rows.length};
             this.state.columns.forEach(d=> {
                 let v = [];
                 for (let i = 0; i < rows.length; i++) {
@@ -770,7 +770,7 @@ class table extends React.Component {
 
     refreshAttachment(id) {
         let tableId = this.props.tableId;
-        http.post("../table/" + tableId + "/attachmentRead", {id: id.toString()}).then(d=> {
+        http.post("../table/" + tableId + "/attachmentRead", {id: id}).then(d=> {
             let attachment = d.map(d1=> {
                 d1 = d1.base64Decode();
                 return d1;
@@ -788,7 +788,7 @@ class table extends React.Component {
         let id = this.state.attachmentId;
         let tableId = this.props.tableId;
         let data = {
-            id: id.toString(),
+            id: id,
             name: d
         };
         http.post("../table/" + tableId + "/attachmentDelete", data).then(d1=> {
@@ -802,7 +802,7 @@ class table extends React.Component {
     uploadAttachment(e) {
         let id = this.state.attachmentId;
         let tableId = this.props.tableId;
-        upload.do("../table/" + tableId + "/attachmentUpload?id=" + id.toString().base64UrlEncode(), e.target.parentNode.childNodes[0], d=> {
+        upload.do("../table/" + tableId + "/attachmentUpload?id=" + id, e.target.parentNode.childNodes[0], d=> {
             this.setState({
                 attachmentProgress: d + "%"
             });

@@ -1,23 +1,84 @@
 "use strict";
 
 var response = require("./response");
-var tableMap = require("./tableMap");
+var tableConfig = require("./tableConfig");
 var fs = require("fs");
 
 module.exports = {
-    init: function init(req, res, table) {
-        var d = tableMap.init(table);
-        if (d.length == 0) {
-            response.fail(res, "unknown table");
-        } else {
-            response.success(res, d);
-        }
+    init: function init(req, res, config) {
+        response.success(res, config.columns);
     },
-    create: function create(req, res, table, map) {
-        var sqlCommand = map.sqlCommand;
-        var values = map.values;
+    create: function create(req, res, config) {
+        //find table struct
+        var tableStruct = global.dbStruct.find(function (d) {
+            return d.id == table;
+        });
+        if (tableStruct == undefined) {
+            response.fail(res, "unknown table");
+            return;
+        }
 
-        global.mysql.excuteQuery(sqlCommand, values).then(function (d) {
+        //columns exclude id
+        var noIdFields = tableStruct.fields.filter(function (d) {
+            return d.Field != "id";
+        });
+
+        //add every row by param requestRowsLength
+        var rowArr = [];
+
+        var _loop = function _loop(i) {
+            var row = "(";
+            row += noIdFields.map(function (d) {
+                var id = d.Field;
+                var type = d.Type;
+                var value = void 0;
+
+                if (config.hasOwnProperty("create")) {
+                    //if default value exist
+
+                } else {
+                        //if default value do not exist
+
+                    }
+
+                var defaultValue = defaultValues.filter(function (d) {
+                    return d.tableName == table;
+                });
+                if (defaultValue.length != 0 && defaultValue[0][id]) {
+                    value = defaultValue[0][id];
+                } else {
+                    value = req.body[id][i];
+                    if (!type.includes("int") && type != "float" && type != "double") {
+                        value = "'" + value + "'";
+                    }
+                }
+                return value;
+            }).join(",");
+            row += ")";
+            rowArr.push(row);
+        };
+
+        for (var i = 0; i < req.body.requestRowsLength; i++) {
+            _loop(i);
+        }
+
+        //build sqlCommand
+        var columnIdSqlStr = noIdFields.map(function (d) {
+            return d.Field;
+        }).filter(function (d) {
+            //if default value exist and is undefined,then exclude it
+            if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create.d == undefined) {
+                return false;
+            } else {
+                return true;
+            }
+        }).join(",");
+        columnIdSqlStr = "(" + columnIdSqlStr + ")";
+        var valuesSqlStr = rowArr.join(",");
+
+        var sqlCommand = "insert into " + table + " " + columnIdSqlStr + " values " + valuesSqlStr;
+
+        global.mysql.excuteQuery(sqlCommand, {}).then(function (d) {
             response.success(res);
         }).catch(function (d) {
             console.log("mysql excuteQuery error:" + d);
@@ -27,14 +88,15 @@ module.exports = {
         });
     },
     update: function update(req, res, table, map) {
-        var sqlCommandArr = map.sqlCommand;
-        var valuesArr = map.values;
+        var _ref = [map.sqlCommand, map.values];
+        var sqlCommandArr = _ref[0];
+        var valuesArr = _ref[1];
 
         var promiseArr = [];
         for (var i = 0; i < sqlCommandArr.length; i++) {
             var sqlCommand = sqlCommandArr[i];
-            var values = valuesArr[i];
-            promiseArr.push(global.mysql.excuteQuery(sqlCommand, values));
+            var _values = valuesArr[i];
+            promiseArr.push(global.mysql.excuteQuery(sqlCommand, _values));
         }
         Promise.all(promiseArr).then(function (d) {
             response.success(res);

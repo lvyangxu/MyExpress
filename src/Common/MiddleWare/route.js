@@ -1,7 +1,7 @@
 "use strict";
 
 var table = require("./table");
-var tableMap = require("./tableMap");
+var tableConfig = require("./tableConfig");
 var response = require("./response");
 var account = require("./account");
 
@@ -48,16 +48,21 @@ router.route("/account/:action").post(function (req, res, next) {
 router.route("/table/:name/:action").post(upload.any(), function (req, res, next) {
     var action = req.params.action;
     var name = req.params.name;
-    if (table[action] == undefined || tableMap[action] == undefined) {
+    if (!table.hasOwnProperty(action)) {
         console.log("unknown action:table/" + name + "/" + action);
         response.fail(res, "unknown action");
     } else {
-        if (action == "dataMap") {
-            response.fail(res, "unknown action");
-        } else {
-            var map = tableMap[action](req, res, name);
-            table[action](req, res, name, map);
+        //find config by table id
+        var config = tableConfig.find(function (d) {
+            return d.id == table;
+        });
+        if (config == undefined) {
+            response.fail(res, "unknown table");
+            return;
         }
+
+        //do table action
+        table[action](req, res, config);
     }
 });
 
@@ -76,7 +81,9 @@ router.route("/controller/:name/:action").post(upload.any(), function (req, res,
     } catch (e) {
         if (e.code == "MODULE_NOT_FOUND") {
             response.fail(res, "controller not found");
-        } else {}
+        } else {
+            response.fail(res, e.code);
+        }
     }
 });
 

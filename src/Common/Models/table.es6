@@ -1,19 +1,77 @@
 let response = require("./response");
-let tableMap = require("./tableMap");
+let tableConfig = require("./tableConfig");
 let fs = require("fs");
 
 module.exports = {
-    init: (req, res, table)=> {
-        let d = tableMap.init(table);
-        if (d.length == 0) {
-            response.fail(res, "unknown table");
-        } else {
-            response.success(res, d);
-        }
+    init: (req, res, config)=> {
+        response.success(res, config.columns);
     },
-    create: (req, res, table, map)=> {
-        let {sqlCommand, values} = map;
-        global.mysql.excuteQuery(sqlCommand, values).then(d=> {
+    create: (req, res, config)=> {
+        //find table struct
+        let tableStruct = global.dbStruct.find(d=> {
+            return d.id == table;
+        });
+        if (tableStruct == undefined) {
+            response.fail(res, "unknown table");
+            return;
+        }
+
+        //columns exclude id
+        let noIdFields = tableStruct.fields.filter(d=> {
+            return d.Field != "id";
+        });
+
+        //add every row by param requestRowsLength
+        let rowArr = [];
+        for (let i = 0; i < req.body.requestRowsLength; i++) {
+            let row = "(";
+            row += noIdFields.map(d=> {
+                let id = d.Field;
+                let type = d.Type;
+                let value;
+
+                if (config.hasOwnProperty("create")) {
+                    //if default value exist
+
+                } else {
+                    //if default value do not exist
+
+                }
+
+                let defaultValue = defaultValues.filter(d=> {
+                    return d.tableName == table;
+                });
+                if (defaultValue.length != 0 && defaultValue[0][id]) {
+                    value = defaultValue[0][id];
+                } else {
+                    value = req.body[id][i];
+                    if (!type.includes("int") && type != "float" && type != "double") {
+                        value = "'" + value + "'";
+                    }
+                }
+                return value;
+            }).join(",");
+            row += ")";
+            rowArr.push(row);
+        }
+
+        //build sqlCommand
+        let columnIdSqlStr = noIdFields.map(d=> {
+            return d.Field;
+        }).filter(d=> {
+            //if default value exist and is undefined,then exclude it
+            if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create.d == undefined) {
+                return false;
+            }else{
+                return true;
+            }
+        }).join(",");
+        columnIdSqlStr = `(${columnIdSqlStr})`;
+        let valuesSqlStr = rowArr.join(",");
+
+        let sqlCommand = `insert into ${table} ${columnIdSqlStr} values ${valuesSqlStr}`;
+
+        global.mysql.excuteQuery(sqlCommand, {}).then(d=> {
             response.success(res);
         }).catch(d=> {
             console.log("mysql excuteQuery error:" + d);
@@ -92,14 +150,14 @@ module.exports = {
         }
         let sourcePath = "./server/upload/";
         let destPath = "./client/data/" + table + "/";
-        if(!fs.existsSync(destPath)){
+        if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
         destPath += req.query.id + "/";
-        if(!fs.existsSync(destPath)){
+        if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
-        req.files.forEach(d=>{
+        req.files.forEach(d=> {
             let filename = d.filename;
             fs.renameSync(sourcePath + filename, destPath + filename);
         });

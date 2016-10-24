@@ -1,5 +1,5 @@
 let table = require("./table");
-let tableMap = require("./tableMap");
+let tableConfig = require("./tableConfig");
 let response = require("./response");
 let account = require("./account");
 
@@ -46,16 +46,21 @@ router.route("/account/:action").post((req, res, next)=> {
 router.route("/table/:name/:action").post(upload.any(), (req, res, next)=> {
     let action = req.params.action;
     let name = req.params.name;
-    if (table[action] == undefined || tableMap[action] == undefined) {
+    if (!table.hasOwnProperty(action)) {
         console.log("unknown action:table/" + name + "/" + action);
         response.fail(res, "unknown action");
     } else {
-        if (action == "dataMap") {
-            response.fail(res, "unknown action");
-        } else {
-            let map = tableMap[action](req, res, name);
-            table[action](req, res, name, map);
+        //find config by table id
+        let config = tableConfig.find(d=> {
+            return d.id == table;
+        });
+        if (config == undefined) {
+            response.fail(res, "unknown table");
+            return;
         }
+
+        //do table action
+        table[action](req, res, config);
     }
 });
 
@@ -64,18 +69,18 @@ router.route("/controller/:name/:action").post(upload.any(), (req, res, next)=> 
     let action = req.params.action;
     let name = req.params.name;
     try {
-        let controller = require("./"+name);
+        let controller = require("./" + name);
         let func = controller[action];
-        if(func == undefined){
-            response.fail(res,"action not found");
+        if (func == undefined) {
+            response.fail(res, "action not found");
             return;
         }
-        func(req,res);
+        func(req, res);
     } catch (e) {
         if (e.code == "MODULE_NOT_FOUND") {
-             response.fail(res,"controller not found");
-        }else{
-
+            response.fail(res, "controller not found");
+        } else {
+            response.fail(res, e.code);
         }
     }
 });
