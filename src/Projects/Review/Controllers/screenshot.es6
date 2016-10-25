@@ -18,8 +18,7 @@ module.exports = {
                     return d1;
                 });
             } catch (e) {
-                console.log("read dir failed:" + req.body.id);
-                console.log(e);
+
             }
             res.send({success: "true", message: {dir: dirArr, isLandscape: isLandscape}});
         }).catch(d=> {

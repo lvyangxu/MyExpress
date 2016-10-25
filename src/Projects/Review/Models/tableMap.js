@@ -1,40 +1,7 @@
 "use strict";
 
 module.exports = {
-    create: function create(req, res, table) {
-        var sqlCommand = "";
 
-        if (tableStruct.length != 0) {
-            (function () {
-                var defaultValues = [{ tableName: "game", createTime: "now()", updateTime: "now()" }];
-
-                var rowValueStr = rowLengthArr.map(function (i) {
-                    var row = "(";
-                    row += noIdFields.map(function (d) {
-                        var id = d.Field;
-                        var type = d.Type;
-                        var value = void 0;
-                        var defaultValue = defaultValues.filter(function (d) {
-                            return d.tableName == table;
-                        });
-                        if (defaultValue.length != 0 && defaultValue[0][id]) {
-                            value = defaultValue[0][id];
-                        } else {
-                            value = req.body[id][i];
-                            if (!type.includes("int") && type != "float" && type != "double") {
-                                value = "'" + value + "'";
-                            }
-                        }
-                        return value;
-                    }).join(",");
-                    row += ")";
-                    return row;
-                }).join(",");
-                sqlCommand = "insert into " + table + " (" + columnNameStr + ") values " + rowValueStr;
-            })();
-        }
-        return { sqlCommand: sqlCommand, values: {} };
-    },
     update: function update(req, res, table) {
         var sqlCommandArr = [];
         var valuesArr = [];

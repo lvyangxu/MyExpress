@@ -14,15 +14,17 @@ let mysql = {
         global.mysql = mysql;
     },
     excuteQuery: (sqlCommand, values)=> {
+        values = (values == undefined) ? {} : values;
         return new Promise((resolve, reject)=> {
             mysql.pool.query(sqlCommand, values, function (err, rows, fields) {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log("mysql excute success:");
-                    console.log(sqlCommand);
-                    console.log(values);
-                    resolve(rows, fields);
+                    resolve(rows, {
+                        sqlCommand: sqlCommand,
+                        values: values,
+                        fields: fields
+                    });
                 }
             });
         })

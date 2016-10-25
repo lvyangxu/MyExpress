@@ -2,7 +2,6 @@
 
 var React = require("react");
 var ReactDom = require("react-dom");
-require("karl-extend");
 var Login = require("../../util/login");
 
 ReactDom.render(React.createElement(Login, null), document.getElementById("login"));

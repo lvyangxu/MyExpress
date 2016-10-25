@@ -957,11 +957,10 @@ var table = function (_React$Component) {
                 alert("请至少选择一行数据");
                 return;
             }
-            var v = checkedData.map(function (d) {
-                return d.id;
-            }).join(",");
             var data = {
-                id: v
+                id: checkedData.map(function (d) {
+                    return d.id;
+                })
             };
             if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
                 var tableId = this.props.tableId;
@@ -999,13 +998,9 @@ var table = function (_React$Component) {
 
             var tableId = this.props.tableId;
             http.post("../table/" + tableId + "/attachmentRead", { id: id }).then(function (d) {
-                var attachment = d.map(function (d1) {
-                    d1 = d1.base64Decode();
-                    return d1;
-                });
                 _this10.setState({
                     panel: "attachment",
-                    attachmentList: attachment
+                    attachmentList: d
                 });
             }).catch(function (d) {
                 alert("获取附件列表失败:" + d);

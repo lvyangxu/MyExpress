@@ -48,13 +48,13 @@ var login = function (_React$Component) {
                     "div",
                     { className: "row" },
                     React.createElement("input", { value: this.state.username, onChange: this.usernameChange, placeholder: "username",
-                        type: "text" })
+                        name: "karl-username", type: "text" })
                 ),
                 React.createElement(
                     "div",
                     { className: "row" },
                     React.createElement("input", { value: this.state.password, onChange: this.passwordChange, placeholder: "password",
-                        type: "password" })
+                        name: "karl-password", type: "password" })
                 ),
                 React.createElement(
                     "div",

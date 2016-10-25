@@ -1,5 +1,4 @@
 let response = require("./response");
-let tableConfig = require("./tableConfig");
 let fs = require("fs");
 
 module.exports = {
@@ -7,6 +6,7 @@ module.exports = {
         response.success(res, config.columns);
     },
     create: (req, res, config)=> {
+        let table = config.id;
         //find table struct
         let tableStruct = global.dbStruct.find(d=> {
             return d.id == table;
@@ -25,25 +25,23 @@ module.exports = {
         let rowArr = [];
         for (let i = 0; i < req.body.requestRowsLength; i++) {
             let row = "(";
-            row += noIdFields.map(d=> {
+            row += noIdFields.filter(d=> {
+                //filter default undefined value
+                let id = d.Field;
+                if (config.hasOwnProperty("create") && config.create.hasOwnProperty(id) && config.create[id] == undefined) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }).map(d=> {
                 let id = d.Field;
                 let type = d.Type;
                 let value;
-
-                if (config.hasOwnProperty("create")) {
-                    //if default value exist
-
+                if (config.hasOwnProperty("create") && config.create.hasOwnProperty(id)) {
+                    //if default value exist and default value has property id
+                    value = config.create[id];
                 } else {
                     //if default value do not exist
-
-                }
-
-                let defaultValue = defaultValues.filter(d=> {
-                    return d.tableName == table;
-                });
-                if (defaultValue.length != 0 && defaultValue[0][id]) {
-                    value = defaultValue[0][id];
-                } else {
                     value = req.body[id][i];
                     if (!type.includes("int") && type != "float" && type != "double") {
                         value = "'" + value + "'";
@@ -62,94 +60,150 @@ module.exports = {
             //if default value exist and is undefined,then exclude it
             if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create.d == undefined) {
                 return false;
-            }else{
+            } else {
                 return true;
             }
         }).join(",");
         columnIdSqlStr = `(${columnIdSqlStr})`;
         let valuesSqlStr = rowArr.join(",");
 
+        //do mysql excute
         let sqlCommand = `insert into ${table} ${columnIdSqlStr} values ${valuesSqlStr}`;
-
-        global.mysql.excuteQuery(sqlCommand, {}).then(d=> {
+        global.mysql.excuteQuery(sqlCommand).then(d=> {
+            global.log.table.info("create done:" + sqlCommand);
             response.success(res);
         }).catch(d=> {
-            console.log("mysql excuteQuery error:" + d);
-            console.log(sqlCommand);
-            console.log(values);
+            global.log.error.info("mysql excuteQuery error:" + d);
+            global.log.error.info(sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    update: (req, res, table, map)=> {
-        let [sqlCommandArr, valuesArr] = [map.sqlCommand, map.values];
-        let promiseArr = [];
-        for (let i = 0; i < sqlCommandArr.length; i++) {
-            let sqlCommand = sqlCommandArr[i];
-            let values = valuesArr[i];
-            promiseArr.push(global.mysql.excuteQuery(sqlCommand, values));
+    update: (req, res, config)=> {
+        let table = config.id;
+        //find table struct
+        let tableStruct = global.dbStruct.find(d=> {
+            return d.id == table;
+        });
+        if (tableStruct == undefined) {
+            response.fail(res, "unknown table");
+            return;
         }
+
+        //columns exclude id
+        let noIdFields = tableStruct.fields.filter(d=> {
+            return d.Field != "id";
+        });
+
+        let promiseArr = [];
+        let sqlCommandArr = [];
+        let valuesArr = [];
+        for (let i = 0; i < req.body.requestRowsLength; i++) {
+            let sqlCommand = `update ${config.id} set ? where id=${req.body.id[i]}`;
+            let values = {};
+            noIdFields.filter(d=> {
+                //filter default undefined value
+                let id = d.Field;
+                if (config.hasOwnProperty("update") && config.update.hasOwnProperty(id) && config.update[id] == undefined) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }).forEach(d=> {
+                let id = d.Field;
+                if (config.hasOwnProperty("update") && config.update.hasOwnProperty(id)) {
+                    //if default value exist and default value has property id
+                    values[id] = config.create[id];
+                } else {
+                    //if default value do not exist
+                    values[id] = req.body[id][i];
+                }
+            });
+            promiseArr.push(global.mysql.excuteQuery(sqlCommand, values));
+            sqlCommandArr.push(sqlCommand);
+            valuesArr.push(values);
+        }
+
         Promise.all(promiseArr).then(d=> {
+            global.log.table.info("update done:");
+            for (let i = 0; i < sqlCommandArr.length; i++) {
+                global.log.table.info(`update ${i} ${sqlCommandArr[i]}`);
+                global.log.table.info(valuesArr[i]);
+            }
             response.success(res);
         }).catch(d=> {
-            console.log("mysql excuteQuery error:" + d);
-            console.log(sqlCommandArr);
-            console.log(valuesArr);
+            global.log.error.info("mysql excuteQuery error:" + d);
+            for (let i = 0; i < sqlCommandArr.length; i++) {
+                global.log.error.info(`update ${i} ${sqlCommandArr[i]}`);
+                global.log.error.info(valuesArr[i]);
+            }
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    read: (req, res, table, map)=> {
-        let {sqlCommand, values} = map;
+    read: (req, res, config)=> {
+        let table = config.id;
+        let sqlCommand = config.hasOwnProperty("read") ?
+            (typeof(config.read) == "function" ? config.read(req) : config.read) : `select * from ${table}`;
+        let values = config.hasOwnProperty("readValue") ?
+            config.readValue : {};
         global.mysql.excuteQuery(sqlCommand, values).then(d=> {
-            d = tableMap.dataMap(table, d);
+            if (config.hasOwnProperty("readMap")) {
+                d = d.map(d1=> {
+                    d1 = config.readMap(d1);
+                    return d1;
+                });
+            }
+            global.log.table.info("read done:" + sqlCommand);
+            global.log.table.info(values);
             response.success(res, d);
         }).catch(d=> {
-            console.log("mysql excuteQuery error:" + d);
-            console.log(sqlCommand);
-            console.log(values);
+            global.log.error.info("mysql excuteQuery error:" + d);
+            global.log.error.info(sqlCommand);
+            global.log.error.info(values);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    delete: (req, res, table)=> {
-        let sqlCommand = "delete from " + table + " where id in (" + req.body.id + ")";
-        global.mysql.excuteQuery(sqlCommand, {}).then(d=> {
+    delete: (req, res, config)=> {
+        let table = config.id;
+        let idStr = req.body.id.join(",");
+        let sqlCommand = `delete from ${table} where id in (${idStr})`;
+        global.mysql.excuteQuery(sqlCommand).then(d=> {
+            global.log.table.info("delete done:" + sqlCommand);
             response.success(res, d);
         }).catch(d=> {
-            console.log("mysql excuteQuery error:" + d);
-            console.log(sqlCommand);
+            global.log.error.info("mysql excuteQuery error:" + d);
+            global.log.error.info(sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    attachmentRead: (req, res, table)=> {
-        let path = "./client/data/" + table + "/" + req.body.id + "/";
+    attachmentRead: (req, res, config)=> {
+        let table = config.id;
+        let path = `./client/data/${table}/${req.body.id}/`;
         if (fs.existsSync(path)) {
             let attachementList = fs.readdirSync(path);
-            attachementList = attachementList.map(d=> {
-                d = d.base64Encode();
-                return d;
-            });
             response.success(res, attachementList);
         } else {
             response.success(res, []);
         }
     },
-    attachmentDelete: (req, res, table)=> {
+    attachmentDelete: (req, res, config)=> {
+        let table = config.id;
+        let path = `./client/data/${table}/${req.body.id}/`;
         let name = req.body.name;
-        let path = "./client/data/" + table + "/" + req.body.id + "/";
         if (fs.existsSync(path)) {
             fs.unlinkSync(path + name);
             response.success(res);
         } else {
             response.fail(res, "dir do not exist");
         }
-
     },
-    attachmentUpload: (req, res, table)=> {
+    attachmentUpload: (req, res, config)=> {
         if (req.files.length == 0) {
-            response.fail("no file");
+            response.fail("no file upload");
             return;
         }
+        let table = config.id;
         let sourcePath = "./server/upload/";
-        let destPath = "./client/data/" + table + "/";
+        let destPath = `./client/data/${table}/`;
         if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
@@ -160,6 +214,7 @@ module.exports = {
         req.files.forEach(d=> {
             let filename = d.filename;
             fs.renameSync(sourcePath + filename, destPath + filename);
+            global.log.upload.info("upload done:" + destPath + filename);
         });
         response.success(res);
     },

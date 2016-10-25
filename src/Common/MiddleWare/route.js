@@ -53,11 +53,11 @@ router.route("/table/:name/:action").post(upload.any(), function (req, res, next
         response.fail(res, "unknown action");
     } else {
         //find config by table id
-        var config = tableConfig.find(function (d) {
-            return d.id == table;
+        var config = tableConfig(req).find(function (d) {
+            return d.id == name;
         });
         if (config == undefined) {
-            response.fail(res, "unknown table");
+            response.fail(res, "unknown table " + name);
             return;
         }
 

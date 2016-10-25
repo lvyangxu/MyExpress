@@ -19,10 +19,7 @@ module.exports = {
                     d1 = { id: id, imageName: d1 };
                     return d1;
                 });
-            } catch (e) {
-                console.log("read dir failed:" + req.body.id);
-                console.log(e);
-            }
+            } catch (e) {}
             res.send({ success: "true", message: { dir: dirArr, isLandscape: isLandscape } });
         }).catch(function (d) {
             res.send({ success: "true", message: { dir: dirArr, isLandscape: isLandscape } });

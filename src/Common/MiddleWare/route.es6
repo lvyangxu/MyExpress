@@ -51,11 +51,11 @@ router.route("/table/:name/:action").post(upload.any(), (req, res, next)=> {
         response.fail(res, "unknown action");
     } else {
         //find config by table id
-        let config = tableConfig.find(d=> {
-            return d.id == table;
+        let config = tableConfig(req).find(d=> {
+            return d.id == name;
         });
         if (config == undefined) {
-            response.fail(res, "unknown table");
+            response.fail(res, "unknown table " + name);
             return;
         }
 

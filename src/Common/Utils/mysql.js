@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var mysqljs = require('mysql');
 var mysql = {
@@ -16,15 +16,17 @@ var mysql = {
         global.mysql = mysql;
     },
     excuteQuery: function excuteQuery(sqlCommand, values) {
+        values = values == undefined ? {} : values;
         return new Promise(function (resolve, reject) {
             mysql.pool.query(sqlCommand, values, function (err, rows, fields) {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log("mysql excute success:");
-                    console.log(sqlCommand);
-                    console.log(values);
-                    resolve(rows, fields);
+                    resolve(rows, {
+                        sqlCommand: sqlCommand,
+                        values: values,
+                        fields: fields
+                    });
                 }
             });
         });

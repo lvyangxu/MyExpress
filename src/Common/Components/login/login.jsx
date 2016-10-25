@@ -26,11 +26,11 @@ class login extends React.Component {
             <div className="react-login">
                 <div className="row">
                     <input value={this.state.username} onChange={this.usernameChange} placeholder="username"
-                           type="text"/>
+                           name="karl-username" type="text"/>
                 </div>
                 <div className="row">
                     <input value={this.state.password} onChange={this.passwordChange} placeholder="password"
-                           type="password"/>
+                           name="karl-password" type="password"/>
                 </div>
                 <div className="row">
                     <button onClick={this.submit}>sign in</button>
@@ -77,7 +77,7 @@ class login extends React.Component {
             password: this.state.password
         };
         http.post("../account/login", data).then(d=> {
-            window.location.href = "../"+this.state.loginRedirect+"/";
+            window.location.href = "../" + this.state.loginRedirect + "/";
         }).catch(d=> {
             this.setState({"tips": d});
         });

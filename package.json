@@ -30,7 +30,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "karl-component-radio": "^0.1.10",
-    "karl-cookie": "^0.1.1",
+    "karl-cookie": "^0.1.2",
     "karl-http": "^1.1.8",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
@@ -54,11 +54,12 @@
     "image-size": "^0.5.0",
     "jquery": "^3.1.0",
     "karl-extend": "^0.1.0",
+    "karl-xml": "^0.1.0",
+    "log4js": "^0.6.38",
     "morgan": "~1.7.0",
     "multer": "^1.2.0",
     "mysql": "^2.11.1",
     "serve-favicon": "~2.3.0",
-    "winston": "^2.2.0",
     "winston-daily-rotate-file": "^1.3.0",
     "xml2js": "^0.4.17"
   }

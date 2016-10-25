@@ -733,11 +733,10 @@ class table extends React.Component {
             alert("请至少选择一行数据");
             return;
         }
-        let v = checkedData.map(d=> {
-            return d.id;
-        }).join(",");
         let data = {
-            id: v
+            id: checkedData.map(d=> {
+                return d.id;
+            })
         };
         if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
             let tableId = this.props.tableId;
@@ -771,13 +770,9 @@ class table extends React.Component {
     refreshAttachment(id) {
         let tableId = this.props.tableId;
         http.post("../table/" + tableId + "/attachmentRead", {id: id}).then(d=> {
-            let attachment = d.map(d1=> {
-                d1 = d1.base64Decode();
-                return d1;
-            });
             this.setState({
                 panel: "attachment",
-                attachmentList: attachment
+                attachmentList: d
             });
         }).catch(d=> {
             alert("获取附件列表失败:" + d);

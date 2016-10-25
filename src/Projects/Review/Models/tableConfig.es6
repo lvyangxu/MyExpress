@@ -125,11 +125,7 @@ module.exports = (req)=> {
                 {id: "contactDate", name: "沟通日期", checked: true},
                 {id: "contactTactics", name: "沟通策略", checked: true, type: "textarea"},
                 {id: "contactContent", name: "沟通内容", checked: true, type: "textarea"}
-            ],
-            read: "select * from contact where ?",
-            readValue: {
-                name: req.body.name
-            }
+            ]
         },
         {
             id: "getGames",
@@ -152,5 +148,33 @@ module.exports = (req)=> {
                 return d.developer;
             }
         },
+        {
+            id: "followLog",
+            read: "select * from contact where ? order by contactDate",
+            readValue: {
+                name: req.body.name
+            }
+        },
+        {
+            id: "getGameNamesByPublisher",
+            read: "select * from game where ?",
+            readValue: {
+                publisher: req.body.publisher
+            }
+        },
+        {
+            id: "getGameNamesByDeveloper",
+            read: "select * from game where ?",
+            readValue: {
+                developer: req.body.developer
+            }
+        },
+        {
+            id: "contactByName",
+            read: "select * from contact where ?",
+            readValue: {
+                name: req.body.name
+            }
+        }
     ];
-}
+};

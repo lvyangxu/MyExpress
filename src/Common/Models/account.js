@@ -34,7 +34,7 @@ module.exports = {
         var username = _map2[0];
         var password = _map2[1];
 
-        if (username == global.accountConfig.username.md5Encode() && password == global.accountConfig.password.md5Encode()) {
+        if (username == global.accountConfig.username && password == global.accountConfig.password) {
             //set session
             req.session.username = global.accountConfig.username;
             return true;

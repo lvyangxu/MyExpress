@@ -26,7 +26,7 @@ module.exports = {
             d = req.cookies[global.accountConfig[d + "Cookie"]];
             return d;
         });
-        if (username == global.accountConfig.username.md5Encode() && password == global.accountConfig.password.md5Encode()) {
+        if (username == global.accountConfig.username && password == global.accountConfig.password) {
             //set session
             req.session.username = global.accountConfig.username;
             return true;

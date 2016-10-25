@@ -60,6 +60,8 @@ gulp.task("build", ["build-util", "build-server", "build-client"], function () {
 gulp.task("build-server", function () {
     //app
     gulp.src(["src/app.js", "src/bin/www"]).pipe(gulp.dest("dist/" + project + "/server/js"));
+    //init
+    gulp.src(["src/Common/Init/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
     //middleware
     gulp.src(["src/Common/MiddleWare/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
     //models
