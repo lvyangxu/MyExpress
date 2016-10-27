@@ -13,7 +13,7 @@ var gutil = require('gulp-util');
 
 // let project = "Maintence";
 var project = "Review";
-var isProduction = false;
+var isProduction = true;
 var viewModules = {
     Review: ["login", "display", "manage"],
     Maintence: ["login", "manage"]

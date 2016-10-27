@@ -65,7 +65,7 @@ module.exports = {
             return d.Field;
         }).filter(function (d) {
             //if default value exist and is undefined,then exclude it
-            if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create.d == undefined) {
+            if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create[d] == undefined) {
                 return false;
             } else {
                 return true;
