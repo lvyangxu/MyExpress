@@ -30,6 +30,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "karl-component-radio": "^0.1.10",
+    "karl-component-select": "^0.1.7",
     "karl-cookie": "^0.1.2",
     "karl-http": "^1.1.8",
     "less": "^2.7.1",

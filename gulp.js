@@ -75,7 +75,7 @@ gulp.task("build-server", function () {
 
 gulp.task("build-util", function () {
     //component
-    var componentArr = ["login", "select", "table", "nav"];
+    var componentArr = ["login", "table"];
     componentArr.map(function (d) {
         gulp.src("src/Common/Components/" + d + "/*.js").pipe(gulp.dest("dist/" + project + "/util"));
     });

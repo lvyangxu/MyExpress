@@ -1,6 +1,6 @@
 let http = require("karl-http");
 let React = require("react");
-let Select = require("./select");
+let Select = require("karl-component-select");
 let upload = require("./upload");
 
 class table extends React.Component {

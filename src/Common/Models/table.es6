@@ -98,7 +98,7 @@ module.exports = {
         let sqlCommandArr = [];
         let valuesArr = [];
         for (let i = 0; i < req.body.requestRowsLength; i++) {
-            let sqlCommand = `update ${config.id} set ? where id=${req.body.id[i]}`;
+            let defaultValueStrArr = [];
             let values = {};
             noIdFields.filter(d=> {
                 //filter default undefined value
@@ -112,12 +112,24 @@ module.exports = {
                 let id = d.Field;
                 if (config.hasOwnProperty("update") && config.update.hasOwnProperty(id)) {
                     //if default value exist and default value has property id
-                    values[id] = config.create[id];
+                    defaultValueStrArr.push(id + "=" + config.update[id]);
                 } else {
                     //if default value do not exist
                     values[id] = req.body[id][i];
                 }
             });
+            let defaultValueStr = defaultValueStrArr.join(",");
+            if (defaultValueStr != "") {
+                let n = 0;
+                for (let k in values) {
+                    n++;
+                }
+                if (n != 0) {
+                    defaultValueStr += ",";
+                }
+            }
+
+            let sqlCommand = `update ${config.id} set ${defaultValueStr} ? where id=${req.body.id[i]}`;
             promiseArr.push(global.mysql.excuteQuery(sqlCommand, values));
             sqlCommandArr.push(sqlCommand);
             valuesArr.push(values);

@@ -89,7 +89,7 @@ gulp.task("build-server", ()=> {
 
 gulp.task("build-util", ()=> {
     //component
-    let componentArr = ["login", "select", "table", "nav"];
+    let componentArr = ["login", "table"];
     componentArr.map(d=> {
         gulp.src("src/Common/Components/" + d + "/*.js")
             .pipe(gulp.dest("dist/" + project + "/util"));

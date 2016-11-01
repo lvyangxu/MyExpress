@@ -41,6 +41,8 @@
       <root url="file://$PROJECT_DIR$/src/Common/Components/radio/radio.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/stringExtend.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableMap.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Components/select/select.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Components/nav/nav.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />

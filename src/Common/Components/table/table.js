@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var http = require("karl-http");
 var React = require("react");
-var Select = require("./select");
+var Select = require("karl-component-select");
 var upload = require("./upload");
 
 var table = function (_React$Component) {
