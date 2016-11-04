@@ -114,7 +114,7 @@ var App = function (_React$Component) {
                                 null,
                                 "游戏名称"
                             ),
-                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getGames/read", selectCallback: function selectCallback(d) {
+                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getGames/read", callback: function callback(d) {
                                     _this2.chooseGameName(d);
                                 }, value: this.state.gameRadioValue }),
                             React.createElement(
@@ -122,7 +122,7 @@ var App = function (_React$Component) {
                                 null,
                                 "发行商"
                             ),
-                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getPublishers/read", selectCallback: function selectCallback(d) {
+                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getPublishers/read", callback: function callback(d) {
                                     _this2.selectPublisher(d);
                                 } }),
                             React.createElement(
@@ -130,7 +130,7 @@ var App = function (_React$Component) {
                                 null,
                                 "研发商"
                             ),
-                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getDevelopers/read", selectCallback: function selectCallback(d) {
+                            React.createElement(Radio, { className: "radio", defaultBlank: true, url: "../table/getDevelopers/read", callback: function callback(d) {
                                     _this2.selectDeveloper(d);
                                 } })
                         ),

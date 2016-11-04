@@ -90,15 +90,15 @@ class App extends React.Component {
                     <div style={this.state.display == "game" ? {} : {display: "none"}} className="game-panel">
                         <div className="radio-div">
                             <label>游戏名称</label>
-                            <Radio className="radio" defaultBlank url="../table/getGames/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getGames/read" callback={(d)=> {
                                 this.chooseGameName(d);
                             }} value={this.state.gameRadioValue}></Radio>
                             <label>发行商</label>
-                            <Radio className="radio" defaultBlank url="../table/getPublishers/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getPublishers/read" callback={(d)=> {
                                 this.selectPublisher(d);
                             }}></Radio>
                             <label>研发商</label>
-                            <Radio className="radio" defaultBlank url="../table/getDevelopers/read" selectCallback={(d)=> {
+                            <Radio className="radio" defaultBlank url="../table/getDevelopers/read" callback={(d)=> {
                                 this.selectDeveloper(d);
                             }}></Radio>
                         </div>

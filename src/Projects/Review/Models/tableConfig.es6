@@ -125,25 +125,26 @@ module.exports = (req)=> {
                 {id: "contactDate", name: "沟通日期", checked: true},
                 {id: "contactTactics", name: "沟通策略", checked: true, type: "textarea"},
                 {id: "contactContent", name: "沟通内容", checked: true, type: "textarea"}
-            ]
+            ],
+            read: "select * from contact order by id desc"
         },
         {
             id: "getGames",
-            read: "select id,name from game group by name",
+            read: "select id,name from game group by name order by id",
             readMap: (d)=> {
                 return d.name;
             }
         },
         {
             id: "getPublishers",
-            read: "select id,publisher from game group by publisher",
+            read: "select id,publisher from game group by publisher order by id",
             readMap: (d)=> {
                 return d.publisher;
             }
         },
         {
             id: "getDevelopers",
-            read: "select id,developer from game group by developer",
+            read: "select id,developer from game group by developer order by id",
             readMap: (d)=> {
                 return d.developer;
             }
