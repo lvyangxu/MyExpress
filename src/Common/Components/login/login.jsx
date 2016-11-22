@@ -1,3 +1,4 @@
+require("babel-polyfill");
 let http = require("karl-http");
 let cookie = require("karl-cookie");
 let React = require("react");

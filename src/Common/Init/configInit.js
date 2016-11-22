@@ -1,60 +1,118 @@
 "use strict";
 
 var xml = require("karl-xml");
-var promise1 = xml.read("./server/config/account.xml");
-var promise2 = xml.read("./server/config/mysql.xml");
-Promise.all([promise1, promise2]).then(function (d) {
-    global.accountConfig = {
-        username: d[0].root.username[0],
-        password: d[0].root.password[0],
-        usernameCookie: d[0].root.usernameCookie[0],
-        passwordCookie: d[0].root.passwordCookie[0],
-        loginRedirect: d[0].root.loginRedirect[0]
-    };
 
-    var mysql = require("../../util/mysql");
-    mysql.init("localhost", d[1].root.user[0], d[1].root.password[0], d[1].root.database[0]);
-    console.log("mysql init success");
-    global.log.server.info("mysql init success");
+var loadConfig = function _callee3() {
+    return regeneratorRuntime.async(function _callee3$(_context3) {
+        while (1) {
+            switch (_context3.prev = _context3.next) {
+                case 0:
+                    _context3.prev = 0;
+                    _context3.next = 3;
+                    return regeneratorRuntime.awrap(function _callee2() {
+                        var accountConfig, mysqlConfig, mysql, showTables, tableNames;
+                        return regeneratorRuntime.async(function _callee2$(_context2) {
+                            while (1) {
+                                switch (_context2.prev = _context2.next) {
+                                    case 0:
+                                        _context2.next = 2;
+                                        return regeneratorRuntime.awrap(xml.read("./server/config/account.xml"));
 
-    mysql.excuteQuery("show tables").then(function (d) {
-        var tableNames = d.map(function (d1) {
-            var tableName = void 0;
-            for (var k in d1) {
-                tableName = d1[k];
-                break;
+                                    case 2:
+                                        accountConfig = _context2.sent;
+
+                                        accountConfig = accountConfig.root;
+                                        global.accountConfig = {
+                                            username: accountConfig.username[0],
+                                            password: accountConfig.password[0],
+                                            usernameCookie: accountConfig.usernameCookie[0],
+                                            passwordCookie: accountConfig.passwordCookie[0],
+                                            loginRedirect: accountConfig.loginRedirect[0]
+                                        };
+
+                                        //init mysql
+                                        _context2.next = 7;
+                                        return regeneratorRuntime.awrap(xml.read("./server/config/mysql.xml"));
+
+                                    case 7:
+                                        mysqlConfig = _context2.sent;
+
+                                        mysqlConfig = mysqlConfig.root;
+                                        mysql = require("../../util/mysql");
+
+                                        mysql.init("localhost", mysqlConfig.user[0], mysqlConfig.password[0], mysqlConfig.database[0]);
+                                        console.log("mysql init success");
+                                        global.log.server.info("mysql init success");
+
+                                        //get all table names
+                                        _context2.next = 15;
+                                        return regeneratorRuntime.awrap(mysql.excuteQuery("show tables"));
+
+                                    case 15:
+                                        showTables = _context2.sent;
+                                        tableNames = showTables.map(function (d) {
+                                            var tableName = void 0;
+                                            for (var k in d) {
+                                                tableName = d[k];
+                                                break;
+                                            }
+                                            return tableName;
+                                        });
+
+                                        //set global table struct
+
+                                        global.dbStruct = tableNames.map(function _callee(d) {
+                                            var fields;
+                                            return regeneratorRuntime.async(function _callee$(_context) {
+                                                while (1) {
+                                                    switch (_context.prev = _context.next) {
+                                                        case 0:
+                                                            _context.next = 2;
+                                                            return regeneratorRuntime.awrap(mysql.excuteQuery("desc " + d));
+
+                                                        case 2:
+                                                            fields = _context.sent;
+                                                            return _context.abrupt("return", { id: d, fields: fields });
+
+                                                        case 4:
+                                                        case "end":
+                                                            return _context.stop();
+                                                    }
+                                                }
+                                            }, null, undefined);
+                                        });
+
+                                        console.log("get database structure successfully");
+                                        global.log.server.info("get database structure successfully");
+
+                                    case 20:
+                                    case "end":
+                                        return _context2.stop();
+                                }
+                            }
+                        }, null, undefined);
+                    }());
+
+                case 3:
+                    _context3.next = 9;
+                    break;
+
+                case 5:
+                    _context3.prev = 5;
+                    _context3.t0 = _context3["catch"](0);
+
+                    console.log("init config failed:" + _context3.t0.message);
+                    global.log.error.info("init config failed:" + _context3.t0.message);
+
+                case 9:
+                case "end":
+                    return _context3.stop();
             }
-            return tableName;
-        });
-        var descTablePromise = [];
-        tableNames.map(function (d1) {
-            descTablePromise.push(mysql.excuteQuery("desc " + d1));
-        });
-        global.dbStruct = [];
-        Promise.all(descTablePromise).then(function (d1) {
-            for (var i = 0; i < d1.length; i++) {
-                var tableName = tableNames[i];
-                var tableDesc = d1[i];
-                global.dbStruct.push({ id: tableName, fields: tableDesc });
-            }
-            console.log("get database structure successfully");
-            global.log.server.info("get database structure successfully");
-        }).catch(function (d1) {
-            console.log("get table structure failed:");
-            console.log(d1);
-            global.log.error.info("get table structure failed:");
-            global.log.error.info(d1);
-        });
-    }).catch(function (d) {
-        console.log("get database structure failed:");
-        console.log(d);
-        global.log.error.info("get database structure failed:");
-        global.log.error.info(d);
-    });
-}).catch(function (d) {
-    console.log(d);
-    global.log.error.info(d);
-});
+        }
+    }, null, undefined, [[0, 5]]);
+};
+
+loadConfig();
 
 module.exports = "";
 

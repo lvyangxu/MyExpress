@@ -11,7 +11,7 @@ var gutil = require('gulp-util');
 
 // let project = "Maintence";
 let project = "Review";
-let isProduction = true;
+let isProduction = false;
 let viewModules = {
     Review: ["login", "display", "manage"],
     Maintence: ["login", "manage"]
@@ -30,8 +30,8 @@ let mysqlConfig = {
 };
 let accountConfig = {
     Review: {
-        username: "radiumme",
-        password: "radiumme",
+        username: "business",
+        password: "business",
         usernameCookie: "reviewUsername",
         passwordCookie: "reviewPassword",
         loginRedirect: "display"

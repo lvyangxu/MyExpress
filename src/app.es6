@@ -1,7 +1,7 @@
 let express = require('express');
 let path = require('path');
 let favicon = require('serve-favicon');
-// require('babel-polyfill');
+require('babel-polyfill');
 let app = express();
 
 //my init

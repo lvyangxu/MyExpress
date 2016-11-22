@@ -3,7 +3,7 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-// require('babel-polyfill');
+require('babel-polyfill');
 var app = express();
 
 //my init

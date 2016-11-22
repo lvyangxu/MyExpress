@@ -1,57 +1,54 @@
 let xml = require("karl-xml");
-let promise1 = xml.read("./server/config/account.xml");
-let promise2 = xml.read("./server/config/mysql.xml");
-Promise.all([promise1, promise2]).then(d=> {
-    global.accountConfig = {
-        username: d[0].root.username[0],
-        password: d[0].root.password[0],
-        usernameCookie: d[0].root.usernameCookie[0],
-        passwordCookie: d[0].root.passwordCookie[0],
-        loginRedirect: d[0].root.loginRedirect[0]
-    };
 
-    let mysql = require("../../util/mysql");
-    mysql.init("localhost", d[1].root.user[0], d[1].root.password[0], d[1].root.database[0]);
-    console.log("mysql init success");
-    global.log.server.info("mysql init success");
+let loadConfig = async() => {
+    try {
 
-    mysql.excuteQuery("show tables").then(function (d) {
-        let tableNames = d.map(d1=> {
+        //set global account
+        let accountConfig = await xml.read("./server/config/account.xml");
+        accountConfig = accountConfig.root;
+        global.accountConfig = {
+            username: accountConfig.username[0],
+            password: accountConfig.password[0],
+            usernameCookie: accountConfig.usernameCookie[0],
+            passwordCookie: accountConfig.passwordCookie[0],
+            loginRedirect: accountConfig.loginRedirect[0]
+        };
+
+        //init mysql
+        let mysqlConfig = await xml.read("./server/config/mysql.xml");
+        mysqlConfig = mysqlConfig.root;
+        let mysql = require("../../util/mysql");
+        mysql.init("localhost", mysqlConfig.user[0], mysqlConfig.password[0], mysqlConfig.database[0]);
+        console.log("mysql init success");
+        global.log.server.info("mysql init success");
+
+        //get all table names
+        let showTables = await mysql.excuteQuery("show tables");
+        let tableNames = showTables.map(d => {
             let tableName;
-            for (let k in d1) {
-                tableName = d1[k];
+            for (let k in d) {
+                tableName = d[k];
                 break;
             }
             return tableName;
         });
-        let descTablePromise = [];
-        tableNames.map(d1=> {
-            descTablePromise.push(mysql.excuteQuery("desc " + d1));
+
+        //set global table struct
+        global.dbStruct = tableNames.map(async d=>{
+            let fields = await mysql.excuteQuery("desc " + d);
+            return {id: d, fields: fields}
         });
-        global.dbStruct = [];
-        Promise.all(descTablePromise).then(d1=> {
-            for (let i = 0; i < d1.length; i++) {
-                let tableName = tableNames[i];
-                let tableDesc = d1[i];
-                global.dbStruct.push({id: tableName, fields: tableDesc});
-            }
-            console.log("get database structure successfully");
-            global.log.server.info("get database structure successfully");
-        }).catch(d1=> {
-            console.log("get table structure failed:");
-            console.log(d1);
-            global.log.error.info("get table structure failed:");
-            global.log.error.info(d1);
-        });
-    }).catch(function (d) {
-        console.log("get database structure failed:");
-        console.log(d);
-        global.log.error.info("get database structure failed:");
-        global.log.error.info(d);
-    });
-}).catch(d=> {
-    console.log(d);
-    global.log.error.info(d);
-});
+
+        console.log("get database structure successfully");
+        global.log.server.info("get database structure successfully");
+    } catch (e) {
+        console.log("init config failed:" + e.message);
+        global.log.error.info("init config failed:" + e.message);
+    }
+
+
+};
+
+loadConfig();
 
 module.exports = "";
