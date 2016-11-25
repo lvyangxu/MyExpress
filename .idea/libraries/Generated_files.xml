@@ -2,23 +2,13 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
+        <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Views/manage/main.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
         <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-        <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
         <item url="file://$PROJECT_DIR$/src/app.js" />
@@ -26,6 +16,17 @@
         <item url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/log.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
+        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
+        <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Views/manage/main.js" />
+        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
+        <item url="file://$PROJECT_DIR$/gulp.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -48,6 +49,7 @@
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableMap.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableMap.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
+      <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
@@ -63,8 +65,8 @@
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/param.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />

@@ -7,10 +7,10 @@ var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
 var webpack = require('webpack-stream');
-var gutil = require('gulp-util');
+var hash_src = require("gulp-hash-src");
 
-// let project = "Maintence";
-let project = "Review";
+let project = "Maintence";
+// let project = "Review";
 let isProduction = false;
 let viewModules = {
     Review: ["login", "display", "manage"],
@@ -102,6 +102,12 @@ gulp.task("build-util", ()=> {
 });
 
 gulp.task("build-client", ()=> {
+    //views html minify
+    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
+        .pipe(gulp.dest("dist/" + project + "/client"));
+
     //views js
     gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
         .pipe(gulp.dest("dist/" + project + "/webpack"))
@@ -118,10 +124,7 @@ gulp.task("build-client", ()=> {
         });
 
 
-    //views html minify
-    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest("dist/" + project + "/client"));
+
     //views css bundle and minify
     viewModules[project].map(d=> {
         let srcArr = [];

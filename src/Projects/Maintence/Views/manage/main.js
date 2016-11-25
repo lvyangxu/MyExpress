@@ -8,11 +8,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+require("babel-polyfill");
 var React = require("react");
 var ReactDom = require("react-dom");
 require("karl-extend");
-var Nav = require("../../util/nav");
-var http = require("../../util/http");
+var Nav = require("karl-component-nav");
+var http = require("karl-http");
 var ReactTransitionGroup = require('react-addons-transition-group');
 
 var Table = require("../../util/table");

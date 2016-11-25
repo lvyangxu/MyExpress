@@ -1,4 +1,5 @@
 var webpack = require("webpack");
+var htmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     module: {
         loaders: [

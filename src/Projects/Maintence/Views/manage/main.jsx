@@ -1,8 +1,9 @@
+require("babel-polyfill");
 let React = require("react");
 let ReactDom = require("react-dom");
 require("karl-extend");
-let Nav = require("../../util/nav");
-let http = require("../../util/http");
+let Nav = require("karl-component-nav");
+let http = require("karl-http");
 let ReactTransitionGroup  = require('react-addons-transition-group');
 
 let Table = require("../../util/table");
