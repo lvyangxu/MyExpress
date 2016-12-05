@@ -9,12 +9,14 @@ var replace = require('gulp-replace');
 var webpack = require('webpack-stream');
 var hash_src = require("gulp-hash-src");
 
-let project = "Maintence";
+// let project = "Maintence";
 // let project = "Review";
+let project = "G02log";
 let isProduction = false;
 let viewModules = {
     Review: ["login", "display", "manage"],
-    Maintence: ["login", "manage"]
+    Maintence: ["login", "manage"],
+    G02log:[]
 };
 let mysqlConfig = {
     Review: {
@@ -26,6 +28,11 @@ let mysqlConfig = {
         user: "root",
         password: "root",
         database: "MaintenceSystem"
+    },
+    G02log:{
+        user: "root",
+        password: "root",
+        database: "G02log"
     }
 };
 let accountConfig = {
@@ -42,12 +49,20 @@ let accountConfig = {
         usernameCookie: "maintenceUsername",
         passwordCookie: "maintencePassword",
         loginRedirect: "manage"
+    },
+    G02log:{
+        username: "radiumme",
+        password: "radiumme",
+        usernameCookie: "g02logUsername",
+        passwordCookie: "g02logPassword",
+        loginRedirect: "display"
     }
 };
 process.env.NODE_ENV = (isProduction) ? "production" : "development";
 if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
+    mysqlConfig.G02log.password = "kMXWy16GHVXlsEhXtwKh";
 }
 
 gulp.task("build", ["build-util", "build-server", "build-client"], ()=> {

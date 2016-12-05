@@ -2,7 +2,6 @@ let xml = require("karl-xml");
 
 let loadConfig = async() => {
     try {
-
         //set global account
         let accountConfig = await xml.read("./server/config/account.xml");
         accountConfig = accountConfig.root;

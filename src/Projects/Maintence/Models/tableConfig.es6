@@ -19,163 +19,41 @@
 module.exports = (req)=> {
     return [
         {
-            id: "cp",
+            id: "serverInfo",
             columns: [
                 {id: "id", name: "id", checked: false},
-                {id: "name", name: "公司名称", checked: true},
-                {id: "businessType", name: "业务类型", checked: true},
-                {id: "area", name: "业务地区", checked: true},
-                {id: "address", name: "所在地", checked: true},
-                {id: "productType", name: "主要产品类型", checked: true},
-                {id: "contactMan", name: "联系人", checked: true},
-                {id: "duty", name: "职位", checked: true},
-                {id: "contactWay", name: "联系方式", checked: true},
-                {id: "website", name: "网站", checked: true},
-                {id: "appannie", name: "App Annie", checked: true},
-                {id: "manager", name: "负责人", checked: true},
+                {id: "serverRoom", name: "区域", checked: true},
+                {id: "game", name: "游戏名称", checked: true},
+                {id: "instanceType", name: "实例类型", checked: true},
+                {id: "instanceId", name: "实例id", checked: true},
+                {id: "instanceName", name: "实例名称", checked: true},
+                {id: "area", name: "可用区", checked: true},
+                {id: "publicDns", name: "公网dns", checked: true},
+                {id: "supplier", name: "云平台名称", checked: true},
+                {id: "internetIp", name: "公网ip", checked: true},
+                {id: "intranetIp", name: "内网ip", checked: true},
+                {id: "cpu", name: "cpu", checked: true},
+                {id: "memory", name: "内存", checked: true},
+                {id: "bandwidth", name: "带宽", checked: true},
+                {id: "disk", name: "硬盘", checked: true},
+                {id: "os", name: "操作系统", checked: true},
+                {id: "service", name: "运行服务", checked: true},
+                {id: "startTime", name: "上架时间", checked: true},
+                {id: "endTime", name: "到期时间", checked: true},
+                {id: "status", name: "状态", checked: true},
+                {id: "username", name: "登录名", checked: true},
+                {id: "password", name: "密码", checked: true},
+                {id: "operationHistory", name: "维护记录", checked: true},
+                {id: "price", name: "价格", checked: true},
+                {id: "assetId", name: "资产编号", checked: true},
+                {id: "serialNum", name: "设备序列号", checked: true},
+                {id: "publicPort", name: "开放端口", checked: true},
+                {id: "secretKey", name: "密钥值", checked: true},
+                {id: "safeGroup", name: "安全组", checked: true},
                 {id: "note", name: "备注", checked: true}
             ],
-            read: "select * from cp order by id desc"
+            read: "select * from server_info"
         },
-        {
-            id: "cpDisplay",
-            columns: [
-                {id: "id", name: "id", checked: false},
-                {id: "name", name: "公司名称", checked: true},
-                {id: "businessType", name: "业务类型", checked: true},
-                {id: "area", name: "业务地区", checked: true},
-                {id: "address", name: "所在地", checked: true},
-                {id: "productType", name: "主要产品类型", checked: true},
-                {id: "contactMan", name: "联系人", checked: true},
-                {id: "duty", name: "职位", checked: true},
-                {id: "contactWay", name: "联系方式", checked: true},
-                {id: "website", name: "网站", checked: true},
-                {id: "manager", name: "负责人", checked: true},
-                {id: "note", name: "备注", checked: true}
-            ],
-            read: ()=> {
-                let website = `concat("<a href='",website,"' target='_blank'>",'主页','</a>',"<a href='",appannie,"' target='_blank'>",'annie','</a>')`;
-                let d = `select name,businessType,area,address,productType,contactMan,duty,contactWay,${website} as website,manager,note from cp`;
-                return d;
-            }
-        },
-        {
-            id: "follow",
-            columns: [
-                {id: "id", name: "id", checked: false},
-                {id: "name", name: "游戏名称", checked: true},
-                {id: "followStatus", name: "跟进标签", checked: true, select: true},
-                {id: "lastContact", name: "最后联系时间", checked: true},
-                {id: "admin", name: "负责人", checked: true, select: true},
-                {id: "createTime", name: "录入时间", checked: false},
-                {id: "updateTime", name: "更新时间", checked: false}
-            ],
-            read: "select * from game order by createTime desc"
-        },
-        {
-            id: "game",
-            columns: [
-                {id: "id", name: "id", checked: false},
-                {id: "name", name: "游戏名称", checked: true},
-                {id: "publisher", name: "发行商", checked: true},
-                {id: "developer", name: "研发商", checked: true},
-                {id: "type", name: "游戏类型", checked: true},
-                {id: "play", name: "玩法", checked: true},
-                {id: "ip", name: "IP", checked: true},
-                {id: "theme", name: "题材", checked: true},
-                {id: "online", name: "上线情况", checked: true},
-                {id: "performance", name: "上线表现", checked: true},
-                {id: "lastContact", name: "最后联系时间", checked: true},
-                {
-                    id: "contactWay", name: "沟通方式", checked: true, type: "radio",
-                    radioArr: [
-                        "初步网上/电话沟通", "网上/电话长期跟进资料", "网上/电话深度沟通（合作意向尚不明确）",
-                        "网上/电话深度沟通（已明确合作意向）", "已约定见面（去对方公司拜访）", "已约定见面（来我公司拜访）",
-                        "已见面（去对方公司拜访）", "已见面（来我公司拜访）", "已见面（已互相拜访）"
-                    ]
-                },
-                {id: "agentCondition", name: "代理条件", checked: true},
-                {id: "admin", name: "负责人", checked: true},
-                {
-                    id: "followStatus", name: "跟进标签", checked: true, type: "radio",
-                    radioArr: [
-                        "等待出包", "评测中", "跟进新包，包完成度不够", "等待上线数据",
-                        "初步沟通合作意向(评测通过)", "初步沟通合作意向(已上线产品)",
-                        "已被其他公司代理", "开发自己发行", "我方主动放弃", "合作协议推进失败",
-                        "双方明确合作意向", "签订测试协议", "签订代理协议"
-                    ]
-                },
-                {id: "appannie", name: "Apple Annie", checked: true}
-            ],
-            create: {
-                createTime: "now()",
-                updateTime: "now()"
-            },
-            update: {
-                createTime: undefined,
-                updateTime: "now()"
-            },
-            read: "select * from game order by id desc"
-        },
-        {
-            id: "contact",
-            columns: [
-                {id: "id", name: "id", checked: false},
-                {id: "name", name: "游戏名称", checked: true},
-                {id: "contactDate", name: "沟通日期", checked: true},
-                {id: "contactTactics", name: "沟通策略", checked: true, type: "textarea"},
-                {id: "contactContent", name: "沟通内容", checked: true, type: "textarea"}
-            ],
-            read: "select * from contact order by id desc"
-        },
-        {
-            id: "getGames",
-            read: "select id,name from game group by name order by id",
-            readMap: (d)=> {
-                return d.name;
-            }
-        },
-        {
-            id: "getPublishers",
-            read: "select id,publisher from game group by publisher order by id",
-            readMap: (d)=> {
-                return d.publisher;
-            }
-        },
-        {
-            id: "getDevelopers",
-            read: "select id,developer from game group by developer order by id",
-            readMap: (d)=> {
-                return d.developer;
-            }
-        },
-        {
-            id: "followLog",
-            read: "select * from contact where ? order by contactDate",
-            readValue: {
-                name: req.body.name
-            }
-        },
-        {
-            id: "getGameNamesByPublisher",
-            read: "select * from game where ?",
-            readValue: {
-                publisher: req.body.publisher
-            }
-        },
-        {
-            id: "getGameNamesByDeveloper",
-            read: "select * from game where ?",
-            readValue: {
-                developer: req.body.developer
-            }
-        },
-        {
-            id: "contactByName",
-            read: "select * from contact where ?",
-            readValue: {
-                name: req.body.name
-            }
-        }
+
     ];
 };

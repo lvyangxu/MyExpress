@@ -1,25 +1,22 @@
-"use strict";
-
-var log4js = require('log4js');
-module.exports = function (logNameArr) {
-    var appenders = logNameArr.map(function (d) {
+let log4js = require('log4js');
+module.exports = (logNameArr)=> {
+    let appenders = logNameArr.map(d=> {
         return {
-            type: "file",
-            filename: "server/log/" + d + ".log",
-            pattern: ".yyyy-MM-dd",
+            type: "dateFile",
+            filename: `server/log/${d}`,
+            pattern: ".yyyy-MM-dd.txt",
+            alwaysIncludePattern:true,
             category: d
-        };
+        }
     });
 
     log4js.configure({
         appenders: appenders
     });
 
-    var loggerJson = {};
-    logNameArr.forEach(function (d) {
+    let loggerJson = {};
+    logNameArr.forEach(d=>{
         loggerJson[d] = log4js.getLogger(d);
     });
     return loggerJson;
 };
-
-//# sourceMappingURL=log.js.map

@@ -40,7 +40,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^2.24.1",
-    "karl-component-nav": "^0.1.6",
+    "karl-component-nav": "^0.1.8",
     "karl-component-radio": "^0.1.22",
     "karl-component-select": "^0.1.7",
     "karl-cookie": "^0.1.2",
@@ -58,6 +58,7 @@
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {
+    "babel-polyfill": "^6.16.0",
     "babel-runtime": "^6.18.0",
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.3",

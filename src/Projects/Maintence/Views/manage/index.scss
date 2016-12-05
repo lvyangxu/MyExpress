@@ -1,47 +1,10 @@
 @charset "utf-8";
 body {
     font-family: "Microsoft YaHei UI", Arial;
-    overflow-y: scroll;
+
 
     #manage {
-        margin-top: 40px;
-        .nav {
-            background-color: rgba(244, 244, 244, 1);
-            cursor: pointer;
-            position: absolute;
-            width: 150px;
-            padding-left: 20px;
-            padding-right: 10px;
-            .nav1 {
-                font-size: 16px;
-                line-height: 40px;
-                i {
-                    margin-right: 5px;
-                }
 
-                .nav-body {
-                    height: 0;
-                    .nav2 {
-                        font-size: 12px;
-                        height: 40px;
-                        padding-left: 20px;
-                    }
-
-                    .nav2.active {
-                        color: rgba(51, 186, 149, 1);
-                    }
-
-                    .nav2:hover {
-                        color: rgba(51, 186, 200, 0.8);
-                    }
-                }
-
-            }
-        }
-
-        .main {
-            margin-left: 200px;
-        }
     }
 
 }

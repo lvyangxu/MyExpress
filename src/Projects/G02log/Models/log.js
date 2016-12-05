@@ -2,10 +2,14 @@ let log4js = require('log4js');
 module.exports = (logNameArr)=> {
     let appenders = logNameArr.map(d=> {
         return {
-            type: "file",
-            filename: `server/log/${d}.log`,
-            pattern: ".yyyy-MM-dd",
-            category: d
+            type: "dateFile",
+            filename: `server/log/${d}`,
+            pattern: ".yyyy-MM-dd.txt",
+            alwaysIncludePattern:true,
+            category: d,
+            layout:{
+                type: 'messagePassThrough'
+            }
         }
     });
 

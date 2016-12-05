@@ -115,5 +115,3 @@ var loadConfig = function _callee3() {
 loadConfig();
 
 module.exports = "";
-
-//# sourceMappingURL=configInit.js.map
