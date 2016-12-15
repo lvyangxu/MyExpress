@@ -40,7 +40,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^2.24.1",
-    "karl-component-nav": "^0.1.12",
+    "karl-component-nav": "^0.1.13",
     "karl-component-radio": "^0.1.24",
     "karl-component-select": "^0.1.7",
     "karl-cookie": "^0.1.2",

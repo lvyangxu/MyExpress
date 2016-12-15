@@ -14,7 +14,7 @@ module.exports = {
             database = config.database;
             pool = global.pool.find(d => {
                 return d.database == database;
-            })
+            }).pool;
         } else {
             database = global.pool[0].database;
             pool = global.pool[0].pool;
@@ -101,7 +101,7 @@ module.exports = {
             database = config.database;
             pool = global.pool.find(d => {
                 return d.database == database;
-            })
+            }).pool;
         } else {
             database = global.pool[0].database;
             pool = global.pool[0].pool;
@@ -188,7 +188,7 @@ module.exports = {
             database = config.database;
             pool = global.pool.find(d => {
                 return d.database == database;
-            })
+            }).pool;
         } else {
             database = global.pool[0].database;
             pool = global.pool[0].pool;
@@ -226,7 +226,7 @@ module.exports = {
             database = config.database;
             pool = global.pool.find(d => {
                 return d.database == database;
-            })
+            }).pool;
         } else {
             database = global.pool[0].database;
             pool = global.pool[0].pool;

@@ -19,7 +19,7 @@ let viewModules = {
     Review: ["login", "display", "manage"],
     Maintence: ["login", "manage"],
     G02log: [],
-    G02DataAnalysis:[]
+    G02DataAnalysis:["login","display"]
 };
 let mysqlConfig = {
     Review: {
@@ -71,7 +71,7 @@ let accountConfig = {
         password: "radiumme",
         usernameCookie: "G02DataAnalysisUsername",
         passwordCookie: "G02DataAnalysisPassword",
-        loginRedirect: "manage"
+        loginRedirect: "display"
     }
 };
 process.env.NODE_ENV = (isProduction) ? "production" : "development";
