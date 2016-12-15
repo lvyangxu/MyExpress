@@ -38,9 +38,9 @@ let mysqlConfig = {
         database: "G02log"
     },
     G02DataAnalysis: {
-        host: ["52.8.78.226", "52.8.78.226", "52.8.78.226"],
-        user: ["nuclear", "nuclear", "nuclear"],
-        password: ["wozhinengkan", "wozhinengkan", "wozhinengkan"],
+        host: ["localhost", "localhost", "localhost"],
+        user: ["root", "root", "root"],
+        password: ["root", "root", "root"],
         database: ["raw", "res", "mid"]
     }
 };
@@ -79,6 +79,8 @@ if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.G02log.password = "kMXWy16GHVXlsEhXtwKh";
+    mysqlConfig.G02DataAnalysis.user = ["nuclear", "nuclear", "nuclear"];
+    mysqlConfig.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan"];
 }
 
 gulp.task("build", ["build-util", "build-server", "build-client"], () => {
@@ -99,6 +101,9 @@ gulp.task("build-server", () => {
     //models
     gulp.src(["src/Common/Models/*.js", "src/Projects/" + project + "/Models/*.js"])
         .pipe(gulp.dest("dist/" + project + "/server/js"));
+    //config
+    gulp.src([`src/Projects/${project}/Config/*`])
+        .pipe(gulp.dest(`dist/${project}/server/config`));
 
     if (Array.isArray(mysqlConfig[project].user)) {
         let json = mysqlConfig[project];

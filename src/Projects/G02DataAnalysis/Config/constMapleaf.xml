@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<consts>
+    <!-- 消费分布图中货币id -->
+    <leaf id="30290200" name="消除冷却时间"></leaf>
+    <leaf id="40140100" name="普通招募"></leaf>
+    <leaf id="40140101" name="高级招募"></leaf>
+    <leaf id="92000100" name="创建军团"></leaf>
+    <leaf id="200210400" name="一键钻石抽卡"></leaf>
+    <leaf id="200210500" name="点亮高级箱"></leaf>
+
+    <leaf id="250200000" name="招财"></leaf>
+
+    <leaf id="80250001" name="淘宝-按钮1"></leaf>
+    <leaf id="80250002" name="淘宝-按钮2"></leaf>
+    <leaf id="80250003" name="淘宝-按钮3"></leaf>
+
+    <leaf id="340230101" name="顶水果小倍数"></leaf>
+    <leaf id="340230102" name="顶水果中倍数"></leaf>
+    <leaf id="340230103" name="顶水果大倍数"></leaf>
+
+    <leaf id="560580000" name="购买体力"></leaf>
+
+    <leaf id="200210200" name="抽取一次卡带"></leaf>
+    <leaf id="200210310" name="一键银币10次"></leaf>
+    <leaf id="200210350" name="一键银币50次"></leaf>
+
+    <leaf id="660640800" name="世界BOSS-buff强化"></leaf>
+    <leaf id="60270100" name="挖矿"></leaf>
+    <leaf id="20150200" name="装备鉴定"></leaf>
+    <leaf id="60270300" name="开辟矿洞"></leaf>
+    <leaf id="260210700" name="洗练卡带"></leaf>
+
+    <leaf id="630450500" name="手动刷新随机商城物品"></leaf>
+    <leaf id="660640700" name="世界BOSS-复活"></leaf>
+    <leaf id="10240700" name="重置地图"></leaf>
+    <leaf id="390150500" name="装备精炼"></leaf>
+    <leaf id="30290600" name="购买竞技场挑战次数"></leaf>
+    <leaf id="680470500" name="买弹药"></leaf>
+    <leaf id="390150600" name="属性恢复"></leaf>
+    <leaf id="630450400" name="购买随机商城物品"></leaf>
+    <leaf id="460610700" name="刷新扫荡次数"></leaf>
+    <leaf id="310300100" name="送花"></leaf>
+    <leaf id="610450200" name="购买普通商城物品"></leaf>
+
+    <leaf id="92020100" name="军团贡献"></leaf>
+    <leaf id="1012041600" name="召唤BOSS"></leaf>
+    <leaf id="110720200" name="购买物品"></leaf>
+    <leaf id="620450200" name="VIP礼包"></leaf>
+    <leaf id="962030100" name="军团红包"></leaf>
+
+    <leaf id="200210555" name="点亮高级箱子"></leaf>
+    <leaf id="1190450700" name="限量商城"></leaf>
+    <leaf id="737081212" name="折扣商城"></leaf>
+    <leaf id="1160000000" name="月卡礼包"></leaf>
+    <leaf id="1112052100" name="刷新收集任务"></leaf>
+    <leaf id="472010900" name="军团捐献"></leaf>
+    <leaf id="1112080200" name="幸运魔轮改运"></leaf>
+    <leaf id="1180000000" name="成长基金"></leaf>
+    
+    <!-- 2016-03-21 新消费点-->
+    <leaf id="1320930600" name="重置地图"></leaf>
+    <leaf id="1571031800" name="押注"></leaf>
+    <leaf id="60270700" name="一键挖矿"></leaf>
+    <leaf id="320260500" name="宝石拆分"></leaf>
+    <leaf id="370280400" name="宝物神铸"></leaf>
+    <leaf id="1050790300" name="交换伙伴军团技能"></leaf>
+    <leaf id="1461000200" name="清除冷却时间"></leaf>
+    <leaf id="1440980400" name="符文强化"></leaf>
+    <leaf id="1440980900" name="符文进阶"></leaf>
+    <leaf id="1440980800" name="符文转化"></leaf>
+    <leaf id="1420960800" name="强化"></leaf>
+    <leaf id="1461000300" name="购买竞技场挑战次数"></leaf>
+    <leaf id="1420960700" name="复活"></leaf>
+    <leaf id="1050790000" name="使用卷轴"></leaf>
+    <leaf id="1520450900" name="购买超能币礼盒"></leaf>
+    
+    <!--  1440980900 元素攻击位 符文进化
+1320930600 精英秘境探宝 重置地图
+1571031800 跨服军团战 押注
+60270700 挖矿 一键挖矿
+320260500 宝石合成 宝石拆分
+370280400 宝物星级交换 宝物神铸
+1050790300 军团技能 交换伙伴军团技能
+1461000200 武道会 清除冷却时间
+1440980400 元素攻击位 符文强化
+1420960800 怪物攻城 强化
+1410000000 梦想基金 ??日志有问题
+1461000300 武道会 购买竞技场挑战次数
+1420960700 怪物攻城 复活
+1050790000 军团技能 使用卷轴
+1440980800 元素攻击位 符文转化
+1520450900 超能币礼盒 购买超能币礼盒
+     -->
+    
+
+</consts>

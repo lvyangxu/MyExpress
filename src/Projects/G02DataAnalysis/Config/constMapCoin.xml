@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<consts>
+    <!-- 消费分布图中商品id 0=金钻 1=钻石 2=银币 3=经验 4=体力 -->
+    <coin id="1" name="金币">
+        <node id="2"></node>
+    </coin>
+    <coin id="2" name="绑定钻石">
+        <node id="1"></node>
+    </coin>
+    <coin id="3" name="金钻">
+        <node id="3"></node>
+    </coin>
+</consts>
+
