@@ -1,10 +1,8 @@
-'use strict';
-
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
+let express = require('express');
+let path = require('path');
+let favicon = require('serve-favicon');
 require('babel-polyfill');
-var app = express();
+let app = express();
 
 //my init
 require("./init");
@@ -19,32 +17,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use("/", express.static(path.join(__dirname, "../../client")));
 
 //log morgan for http request console
-var morgan = require('morgan');
+let morgan = require('morgan');
 app.use(morgan('dev'));
 
 //body parser
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({ type: "application/json" }));
+let bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json({type:"application/json"}));
 
 //cookie and session
-var cookieParser = require('cookie-parser');
-var cookieSession = require('cookie-session');
+let cookieParser = require('cookie-parser');
+let cookieSession = require('cookie-session');
 app.use(cookieParser());
 app.use(cookieSession({
     keys: ["username", "password"]
 }));
-app.use(function (req, res, next) {
+app.use((req, res, next)=> {
     req.cookieSession = cookieSession;
     next();
 });
 
 //session check
-var session = require("./session");
+let session = require("./session");
 app.use(session);
 
 //route
-var route = require("./route");
+let route = require("./route");
 app.use("/", route);
 
 // catch 404 and forward to error handler
@@ -63,6 +61,5 @@ app.use(function (err, req, res, next) {
     res.render('error/');
 });
 
-module.exports = app;
 
-//# sourceMappingURL=app.js.map
+module.exports = app;

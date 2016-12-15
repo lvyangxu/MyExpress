@@ -28,7 +28,7 @@ class table extends React.Component {
         };
         let bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck",
             "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
@@ -38,25 +38,25 @@ class table extends React.Component {
         if (tableId) {
             let promiseInit = http.post("../table/" + tableId + "/init");
             let promiseRead = http.post("../table/" + tableId + "/read");
-            Promise.all([promiseInit, promiseRead]).then(d=> {
-                d[1] = d[1].map(d1=> {
+            Promise.all([promiseInit, promiseRead]).then(d => {
+                d[1] = d[1].map(d1 => {
                     d1.checkboxChecked = false;
                     return d1;
                 });
                 let ct = [];
                 for (let i = 0; i < this.state.createLineNum; i++) {
                     let ctRow = {};
-                    d[0].forEach(d1=> {
+                    d[0].forEach(d1 => {
                         ctRow[d1.id] = "";
                     });
                     ct.push(ctRow);
                 }
-                let selectFilter = d[0].filter(d1=> {
+                let selectFilter = d[0].filter(d1 => {
                     return d1.select;
-                }).map(d1=> {
+                }).map(d1 => {
                     let values = [];
                     let data = [];
-                    d[1].forEach((d2, j)=> {
+                    d[1].forEach((d2, j) => {
                         if (!values.includes(d2[d1.id])) {
                             values.push(d2[d1.id]);
                             data.push({id: j, name: d2[d1.id], checked: true});
@@ -73,7 +73,7 @@ class table extends React.Component {
                     ct: ct,
                     selectFilter: selectFilter
                 });
-            }).catch(d=> {
+            }).catch(d => {
                 console.log("init table failed:" + d);
             });
         }
@@ -105,46 +105,46 @@ class table extends React.Component {
                         </div>
                         <div className="create"
                              style={this.state.curd.includes("c") ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button onClick={()=> {
+                            <button onClick={() => {
                                 this.create();
                             }}><i className="fa fa-plus"></i>添加
                             </button>
                         </div>
                         <div className="update"
                              style={this.state.curd.includes("u") ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button onClick={()=> {
+                            <button onClick={() => {
                                 this.update();
                             }}><i className="fa fa-edit"></i>更改
                             </button>
                         </div>
                         <div className="refresh"
                              style={this.state.curd.includes("r") ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button className={this.state.loading ? "loading" : ""} onClick={()=> {
+                            <button className={this.state.loading ? "loading" : ""} onClick={() => {
                                 this.refresh();
                             }}><i className={this.state.loading ? "fa fa-refresh loading" : "fa fa-refresh"}></i>刷新
                             </button>
                         </div>
                         <div className="delete"
                              style={this.state.curd.includes("d") ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button onClick={()=> {
+                            <button onClick={() => {
                                 this.delete();
                             }}><i className="fa fa-times"></i>删除
                             </button>
                         </div>
                         <div className="attachment"
                              style={this.props.attachment ? {marginLeft: "20px"} : {display: "none"}}>
-                            <button onClick={()=> {
+                            <button onClick={() => {
                                 this.attachment();
                             }}><i className="fa fa-paperclip"></i>附件
                             </button>
                         </div>
-                        <div className="select-filter" style={this.state.columns.filter(d=> {
+                        <div className="select-filter" style={this.state.columns.filter(d => {
                             return d.select;
                         }).length > 0 ? {marginTop: "20px"} : {}}>
                             {
-                                this.state.selectFilter.map((d, i)=> {
+                                this.state.selectFilter.map((d, i) => {
                                     let select = <Select key={i} data={d.data} text={d.name}
-                                                         callback={(d1=> {
+                                                         callback={(d1 => {
                                                              this.rowFilterCallback(d.id, d1);
                                                          })}
                                                          optionNumPerColumn={5}/>;
@@ -154,18 +154,18 @@ class table extends React.Component {
                         </div>
                     </div>
                     <div className="table-body">
-                        <table>
+                        <table style={this.props.fillWidth == false ? {} : {width: "100%"}}>
                             <thead>
                             <tr>
                                 <th className="checkbox"
                                     style={(this.state.curd.includes("u") || this.state.curd.includes("d")) ? {} : {display: "none"}}>
-                                    <input type="checkbox" checked={this.state.rowAllChecked} onChange={()=> {
+                                    <input type="checkbox" checked={this.state.rowAllChecked} onChange={() => {
                                         this.rowAllCheck();
                                     }}/>
                                 </th>
                                 {
-                                    this.state.columns.map(d=> {
-                                        return <th key={d.id} onClick={()=> {
+                                    this.state.columns.map(d => {
+                                        return <th key={d.id} onClick={() => {
                                             this.sort(d.id);
                                         }} data-columnId={d.id} className={d.checked ? "" : "hide"}>{d.name}{
                                             (this.state.sortColumnId == d.id) ? (
@@ -180,15 +180,15 @@ class table extends React.Component {
                             </thead>
                             <tbody>
                             {
-                                this.state.displayData.map((d, i)=> {
+                                this.state.displayData.map((d, i) => {
                                     return <tr key={i}>
                                         <td className="checkbox"
                                             style={(this.state.curd.includes("d") || this.state.curd.includes("d")) ? {} : {display: "none"}}>
-                                            <input checked={d.checkboxChecked} type="checkbox" onChange={()=> {
+                                            <input checked={d.checkboxChecked} type="checkbox" onChange={() => {
                                                 this.rowCheck(d);
                                             }}/></td>
                                         {
-                                            this.state.columns.map(d1=> {
+                                            this.state.columns.map(d1 => {
                                                 let tdHtml = d[d1.id];
                                                 if (tdHtml) {
                                                     tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
@@ -197,7 +197,7 @@ class table extends React.Component {
                                                     return <td data={d[d1.id]} key={d1.id}
                                                                data-columnId={d1.id}
                                                                className={d1.checked ? "" : "hide"}
-                                                               onClick={()=> {
+                                                               onClick={() => {
                                                                    this.tdCallback(d1.id, d[d1.id])
                                                                }}
                                                                dangerouslySetInnerHTML={{__html: tdHtml}}></td>
@@ -218,11 +218,11 @@ class table extends React.Component {
                 <div className="panel-create"
                      style={this.state.panel == "create" ? {} : {display: "none"}}>
                     <div className="panel-head">
-                        <button className="backToMain" onClick={()=> {
+                        <button className="backToMain" onClick={() => {
                             this.backToMain();
                         }}><i className="fa fa-arrow-left"></i>返回表格主界面
                         </button>
-                        <button className="submit" onClick={()=> {
+                        <button className="submit" onClick={() => {
                             this.createSubmit();
                         }}><i className="fa fa-plus"></i>提交
                         </button>
@@ -231,10 +231,10 @@ class table extends React.Component {
                         <thead>
                         <tr>
                             {
-                                this.state.columns.filter(d=> {
+                                this.state.columns.filter(d => {
                                     let filter = (d.id == "id");
                                     return !filter;
-                                }).map(d=> {
+                                }).map(d => {
                                     return <th key={d.id}>{d.name}</th>;
                                 })
                             }
@@ -242,14 +242,15 @@ class table extends React.Component {
                         </thead>
                         <tbody>
                         {
-                            this.state.createReferTableData.map((d, i)=> {
+                            this.state.createReferTableData.map((d, i) => {
                                 return <tr key={i}>
                                     {
-                                        this.state.columns.filter(d1=> {
+                                        this.state.columns.filter(d1 => {
                                             let filter = (d1.id == "id");
                                             return !filter;
-                                        }).map(d1=> {
-                                            let td = <td data-columnId={d1.id} key={d1.id} dangerouslySetInnerHTML={{__html:d[d1.id].toString().replace(/\n/g, "<br/>")}}></td>;
+                                        }).map(d1 => {
+                                            let td = <td data-columnId={d1.id} key={d1.id}
+                                                         dangerouslySetInnerHTML={{__html: d[d1.id].toString().replace(/\n/g, "<br/>")}}></td>;
                                             return td;
                                         })
                                     }
@@ -257,35 +258,35 @@ class table extends React.Component {
                             })
                         }
                         {
-                            this.state.ct.map((d, i)=> {
+                            this.state.ct.map((d, i) => {
                                 return <tr key={i}>
                                     {
-                                        this.state.columns.filter(d1=> {
+                                        this.state.columns.filter(d1 => {
                                             let filter = (d1.id == "id");
                                             return !filter;
-                                        }).map(d1=> {
+                                        }).map(d1 => {
                                             let td;
                                             switch (d1.type) {
                                                 case "textarea":
                                                     td = <textarea disabled={d1.createReadonly} value={d[d1.id]}
-                                                                   onChange={(e)=> {
+                                                                   onChange={(e) => {
                                                                        this.createTdChange(e, i, d1.id);
                                                                    }}/>;
                                                     break;
                                                 case "radio":
                                                     td = <select disabled={d1.createReadonly}
                                                                  value={d[d1.id]}
-                                                                 onChange={(e)=> {
+                                                                 onChange={(e) => {
                                                                      this.createTdChange(e, i, d1.id);
                                                                  }}>
                                                         <option></option>
-                                                        {d1.radioArr.map((d2, j)=> {
+                                                        {d1.radioArr.map((d2, j) => {
                                                             return <option key={j}>{d2}</option>;
                                                         })}</select>;
                                                     break;
                                                 default:
                                                     td = <input disabled={d1.createReadonly} value={d[d1.id]}
-                                                                onChange={(e)=> {
+                                                                onChange={(e) => {
                                                                     this.createTdChange(e, i, d1.id);
                                                                 }}/>;
                                                     break;
@@ -301,11 +302,11 @@ class table extends React.Component {
                 </div>
                 <div className="panel-update" style={this.state.panel == "update" ? {} : {display: "none"}}>
                     <div className="panel-head">
-                        <button className="backToMain" onClick={()=> {
+                        <button className="backToMain" onClick={() => {
                             this.backToMain();
                         }}><i className="fa fa-arrow-left"></i>返回表格主界面
                         </button>
-                        <button className="submit" onClick={()=> {
+                        <button className="submit" onClick={() => {
                             this.updateSubmit();
                         }}><i className="fa fa-edit"></i>提交
                         </button>
@@ -314,10 +315,10 @@ class table extends React.Component {
                         <thead>
                         <tr>
                             {
-                                this.state.columns.filter(d=> {
+                                this.state.columns.filter(d => {
                                     let filter = (d.id == "id");
                                     return !filter;
-                                }).map(d=> {
+                                }).map(d => {
                                     return <th key={d.id}>{d.name}</th>;
                                 })
                             }
@@ -325,36 +326,36 @@ class table extends React.Component {
                         </thead>
                         <tbody>
                         {
-                            this.state.ut.map((d, i)=> {
+                            this.state.ut.map((d, i) => {
                                 return <tr key={i}>
                                     {
-                                        this.state.columns.filter(d1=> {
+                                        this.state.columns.filter(d1 => {
                                             let filter = (d1.id == "id");
                                             return !filter;
-                                        }).map(d1=> {
+                                        }).map(d1 => {
                                             let td;
                                             switch (d1.type) {
                                                 case "textarea":
                                                     td = <textarea disabled={d1.updateReadonly}
                                                                    value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
-                                                                   onChange={(e)=> {
+                                                                   onChange={(e) => {
                                                                        this.updateTdChange(e, i, d1.id);
                                                                    }}/>;
                                                     break;
                                                 case "radio":
                                                     td = <select disabled={d1.updateReadonly}
                                                                  value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
-                                                                 onChange={(e)=> {
+                                                                 onChange={(e) => {
                                                                      this.updateTdChange(e, i, d1.id);
                                                                  }}>
-                                                        {d1.radioArr.map((d2, j)=> {
+                                                        {d1.radioArr.map((d2, j) => {
                                                             return <option key={j}>{d2}</option>;
                                                         })}</select>;
                                                     break;
                                                 default:
                                                     td = <input disabled={d1.updateReadonly}
                                                                 value={(this.state.ut.length == 0) ? "" : (this.state["ut" + i + "_" + d1.id] == undefined) ? "" : this.state["ut" + i + "_" + d1.id]}
-                                                                onChange={(e)=> {
+                                                                onChange={(e) => {
                                                                     this.updateTdChange(e, i, d1.id);
                                                                 }}/>;
                                                     break;
@@ -370,7 +371,7 @@ class table extends React.Component {
                 </div>
                 <div className="panel-attachment" style={this.state.panel == "attachment" ? {} : {display: "none"}}>
                     <div className="panel-head">
-                        <button className="backToMain" onClick={()=> {
+                        <button className="backToMain" onClick={() => {
                             this.backToMain();
                         }}><i className="fa fa-arrow-left"></i>返回表格主界面
                         </button>
@@ -378,7 +379,7 @@ class table extends React.Component {
                     <div className="upload">
                         <input type="file" multiple="multiple"/>
                         <div className="progress">{this.state.attachmentProgress}</div>
-                        <button onClick={(e)=> {
+                        <button onClick={(e) => {
                             this.uploadAttachment(e);
                         }}>上传附件
                         </button>
@@ -396,10 +397,10 @@ class table extends React.Component {
                                 <tr>
                                     <td colSpan="2">no attachment</td>
                                 </tr> :
-                                this.state.attachmentList.map(d=> {
+                                this.state.attachmentList.map(d => {
                                     return <tr key={d}>
                                         <td>{d}</td>
-                                        <td><i className="fa fa-times" onClick={()=> {
+                                        <td><i className="fa fa-times" onClick={() => {
                                             this.deleteAttachment(d);
                                         }}></i></td>
                                     </tr>
@@ -418,7 +419,7 @@ class table extends React.Component {
 
     rowFilterChange(e) {
         let matchValue = e.target.value;
-        let filterData = this.state.sourceData.filter(d=> {
+        let filterData = this.state.sourceData.filter(d => {
             let isFind = false;
             for (let k in d) {
                 if (d[k] != null && d[k].toString().toLowerCase().includes(matchValue.toLowerCase())) {
@@ -436,30 +437,30 @@ class table extends React.Component {
     }
 
     rowFilterCallback(id, data) {
-        let checkedValues = data.filter(d=> {
+        let checkedValues = data.filter(d => {
             return d.checked;
-        }).map(d=> {
+        }).map(d => {
             return d.name;
         });
-        let filterData = this.state.sourceData.filter(d=> {
+        let filterData = this.state.sourceData.filter(d => {
             let isFind = false;
-            checkedValues.forEach(d1=> {
+            checkedValues.forEach(d1 => {
                 if (d[id] != null && d[id].toString().toLowerCase() == d1.toString().toLowerCase()) {
                     isFind = true;
                 }
             });
             return isFind;
         });
-        this.state.selectFilter.filter(d=> {
+        this.state.selectFilter.filter(d => {
             return d.id != id;
-        }).map(d=> {
-            let checkedValues = d.data.filter(d1=> {
+        }).map(d => {
+            let checkedValues = d.data.filter(d1 => {
                 return d1.checked;
             });
 
-            filterData = filterData.filter(d1=> {
+            filterData = filterData.filter(d1 => {
                 let isFind = false;
-                checkedValues.forEach(d2=> {
+                checkedValues.forEach(d2 => {
                     let tdValue = d1[d.id];
                     let matchValue = d2.name.toString().toLowerCase();
                     if (tdValue != null && tdValue.toString().toLowerCase() == matchValue) {
@@ -481,8 +482,8 @@ class table extends React.Component {
         this.setState({
             loading: true
         });
-        http.post("../table/" + tableId + "/read").then(d=> {
-            d = d.map(d1=> {
+        http.post("../table/" + tableId + "/read").then(d => {
+            d = d.map(d1 => {
                 d1.checkboxChecked = false;
                 return d1;
             });
@@ -494,7 +495,7 @@ class table extends React.Component {
                 rowFilterValue: "",
                 rowAllCheck: false
             });
-        }).catch(d=> {
+        }).catch(d => {
             this.setState({
                 loading: false
             });
@@ -503,7 +504,7 @@ class table extends React.Component {
     }
 
     radioFilterChange(e, d) {
-        let filterData = (e.target.value == d.name) ? this.state.sourceData : this.state.sourceData.filter(d1=> {
+        let filterData = (e.target.value == d.name) ? this.state.sourceData : this.state.sourceData.filter(d1 => {
             d1 = d1[d.id];
             d1 = (d1 == null) ? "" : d1.toString();
             return d1 == e.target.value;
@@ -526,7 +527,7 @@ class table extends React.Component {
         let sortedData = this.state.displayData.concat();
         let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
         if (sortDesc) {
-            sortedData.sort((a, b)=> {
+            sortedData.sort((a, b) => {
                 let va, vb;
                 if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
                     va = a[id];
@@ -541,7 +542,7 @@ class table extends React.Component {
                 return va > vb ? 1 : -1;
             });
         } else {
-            sortedData.sort((a, b)=> {
+            sortedData.sort((a, b) => {
                 let va, vb;
                 if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
                     va = a[id];
@@ -565,7 +566,7 @@ class table extends React.Component {
     }
 
     rowAllCheck() {
-        let newData = this.state.displayData.map(d=> {
+        let newData = this.state.displayData.map(d => {
             d.checkboxChecked = !this.state.rowAllChecked;
             return d;
         });
@@ -576,7 +577,7 @@ class table extends React.Component {
     }
 
     rowCheck(d) {
-        let newData = this.state.displayData.map(d1=> {
+        let newData = this.state.displayData.map(d1 => {
             if (d1 == d) {
                 d1.checkboxChecked = !d1.checkboxChecked;
             }
@@ -596,11 +597,11 @@ class table extends React.Component {
     create() {
         let data = {panel: "create", createReferTableData: []};
         if (this.props.createButtonCallback) {
-            let checkedData = this.state.displayData.filter(d=> {
+            let checkedData = this.state.displayData.filter(d => {
                 return d.checkboxChecked;
             });
             if (checkedData.length != 0) {
-                this.props.createButtonCallback(checkedData).then(d=> {
+                this.props.createButtonCallback(checkedData).then(d => {
                     let defaultCreateValue = d.defaultData;
                     if (d.hasOwnProperty("displayData")) {
                         data.createReferTableData = d.displayData;
@@ -609,14 +610,14 @@ class table extends React.Component {
                     let ct = defaultCreateValue.concat();
                     for (let i = 0; i < this.state.createLineNum; i++) {
                         if (defaultCreateValue[i]) {
-                            this.state.columns.forEach(d1=> {
+                            this.state.columns.forEach(d1 => {
                                 if (!defaultCreateValue[i].hasOwnProperty(d1.id)) {
                                     ct[i][d1.id] = "";
                                 }
                             });
                         } else {
                             let row = {};
-                            this.state.columns.forEach(d1=> {
+                            this.state.columns.forEach(d1 => {
                                 row[d1.id] = "";
                             });
                             ct.push(row);
@@ -624,7 +625,7 @@ class table extends React.Component {
                     }
                     data.ct = ct;
                     this.setState(data);
-                }).catch(d=> {
+                }).catch(d => {
                     this.setState(data);
                 });
             } else {
@@ -636,7 +637,7 @@ class table extends React.Component {
     }
 
     createSubmit() {
-        let rows = this.state.ct.filter(d=> {
+        let rows = this.state.ct.filter(d => {
             let isEmpty = true;
             for (let k in d) {
                 if (d[k].trim() != "") {
@@ -652,18 +653,18 @@ class table extends React.Component {
         }
         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
             let data = {requestRowsLength: rows.length};
-            this.state.columns.forEach(d=> {
-                let v = rows.map(d1=> {
+            this.state.columns.forEach(d => {
+                let v = rows.map(d1 => {
                     return d1[d.id];
                 });
                 data[d.id] = v;
             });
             let tableId = this.props.tableId;
-            http.post("../table/" + tableId + "/create", data).then(d=> {
+            http.post("../table/" + tableId + "/create", data).then(d => {
                 this.refresh();
                 alert("提交成功");
                 this.setState({panel: "main"});
-            }).catch(d=> {
+            }).catch(d => {
                 alert("提交失败:" + d);
             });
         }
@@ -678,7 +679,7 @@ class table extends React.Component {
     }
 
     update() {
-        let checkedData = this.state.displayData.filter(d=> {
+        let checkedData = this.state.displayData.filter(d => {
             return d.checkboxChecked;
         });
         if (checkedData.length == 0) {
@@ -689,7 +690,7 @@ class table extends React.Component {
             panel: "update",
             ut: checkedData
         };
-        checkedData.map((d, i)=> {
+        checkedData.map((d, i) => {
             for (let k in d) {
                 json["ut" + i + "_" + k] = d[k];
             }
@@ -701,7 +702,7 @@ class table extends React.Component {
         let rows = this.state.ut;
         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
             let data = {requestRowsLength: rows.length};
-            this.state.columns.forEach(d=> {
+            this.state.columns.forEach(d => {
                 let v = [];
                 for (let i = 0; i < rows.length; i++) {
                     v.push(this.state["ut" + i + "_" + d.id]);
@@ -709,11 +710,11 @@ class table extends React.Component {
                 data[d.id] = v;
             });
             let tableId = this.props.tableId;
-            http.post("../table/" + tableId + "/update", data).then(d=> {
+            http.post("../table/" + tableId + "/update", data).then(d => {
                 this.refresh();
                 alert("提交成功");
                 this.setState({panel: "main"});
-            }).catch(d=> {
+            }).catch(d => {
                 alert("提交失败:" + d);
             });
         }
@@ -726,7 +727,7 @@ class table extends React.Component {
     }
 
     delete() {
-        let checkedData = this.state.displayData.filter(d=> {
+        let checkedData = this.state.displayData.filter(d => {
             return d.checkboxChecked;
         });
         if (checkedData.length == 0) {
@@ -734,30 +735,30 @@ class table extends React.Component {
             return;
         }
         let data = {
-            id: checkedData.map(d=> {
+            id: checkedData.map(d => {
                 return d.id;
             })
         };
         if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
             let tableId = this.props.tableId;
-            http.post("../table/" + tableId + "/delete", data).then(d=> {
+            http.post("../table/" + tableId + "/delete", data).then(d => {
                 this.refresh();
                 alert("删除成功");
-            }).catch(d=> {
+            }).catch(d => {
                 alert("删除失败:" + d);
             });
         }
     }
 
     attachment() {
-        let checkedData = this.state.displayData.filter(d=> {
+        let checkedData = this.state.displayData.filter(d => {
             return d.checkboxChecked;
         });
         if (checkedData.length != 1) {
             alert("请选择一行数据");
             return;
         }
-        let attachmentId = checkedData.map(d=> {
+        let attachmentId = checkedData.map(d => {
             return d.id;
         })[0];
         this.setState({
@@ -769,12 +770,12 @@ class table extends React.Component {
 
     refreshAttachment(id) {
         let tableId = this.props.tableId;
-        http.post("../table/" + tableId + "/attachmentRead", {id: id}).then(d=> {
+        http.post("../table/" + tableId + "/attachmentRead", {id: id}).then(d => {
             this.setState({
                 panel: "attachment",
                 attachmentList: d
             });
-        }).catch(d=> {
+        }).catch(d => {
             alert("获取附件列表失败:" + d);
         });
     }
@@ -786,10 +787,10 @@ class table extends React.Component {
             id: id,
             name: d
         };
-        http.post("../table/" + tableId + "/attachmentDelete", data).then(d1=> {
+        http.post("../table/" + tableId + "/attachmentDelete", data).then(d1 => {
             this.refreshAttachment(id);
             alert("删除成功");
-        }).catch(d1=> {
+        }).catch(d1 => {
             alert("删除失败:" + d1);
         })
     }
@@ -797,14 +798,14 @@ class table extends React.Component {
     uploadAttachment(e) {
         let id = this.state.attachmentId;
         let tableId = this.props.tableId;
-        upload.do("../table/" + tableId + "/attachmentUpload?id=" + id, e.target.parentNode.childNodes[0], d=> {
+        upload.do("../table/" + tableId + "/attachmentUpload?id=" + id, e.target.parentNode.childNodes[0], d => {
             this.setState({
                 attachmentProgress: d + "%"
             });
-        }).then(d=> {
+        }).then(d => {
             this.refreshAttachment(id);
             alert("上传成功");
-        }).catch(d=> {
+        }).catch(d => {
             alert("上传失败:" + d);
         });
     }

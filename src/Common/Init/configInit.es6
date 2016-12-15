@@ -17,29 +17,50 @@ let loadConfig = async() => {
         let mysqlConfig = await xml.read("./server/config/mysql.xml");
         mysqlConfig = mysqlConfig.root;
         let mysql = require("../../util/mysql");
-        mysql.init("localhost", mysqlConfig.user[0], mysqlConfig.password[0], mysqlConfig.database[0]);
+
+        global.pool = [];
+        for (let i = 0; i < mysqlConfig.user.length; i++) {
+            let pool = mysql.init(mysqlConfig.host[i], mysqlConfig.user[i], mysqlConfig.password[i], mysqlConfig.database[i]);
+            global.pool.push({database: mysqlConfig.database[i], pool: pool});
+        }
+
         console.log("mysql init success");
         global.log.server.info("mysql init success");
 
-        //get all table names
-        let showTables = await mysql.excuteQuery("show tables");
-        let tableNames = showTables.map(d => {
-            let tableName;
-            for (let k in d) {
-                tableName = d[k];
-                break;
+        global.dbStruct = [];
+        for (let i = 0; i < global.pool.length; i++) {
+            //get all table names
+            let {database, pool} = global.pool[i];
+            let showTables = await mysql.excuteQuery({
+                pool: pool,
+                sqlCommand: "show tables"
+            });
+            let tableNames = showTables.map(d => {
+                let tableName;
+                for (let k in d) {
+                    tableName = d[k];
+                    break;
+                }
+                return tableName;
+            });
+
+            //set global table struct
+            for (let i = 0; i < tableNames.length; i++) {
+                let table = tableNames[i];
+                let fields = await mysql.excuteQuery({
+                    pool: pool,
+                    sqlCommand: "desc " + table
+                });
+                global.dbStruct.push({
+                    database: database,
+                    table: table,
+                    fields: fields
+                });
             }
-            return tableName;
-        });
-
-        //set global table struct
-        global.dbStruct = tableNames.map(async d=>{
-            let fields = await mysql.excuteQuery("desc " + d);
-            return {id: d, fields: fields}
-        });
-
+        }
         console.log("get database structure successfully");
         global.log.server.info("get database structure successfully");
+
     } catch (e) {
         console.log("init config failed:" + e.message);
         global.log.error.info("init config failed:" + e.message);

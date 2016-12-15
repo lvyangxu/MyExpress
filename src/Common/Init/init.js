@@ -1,5 +1,3 @@
-"use strict";
-
 //extend
 require("karl-extend");
 
@@ -13,5 +11,3 @@ require("./logInit");
 require("./configInit");
 
 module.exports = "";
-
-//# sourceMappingURL=init.js.map

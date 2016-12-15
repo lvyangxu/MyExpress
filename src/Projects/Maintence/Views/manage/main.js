@@ -20,35 +20,43 @@ ReactDom.render(React.createElement(
             null,
             React.createElement(
                 "div",
-                null,
-                React.createElement(Table, { tableId: "serverInfo" })
+                { className: "section" },
+                React.createElement(Table, { tableId: "server_info", curd: "curd" })
             ),
-            React.createElement("div", null),
-            React.createElement("div", null),
-            React.createElement("div", null)
+            React.createElement(
+                "div",
+                { className: "section" },
+                React.createElement(Table, { tableId: "game", curd: "curd" })
+            ),
+            React.createElement(
+                "div",
+                { className: "section" },
+                React.createElement(Table, { tableId: "cloud", curd: "curd" })
+            ),
+            React.createElement("div", { className: "section" })
         ),
-        React.createElement("div", null),
+        React.createElement("div", { className: "section" }),
         React.createElement(
             "div",
             null,
-            React.createElement("div", null),
-            React.createElement("div", null)
-        ),
-        React.createElement(
-            "div",
-            null,
-            React.createElement("div", null)
-        ),
-        React.createElement(
-            "div",
-            null,
-            React.createElement("div", null),
-            React.createElement("div", null)
+            React.createElement("div", { className: "section" }),
+            React.createElement("div", { className: "section" })
         ),
         React.createElement(
             "div",
             null,
-            React.createElement("div", null)
+            React.createElement("div", { className: "section" })
+        ),
+        React.createElement(
+            "div",
+            null,
+            React.createElement("div", { className: "section" }),
+            React.createElement("div", { className: "section" })
+        ),
+        React.createElement(
+            "div",
+            null,
+            React.createElement("div", { className: "section" })
         )
     )
 ), document.getElementById("manage"));

@@ -223,7 +223,7 @@ var table = function (_React$Component) {
                         { className: "table-body" },
                         React.createElement(
                             "table",
-                            null,
+                            { style: this.props.fillWidth == false ? {} : { width: "100%" } },
                             React.createElement(
                                 "thead",
                                 null,
@@ -347,7 +347,8 @@ var table = function (_React$Component) {
                                         var filter = d1.id == "id";
                                         return !filter;
                                     }).map(function (d1) {
-                                        var td = React.createElement("td", { "data-columnId": d1.id, key: d1.id, dangerouslySetInnerHTML: { __html: d[d1.id].toString().replace(/\n/g, "<br/>") } });
+                                        var td = React.createElement("td", { "data-columnId": d1.id, key: d1.id,
+                                            dangerouslySetInnerHTML: { __html: d[d1.id].toString().replace(/\n/g, "<br/>") } });
                                         return td;
                                     })
                                 );
@@ -1048,5 +1049,3 @@ var table = function (_React$Component) {
 }(React.Component);
 
 module.exports = table;
-
-//# sourceMappingURL=table.js.map

@@ -1,4 +1,6 @@
 body {
   font-family: "Microsoft YaHei UI", Arial; }
+  body #manage .section {
+    padding: 20px; }
 
 /*# sourceMappingURL=index.css.map */

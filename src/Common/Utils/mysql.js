@@ -1,10 +1,7 @@
-'use strict';
-
-var mysqljs = require('mysql');
-var mysql = {
-    pool: null,
-    init: function init(host, user, password, database) {
-        var pool = mysqljs.createPool({
+let mysqljs = require('mysql');
+let mysql = {
+    init: (host, user, password, database) => {
+        let pool = mysqljs.createPool({
             connectionLimit: 10,
             host: host,
             user: user,
@@ -12,13 +9,15 @@ var mysql = {
             database: database,
             dateStrings: true
         });
-        mysql.pool = pool;
         global.mysql = mysql;
+        return pool;
     },
-    excuteQuery: function excuteQuery(sqlCommand, values) {
-        values = values == undefined ? {} : values;
-        return new Promise(function (resolve, reject) {
-            mysql.pool.query(sqlCommand, values, function (err, rows, fields) {
+    excuteQuery: (json) => {
+        let {pool, sqlCommand, values} = json;
+        values = (values == undefined) ? {} : values;
+        pool = (pool == undefined) ? global.pool[0].pool : pool;
+        return new Promise((resolve, reject) => {
+            pool.query(sqlCommand, values, function (err, rows, fields) {
                 if (err) {
                     reject(err);
                 } else {
@@ -29,10 +28,8 @@ var mysql = {
                     });
                 }
             });
-        });
+        })
     }
 };
 
 module.exports = mysql;
-
-//# sourceMappingURL=mysql.js.map

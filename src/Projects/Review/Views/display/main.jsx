@@ -1,6 +1,6 @@
 let React = require("react");
 let ReactDom = require("react-dom");
-require("karl-extend");
+require("babel-polyfill");
 let Radio = require("karl-component-radio");
 let http = require("karl-http");
 

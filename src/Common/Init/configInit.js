@@ -2,114 +2,136 @@
 
 var xml = require("karl-xml");
 
-var loadConfig = function _callee3() {
-    return regeneratorRuntime.async(function _callee3$(_context3) {
+var loadConfig = function _callee() {
+    var accountConfig, mysqlConfig, mysql, i, pool, _i, _global$pool$_i, database, _pool, showTables, tableNames, _i2, table, fields;
+
+    return regeneratorRuntime.async(function _callee$(_context) {
         while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context.prev = _context.next) {
                 case 0:
-                    _context3.prev = 0;
-                    _context3.next = 3;
-                    return regeneratorRuntime.awrap(function _callee2() {
-                        var accountConfig, mysqlConfig, mysql, showTables, tableNames;
-                        return regeneratorRuntime.async(function _callee2$(_context2) {
-                            while (1) {
-                                switch (_context2.prev = _context2.next) {
-                                    case 0:
-                                        _context2.next = 2;
-                                        return regeneratorRuntime.awrap(xml.read("./server/config/account.xml"));
-
-                                    case 2:
-                                        accountConfig = _context2.sent;
-
-                                        accountConfig = accountConfig.root;
-                                        global.accountConfig = {
-                                            username: accountConfig.username[0],
-                                            password: accountConfig.password[0],
-                                            usernameCookie: accountConfig.usernameCookie[0],
-                                            passwordCookie: accountConfig.passwordCookie[0],
-                                            loginRedirect: accountConfig.loginRedirect[0]
-                                        };
-
-                                        //init mysql
-                                        _context2.next = 7;
-                                        return regeneratorRuntime.awrap(xml.read("./server/config/mysql.xml"));
-
-                                    case 7:
-                                        mysqlConfig = _context2.sent;
-
-                                        mysqlConfig = mysqlConfig.root;
-                                        mysql = require("../../util/mysql");
-
-                                        mysql.init("localhost", mysqlConfig.user[0], mysqlConfig.password[0], mysqlConfig.database[0]);
-                                        console.log("mysql init success");
-                                        global.log.server.info("mysql init success");
-
-                                        //get all table names
-                                        _context2.next = 15;
-                                        return regeneratorRuntime.awrap(mysql.excuteQuery("show tables"));
-
-                                    case 15:
-                                        showTables = _context2.sent;
-                                        tableNames = showTables.map(function (d) {
-                                            var tableName = void 0;
-                                            for (var k in d) {
-                                                tableName = d[k];
-                                                break;
-                                            }
-                                            return tableName;
-                                        });
-
-                                        //set global table struct
-
-                                        global.dbStruct = tableNames.map(function _callee(d) {
-                                            var fields;
-                                            return regeneratorRuntime.async(function _callee$(_context) {
-                                                while (1) {
-                                                    switch (_context.prev = _context.next) {
-                                                        case 0:
-                                                            _context.next = 2;
-                                                            return regeneratorRuntime.awrap(mysql.excuteQuery("desc " + d));
-
-                                                        case 2:
-                                                            fields = _context.sent;
-                                                            return _context.abrupt("return", { id: d, fields: fields });
-
-                                                        case 4:
-                                                        case "end":
-                                                            return _context.stop();
-                                                    }
-                                                }
-                                            }, null, undefined);
-                                        });
-
-                                        console.log("get database structure successfully");
-                                        global.log.server.info("get database structure successfully");
-
-                                    case 20:
-                                    case "end":
-                                        return _context2.stop();
-                                }
-                            }
-                        }, null, undefined);
-                    }());
+                    _context.prev = 0;
+                    _context.next = 3;
+                    return regeneratorRuntime.awrap(xml.read("./server/config/account.xml"));
 
                 case 3:
-                    _context3.next = 9;
+                    accountConfig = _context.sent;
+
+                    accountConfig = accountConfig.root;
+                    global.accountConfig = {
+                        username: accountConfig.username[0],
+                        password: accountConfig.password[0],
+                        usernameCookie: accountConfig.usernameCookie[0],
+                        passwordCookie: accountConfig.passwordCookie[0],
+                        loginRedirect: accountConfig.loginRedirect[0]
+                    };
+
+                    //init mysql
+                    _context.next = 8;
+                    return regeneratorRuntime.awrap(xml.read("./server/config/mysql.xml"));
+
+                case 8:
+                    mysqlConfig = _context.sent;
+
+                    mysqlConfig = mysqlConfig.root;
+                    mysql = require("../../util/mysql");
+
+
+                    global.pool = [];
+                    for (i = 0; i < mysqlConfig.user.length; i++) {
+                        pool = mysql.init(mysqlConfig.host[i], mysqlConfig.user[i], mysqlConfig.password[i], mysqlConfig.database[i]);
+
+                        global.pool.push({ database: mysqlConfig.database[i], pool: pool });
+                    }
+
+                    console.log("mysql init success");
+                    global.log.server.info("mysql init success");
+
+                    global.dbStruct = [];
+                    _i = 0;
+
+                case 17:
+                    if (!(_i < global.pool.length)) {
+                        _context.next = 38;
+                        break;
+                    }
+
+                    //get all table names
+                    _global$pool$_i = global.pool[_i];
+                    database = _global$pool$_i.database;
+                    _pool = _global$pool$_i.pool;
+                    _context.next = 23;
+                    return regeneratorRuntime.awrap(mysql.excuteQuery({
+                        pool: _pool,
+                        sqlCommand: "show tables"
+                    }));
+
+                case 23:
+                    showTables = _context.sent;
+                    tableNames = showTables.map(function (d) {
+                        var tableName = void 0;
+                        for (var k in d) {
+                            tableName = d[k];
+                            break;
+                        }
+                        return tableName;
+                    });
+
+                    //set global table struct
+
+                    _i2 = 0;
+
+                case 26:
+                    if (!(_i2 < tableNames.length)) {
+                        _context.next = 35;
+                        break;
+                    }
+
+                    table = tableNames[_i2];
+                    _context.next = 30;
+                    return regeneratorRuntime.awrap(mysql.excuteQuery({
+                        pool: _pool,
+                        sqlCommand: "desc " + table
+                    }));
+
+                case 30:
+                    fields = _context.sent;
+
+                    global.dbStruct.push({
+                        database: database,
+                        table: table,
+                        fields: fields
+                    });
+
+                case 32:
+                    _i2++;
+                    _context.next = 26;
                     break;
 
-                case 5:
-                    _context3.prev = 5;
-                    _context3.t0 = _context3["catch"](0);
+                case 35:
+                    _i++;
+                    _context.next = 17;
+                    break;
 
-                    console.log("init config failed:" + _context3.t0.message);
-                    global.log.error.info("init config failed:" + _context3.t0.message);
+                case 38:
+                    console.log("get database structure successfully");
+                    global.log.server.info("get database structure successfully");
 
-                case 9:
+                    _context.next = 46;
+                    break;
+
+                case 42:
+                    _context.prev = 42;
+                    _context.t0 = _context["catch"](0);
+
+                    console.log("init config failed:" + _context.t0.message);
+                    global.log.error.info("init config failed:" + _context.t0.message);
+
+                case 46:
                 case "end":
-                    return _context3.stop();
+                    return _context.stop();
             }
         }
-    }, null, undefined, [[0, 5]]);
+    }, null, undefined, [[0, 42]]);
 };
 
 loadConfig();

@@ -1,5 +1,3 @@
-'use strict';
-
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -10,17 +8,20 @@ var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
 var webpack = require('webpack-stream');
 var hash_src = require("gulp-hash-src");
+let xml = require("karl-xml");
 
-// let project = "Maintence";
+let project = process.argv[6].replace("--project=","");
+
 // let project = "Review";
-var project = "G02log";
-var isProduction = false;
-var viewModules = {
+
+let isProduction = false;
+let viewModules = {
     Review: ["login", "display", "manage"],
     Maintence: ["login", "manage"],
-    G02log: []
+    G02log: [],
+    G02DataAnalysis:[]
 };
-var mysqlConfig = {
+let mysqlConfig = {
     Review: {
         user: "root",
         password: "root",
@@ -35,9 +36,15 @@ var mysqlConfig = {
         user: "root",
         password: "root",
         database: "G02log"
+    },
+    G02DataAnalysis: {
+        host: ["52.8.78.226", "52.8.78.226", "52.8.78.226"],
+        user: ["nuclear", "nuclear", "nuclear"],
+        password: ["wozhinengkan", "wozhinengkan", "wozhinengkan"],
+        database: ["raw", "res", "mid"]
     }
 };
-var accountConfig = {
+let accountConfig = {
     Review: {
         username: "business",
         password: "business",
@@ -58,77 +65,151 @@ var accountConfig = {
         usernameCookie: "g02logUsername",
         passwordCookie: "g02logPassword",
         loginRedirect: "display"
+    },
+    G02DataAnalysis: {
+        username: "radiumme",
+        password: "radiumme",
+        usernameCookie: "G02DataAnalysisUsername",
+        passwordCookie: "G02DataAnalysisPassword",
+        loginRedirect: "manage"
     }
 };
-process.env.NODE_ENV = isProduction ? "production" : "development";
+process.env.NODE_ENV = (isProduction) ? "production" : "development";
 if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.G02log.password = "kMXWy16GHVXlsEhXtwKh";
 }
 
-gulp.task("build", ["build-util", "build-server", "build-client"], function () {
+gulp.task("build", ["build-util", "build-server", "build-client"], () => {
     // gulp.task();
 
 });
 
-gulp.task("build-server", function () {
+gulp.task("build-server", () => {
     //app
-    gulp.src(["src/app.js", "src/bin/www"]).pipe(gulp.dest("dist/" + project + "/server/js"));
+    gulp.src(["src/app.js", "src/bin/www"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
     //init
-    gulp.src(["src/Common/Init/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
+    gulp.src(["src/Common/Init/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
     //middleware
-    gulp.src(["src/Common/MiddleWare/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
+    gulp.src(["src/Common/MiddleWare/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
     //models
-    gulp.src(["src/Common/Models/*.js", "src/Projects/" + project + "/Models/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
-    //config
-    gulp.src("src/Common/Config/mysql.xml").pipe(replace(/\{user}/g, mysqlConfig[project].user)).pipe(replace(/\{password}/g, mysqlConfig[project].password)).pipe(replace(/\{database}/g, mysqlConfig[project].database)).pipe(gulp.dest("dist/" + project + "/server/config"));
-    gulp.src("src/Common/Config/account.xml").pipe(replace(/\{username}/g, accountConfig[project].username)).pipe(replace(/\{password}/g, accountConfig[project].password)).pipe(replace(/\{usernameCookie}/g, accountConfig[project].usernameCookie)).pipe(replace(/\{passwordCookie}/g, accountConfig[project].passwordCookie)).pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect)).pipe(gulp.dest("dist/" + project + "/server/config"));
+    gulp.src(["src/Common/Models/*.js", "src/Projects/" + project + "/Models/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
+
+    if (Array.isArray(mysqlConfig[project].user)) {
+        let json = mysqlConfig[project];
+        if (!json.hasOwnProperty("host")) {
+            let hostArr = [];
+            for (let i = 0; i < json.user.length; i++) {
+                hostArr.push("localhost");
+            }
+            json.host = hostArr;
+        }
+
+        let mysqlPath = "./dist/" + project + "/server/config/mysql.xml";
+        xml.write(json, mysqlPath);
+    } else {
+        //config
+        let stream = gulp.src("src/Common/Config/mysql.xml");
+        if (mysqlConfig[project].hasOwnProperty("host")) {
+            stream = stream.pipe(replace(/\{host}/g, mysqlConfig[project].host));
+        } else {
+            stream = stream.pipe(replace(/\{host}/g, "localhost"));
+        }
+        stream = stream.pipe(replace(/\{user}/g, mysqlConfig[project].user))
+            .pipe(replace(/\{password}/g, mysqlConfig[project].password))
+            .pipe(replace(/\{database}/g, mysqlConfig[project].database));
+        stream.pipe(gulp.dest("dist/" + project + "/server/config"));
+    }
+
+    gulp.src("src/Common/Config/account.xml")
+        .pipe(replace(/\{username}/g, accountConfig[project].username))
+        .pipe(replace(/\{password}/g, accountConfig[project].password))
+        .pipe(replace(/\{usernameCookie}/g, accountConfig[project].usernameCookie))
+        .pipe(replace(/\{passwordCookie}/g, accountConfig[project].passwordCookie))
+        .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
+        .pipe(gulp.dest("dist/" + project + "/server/config"));
     //controller
-    gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"]).pipe(gulp.dest("dist/" + project + "/server/js"));
+    gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/server/js"));
+
 });
 
-gulp.task("build-util", function () {
+gulp.task("build-util", () => {
     //component
-    var componentArr = ["login", "table"];
-    componentArr.map(function (d) {
-        gulp.src("src/Common/Components/" + d + "/*.js").pipe(gulp.dest("dist/" + project + "/util"));
+    let componentArr = ["login", "table"];
+    componentArr.map(d => {
+        gulp.src("src/Common/Components/" + d + "/*.js")
+            .pipe(gulp.dest("dist/" + project + "/util"));
     });
 
     //util
-    gulp.src("src/Common/Utils/*.js").pipe(gulp.dest("dist/" + project + "/util"));
+    gulp.src("src/Common/Utils/*.js")
+        .pipe(gulp.dest("dist/" + project + "/util"));
+
 });
 
-gulp.task("build-client", function () {
+gulp.task("build-client", () => {
     //views html minify
-    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"]).pipe(htmlmin({ collapseWhitespace: true })).pipe(hash_src({ build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views" })).pipe(gulp.dest("dist/" + project + "/client"));
+    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
+        .pipe(gulp.dest("dist/" + project + "/client"));
 
     //views js
-    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"]).pipe(gulp.dest("dist/" + project + "/webpack")).on("end", function () {
-        var webpackConfig = require('./webpack.config.js');
-        viewModules[project].map(function (d) {
-            gulp.src("dist/" + project + "/webpack/" + d + "/main.js").pipe(webpack(webpackConfig)).pipe(gulp.dest("dist/" + project + "/client/" + d));
+    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
+        .pipe(gulp.dest("dist/" + project + "/webpack"))
+        .on("end", () => {
+            let webpackConfig = require('./webpack.config.js');
+            viewModules[project].map(d => {
+                gulp.src("dist/" + project + "/webpack/" + d + "/main.js")
+                    .pipe(webpack(webpackConfig))
+                    .pipe(gulp.dest("dist/" + project + "/client/" + d))
+
+            });
+
+
         });
-    });
+
 
     //views css bundle and minify
-    viewModules[project].map(function (d) {
-        var srcArr = [];
+    viewModules[project].map(d => {
+        let srcArr = [];
         switch (d) {
             case "login":
-                srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Components/login/login.css"];
+                srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Components/login/login.css"]
                 break;
             case "display":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css", "src/Projects/" + project + "/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
+                    "src/Common/Components/*/*.css",
+                    "src/Common/Views/common/*.css",
+                    "src/Projects/" + project + "/Views/common/*.css"
+                ];
                 break;
             case "manage":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css", "src/Common/Components/*/*.css", "src/Common/Views/common/*.css", "src/Projects/" + project + "/Views/common/*.css"];
+                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
+                    "src/Common/Components/*/*.css",
+                    "src/Common/Views/common/*.css",
+                    "src/Projects/" + project + "/Views/common/*.css"
+                ];
                 break;
         }
-        gulp.src(srcArr).pipe(concatCss("bundle.css", { rebaseUrls: false })).pipe(cleanCSS({ compatibility: 'ie8' })).pipe(gulp.dest("dist/" + project + "/client/" + d));
+        gulp.src(srcArr)
+            .pipe(concatCss("bundle.css", {rebaseUrls: false}))
+            .pipe(cleanCSS({compatibility: 'ie8'}))
+            .pipe(gulp.dest("dist/" + project + "/client/" + d));
     });
     //icon
-    gulp.src("src/Common/Icon/favicon.ico").pipe(gulp.dest("dist/" + project + "/client"));
+    gulp.src("src/Common/Icon/favicon.ico")
+        .pipe(gulp.dest("dist/" + project + "/client"));
     //package.json
-    gulp.src("package.json").pipe(replace(/"name": "MyExpress"/g, "\"name\":\"" + project + "\"")).pipe(gulp.dest("dist/" + project));
+    gulp.src("package.json")
+        .pipe(replace(/"name": "MyExpress"/g, "\"name\":\"" + project + "\""))
+        .pipe(gulp.dest("dist/" + project));
+
+
 });

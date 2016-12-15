@@ -1,17 +1,27 @@
-"use strict";
+let response = require("./response");
+let fs = require("fs");
 
-var response = require("./response");
-var fs = require("fs");
 
 module.exports = {
-    init: function init(req, res, config) {
+    init: (req, res, config) => {
         response.success(res, config.columns);
     },
-    create: function create(req, res, config) {
-        var table = config.id;
+    create: (req, res, config) => {
         //find table struct
-        var tableStruct = global.dbStruct.find(function (d) {
-            return d.id == table;
+        let table = config.id;
+        let database, pool;
+        if (config.hasOwnProperty("database")) {
+            database = config.database;
+            pool = global.pool.find(d => {
+                return d.database == database;
+            })
+        } else {
+            database = global.pool[0].database;
+            pool = global.pool[0].pool;
+        }
+
+        let tableStruct = global.dbStruct.find(d => {
+            return d.table == table && d.database == database;
         });
         if (tableStruct == undefined) {
             response.fail(res, "unknown table");
@@ -19,27 +29,26 @@ module.exports = {
         }
 
         //columns exclude id
-        var noIdFields = tableStruct.fields.filter(function (d) {
+        let noIdFields = tableStruct.fields.filter(d => {
             return d.Field != "id";
         });
 
         //add every row by param requestRowsLength
-        var rowArr = [];
-
-        var _loop = function _loop(i) {
-            var row = "(";
-            row += noIdFields.filter(function (d) {
+        let rowArr = [];
+        for (let i = 0; i < req.body.requestRowsLength; i++) {
+            let row = "(";
+            row += noIdFields.filter(d => {
                 //filter default undefined value
-                var id = d.Field;
+                let id = d.Field;
                 if (config.hasOwnProperty("create") && config.create.hasOwnProperty(id) && config.create[id] == undefined) {
                     return false;
                 } else {
                     return true;
                 }
-            }).map(function (d) {
-                var id = d.Field;
-                var type = d.Type;
-                var value = void 0;
+            }).map(d => {
+                let id = d.Field;
+                let type = d.Type;
+                let value;
                 if (config.hasOwnProperty("create") && config.create.hasOwnProperty(id)) {
                     //if default value exist and default value has property id
                     value = config.create[id];
@@ -54,16 +63,12 @@ module.exports = {
             }).join(",");
             row += ")";
             rowArr.push(row);
-        };
-
-        for (var i = 0; i < req.body.requestRowsLength; i++) {
-            _loop(i);
         }
 
         //build sqlCommand
-        var columnIdSqlStr = noIdFields.map(function (d) {
+        let columnIdSqlStr = noIdFields.map(d => {
             return d.Field;
-        }).filter(function (d) {
+        }).filter(d => {
             //if default value exist and is undefined,then exclude it
             if (config.hasOwnProperty("create") && config.create.hasOwnProperty(d) && config.create[d] == undefined) {
                 return false;
@@ -71,25 +76,39 @@ module.exports = {
                 return true;
             }
         }).join(",");
-        columnIdSqlStr = "(" + columnIdSqlStr + ")";
-        var valuesSqlStr = rowArr.join(",");
+        columnIdSqlStr = `(${columnIdSqlStr})`;
+        let valuesSqlStr = rowArr.join(",");
 
         //do mysql excute
-        var sqlCommand = "insert into " + table + " " + columnIdSqlStr + " values " + valuesSqlStr;
-        global.mysql.excuteQuery(sqlCommand).then(function (d) {
-            global.log.table.info("create done:" + sqlCommand);
+        let sqlCommand = `insert into ${table} ${columnIdSqlStr} values ${valuesSqlStr}`;
+        global.mysql.excuteQuery({
+            pool: pool,
+            sqlCommand: sqlCommand
+        }).then(d => {
+            global.log.table.info(`create done:${database},${sqlCommand}`);
             response.success(res);
-        }).catch(function (d) {
+        }).catch(d => {
             global.log.error.info("mysql excuteQuery error:" + d);
-            global.log.error.info(sqlCommand);
+            global.log.error.info(database + "," + sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    update: function update(req, res, config) {
-        var table = config.id;
+    update: (req, res, config) => {
         //find table struct
-        var tableStruct = global.dbStruct.find(function (d) {
-            return d.id == table;
+        let table = config.id;
+        let database, pool;
+        if (config.hasOwnProperty("database")) {
+            database = config.database;
+            pool = global.pool.find(d => {
+                return d.database == database;
+            })
+        } else {
+            database = global.pool[0].database;
+            pool = global.pool[0].pool;
+        }
+
+        let tableStruct = global.dbStruct.find(d => {
+            return d.table == table && d.database == database;
         });
         if (tableStruct == undefined) {
             response.fail(res, "unknown table");
@@ -97,27 +116,26 @@ module.exports = {
         }
 
         //columns exclude id
-        var noIdFields = tableStruct.fields.filter(function (d) {
+        let noIdFields = tableStruct.fields.filter(d => {
             return d.Field != "id";
         });
 
-        var promiseArr = [];
-        var sqlCommandArr = [];
-        var valuesArr = [];
-
-        var _loop2 = function _loop2(i) {
-            var defaultValueStrArr = [];
-            var values = {};
-            noIdFields.filter(function (d) {
+        let promiseArr = [];
+        let sqlCommandArr = [];
+        let valuesArr = [];
+        for (let i = 0; i < req.body.requestRowsLength; i++) {
+            let defaultValueStrArr = [];
+            let values = {};
+            noIdFields.filter(d => {
                 //filter default undefined value
-                var id = d.Field;
+                let id = d.Field;
                 if (config.hasOwnProperty("update") && config.update.hasOwnProperty(id) && config.update[id] == undefined) {
                     return false;
                 } else {
                     return true;
                 }
-            }).forEach(function (d) {
-                var id = d.Field;
+            }).forEach(d => {
+                let id = d.Field;
                 if (config.hasOwnProperty("update") && config.update.hasOwnProperty(id)) {
                     //if default value exist and default value has property id
                     defaultValueStrArr.push(id + "=" + config.update[id]);
@@ -126,10 +144,10 @@ module.exports = {
                     values[id] = req.body[id][i];
                 }
             });
-            var defaultValueStr = defaultValueStrArr.join(",");
+            let defaultValueStr = defaultValueStrArr.join(",");
             if (defaultValueStr != "") {
-                var n = 0;
-                for (var k in values) {
+                let n = 0;
+                for (let k in values) {
                     n++;
                 }
                 if (n != 0) {
@@ -137,80 +155,111 @@ module.exports = {
                 }
             }
 
-            var sqlCommand = "update " + config.id + " set " + defaultValueStr + " ? where id=" + req.body.id[i];
-            promiseArr.push(global.mysql.excuteQuery(sqlCommand, values));
+            let sqlCommand = `update ${config.id} set ${defaultValueStr} ? where id=${req.body.id[i]}`;
+            promiseArr.push(global.mysql.excuteQuery({
+                pool: pool,
+                sqlCommand: sqlCommand,
+                values: values
+            }));
             sqlCommandArr.push(sqlCommand);
             valuesArr.push(values);
-        };
-
-        for (var i = 0; i < req.body.requestRowsLength; i++) {
-            _loop2(i);
         }
 
-        Promise.all(promiseArr).then(function (d) {
+        Promise.all(promiseArr).then(d => {
             global.log.table.info("update done:");
-            for (var _i = 0; _i < sqlCommandArr.length; _i++) {
-                global.log.table.info("update " + _i + " " + sqlCommandArr[_i]);
-                global.log.table.info(valuesArr[_i]);
+            for (let i = 0; i < sqlCommandArr.length; i++) {
+                global.log.table.info(`update ${i} ${database} ${sqlCommandArr[i]}`);
+                global.log.table.info(valuesArr[i]);
             }
             response.success(res);
-        }).catch(function (d) {
+        }).catch(d => {
             global.log.error.info("mysql excuteQuery error:" + d);
-            for (var _i2 = 0; _i2 < sqlCommandArr.length; _i2++) {
-                global.log.error.info("update " + _i2 + " " + sqlCommandArr[_i2]);
-                global.log.error.info(valuesArr[_i2]);
+            for (let i = 0; i < sqlCommandArr.length; i++) {
+                global.log.error.info(`update ${i} ${database} ${sqlCommandArr[i]}`);
+                global.log.error.info(valuesArr[i]);
             }
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    read: function read(req, res, config) {
-        var table = config.id;
-        var sqlCommand = config.hasOwnProperty("read") ? typeof config.read == "function" ? config.read(req) : config.read : "select * from " + table;
-        var values = config.hasOwnProperty("readValue") ? config.readValue : {};
-        global.mysql.excuteQuery(sqlCommand, values).then(function (d) {
+    read: (req, res, config) => {
+        let table = config.id;
+        let database, pool;
+        if (config.hasOwnProperty("database")) {
+            database = config.database;
+            pool = global.pool.find(d => {
+                return d.database == database;
+            })
+        } else {
+            database = global.pool[0].database;
+            pool = global.pool[0].pool;
+        }
+
+        let sqlCommand = config.hasOwnProperty("read") ?
+            (typeof(config.read) == "function" ? config.read(req) : config.read) : `select * from ${table}`;
+        let values = config.hasOwnProperty("readValue") ?
+            config.readValue : {};
+        global.mysql.excuteQuery({
+            pool: pool,
+            sqlCommand: sqlCommand,
+            values: values
+        }).then(d => {
             if (config.hasOwnProperty("readMap")) {
-                d = d.map(function (d1) {
+                d = d.map(d1 => {
                     d1 = config.readMap(d1);
                     return d1;
                 });
             }
-            global.log.table.info("read done:" + sqlCommand);
+            global.log.table.info(`read done:${database},${sqlCommand}`);
             global.log.table.info(values);
             response.success(res, d);
-        }).catch(function (d) {
+        }).catch(d => {
             global.log.error.info("mysql excuteQuery error:" + d);
-            global.log.error.info(sqlCommand);
+            global.log.error.info(database + "," + sqlCommand);
             global.log.error.info(values);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    delete: function _delete(req, res, config) {
-        var table = config.id;
-        var idStr = req.body.id.join(",");
-        var sqlCommand = "delete from " + table + " where id in (" + idStr + ")";
-        global.mysql.excuteQuery(sqlCommand).then(function (d) {
-            global.log.table.info("delete done:" + sqlCommand);
+    delete: (req, res, config) => {
+        let table = config.id;
+        let database, pool;
+        if (config.hasOwnProperty("database")) {
+            database = config.database;
+            pool = global.pool.find(d => {
+                return d.database == database;
+            })
+        } else {
+            database = global.pool[0].database;
+            pool = global.pool[0].pool;
+        }
+
+        let idStr = req.body.id.join(",");
+        let sqlCommand = `delete from ${table} where id in (${idStr})`;
+        global.mysql.excuteQuery({
+            pool: pool,
+            sqlCommand: sqlCommand
+        }).then(d => {
+            global.log.table.info(`delete done:${database},${sqlCommand}`);
             response.success(res, d);
-        }).catch(function (d) {
+        }).catch(d => {
             global.log.error.info("mysql excuteQuery error:" + d);
-            global.log.error.info(sqlCommand);
+            global.log.error.info(database + "," + sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
     },
-    attachmentRead: function attachmentRead(req, res, config) {
-        var table = config.id;
-        var path = "./client/data/" + table + "/" + req.body.id + "/";
+    attachmentRead: (req, res, config) => {
+        let table = config.id;
+        let path = `./client/data/${table}/${req.body.id}/`;
         if (fs.existsSync(path)) {
-            var attachementList = fs.readdirSync(path);
+            let attachementList = fs.readdirSync(path);
             response.success(res, attachementList);
         } else {
             response.success(res, []);
         }
     },
-    attachmentDelete: function attachmentDelete(req, res, config) {
-        var table = config.id;
-        var path = "./client/data/" + table + "/" + req.body.id + "/";
-        var name = req.body.name;
+    attachmentDelete: (req, res, config) => {
+        let table = config.id;
+        let path = `./client/data/${table}/${req.body.id}/`;
+        let name = req.body.name;
         if (fs.existsSync(path)) {
             fs.unlinkSync(path + name);
             response.success(res);
@@ -218,14 +267,14 @@ module.exports = {
             response.fail(res, "dir do not exist");
         }
     },
-    attachmentUpload: function attachmentUpload(req, res, config) {
+    attachmentUpload: (req, res, config) => {
         if (req.files.length == 0) {
             response.fail("no file upload");
             return;
         }
-        var table = config.id;
-        var sourcePath = "./server/upload/";
-        var destPath = "./client/data/" + table + "/";
+        let table = config.id;
+        let sourcePath = "./server/upload/";
+        let destPath = `./client/data/${table}/`;
         if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
@@ -233,13 +282,11 @@ module.exports = {
         if (!fs.existsSync(destPath)) {
             fs.mkdirSync(destPath);
         }
-        req.files.forEach(function (d) {
-            var filename = d.filename;
+        req.files.forEach(d => {
+            let filename = d.filename;
             fs.renameSync(sourcePath + filename, destPath + filename);
             global.log.upload.info("upload done:" + destPath + filename);
         });
         response.success(res);
-    }
+    },
 };
-
-//# sourceMappingURL=table.js.map

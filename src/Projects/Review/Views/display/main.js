@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require("react");
 var ReactDom = require("react-dom");
-require("karl-extend");
+require("babel-polyfill");
 var Radio = require("karl-component-radio");
 var http = require("karl-http");
 
@@ -691,5 +691,3 @@ var App = function (_React$Component) {
 }(React.Component);
 
 ReactDom.render(React.createElement(App, null), document.getElementById("display"));
-
-//# sourceMappingURL=main.js.map
