@@ -10,7 +10,7 @@ var webpack = require('webpack-stream');
 var hash_src = require("gulp-hash-src");
 let xml = require("karl-xml");
 
-let project = process.argv[6].replace("--project=","");
+let project = process.argv[6].replace("--project=", "");
 
 // let project = "Review";
 
@@ -19,7 +19,7 @@ let viewModules = {
     Review: ["login", "display", "manage"],
     Maintence: ["login", "manage"],
     G02log: [],
-    G02DataAnalysis:["login","display"]
+    G02DataAnalysis: ["login", "display"]
 };
 let mysqlConfig = {
     Review: {
@@ -38,39 +38,35 @@ let mysqlConfig = {
         database: "G02log"
     },
     G02DataAnalysis: {
-        host: ["localhost", "localhost", "localhost"],
-        user: ["root", "root", "root"],
-        password: ["root", "root", "root"],
-        database: ["raw", "res", "mid"]
+        host: ["localhost"],
+        user: ["root"],
+        password: ["root"],
+        database: ["log_nuclear"]
+        // host: ["localhost", "localhost", "localhost"],
+        // user: ["root", "root", "root"],
+        // password: ["root", "root", "root"],
+        // database: ["raw", "res", "mid"]
     }
 };
 let accountConfig = {
     Review: {
         username: "business",
         password: "business",
-        usernameCookie: "reviewUsername",
-        passwordCookie: "reviewPassword",
         loginRedirect: "display"
     },
     Maintence: {
         username: "radiumme",
         password: "radiumme",
-        usernameCookie: "maintenceUsername",
-        passwordCookie: "maintencePassword",
         loginRedirect: "manage"
     },
     G02log: {
         username: "radiumme",
         password: "radiumme",
-        usernameCookie: "g02logUsername",
-        passwordCookie: "g02logPassword",
         loginRedirect: "display"
     },
     G02DataAnalysis: {
         username: "radiumme",
         password: "radiumme",
-        usernameCookie: "G02DataAnalysisUsername",
-        passwordCookie: "G02DataAnalysisPassword",
         loginRedirect: "display"
     }
 };
@@ -132,10 +128,9 @@ gulp.task("build-server", () => {
     }
 
     gulp.src("src/Common/Config/account.xml")
+        .pipe(replace(/\{project}/g, project))
         .pipe(replace(/\{username}/g, accountConfig[project].username))
         .pipe(replace(/\{password}/g, accountConfig[project].password))
-        .pipe(replace(/\{usernameCookie}/g, accountConfig[project].usernameCookie))
-        .pipe(replace(/\{passwordCookie}/g, accountConfig[project].passwordCookie))
         .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
         .pipe(gulp.dest("dist/" + project + "/server/config"));
     //controller
@@ -145,12 +140,6 @@ gulp.task("build-server", () => {
 });
 
 gulp.task("build-util", () => {
-    //component
-    let componentArr = ["login", "table"];
-    componentArr.map(d => {
-        gulp.src("src/Common/Components/" + d + "/*.js")
-            .pipe(gulp.dest("dist/" + project + "/util"));
-    });
 
     //util
     gulp.src("src/Common/Utils/*.js")
@@ -166,19 +155,17 @@ gulp.task("build-client", () => {
         .pipe(gulp.dest("dist/" + project + "/client"));
 
     //views js
-    gulp.src(["src/Common/Views/*/*.js", "src/Projects/" + project + "/Views/*/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/webpack"))
-        .on("end", () => {
-            let webpackConfig = require('./webpack.config.js');
-            viewModules[project].map(d => {
-                gulp.src("dist/" + project + "/webpack/" + d + "/main.js")
-                    .pipe(webpack(webpackConfig))
-                    .pipe(gulp.dest("dist/" + project + "/client/" + d))
-
-            });
-
-
-        });
+    // gulp.src(["src/Common/Views/*/*.jsx", "src/Projects/" + project + "/Views/*/*.jsx"])
+    //     .pipe(gulp.dest("dist/" + project + "/webpack"))
+    //     .on("end", () => {
+    //         let webpackConfig = require('./webpack.config.js');
+    //         viewModules[project].map(d => {
+    //             gulp.src("dist/" + project + "/webpack/" + d + "/main.jsx")
+    //                 .pipe(webpack(webpackConfig))
+    //                 .pipe(gulp.dest("dist/" + project + "/client/" + d))
+    //
+    //         });
+    //     });
 
 
     //views css bundle and minify
@@ -186,7 +173,7 @@ gulp.task("build-client", () => {
         let srcArr = [];
         switch (d) {
             case "login":
-                srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Components/login/login.css"]
+                srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Views/" + d + "/*.scss", "src/Common/Components/login/login.css"]
                 break;
             case "display":
                 srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",

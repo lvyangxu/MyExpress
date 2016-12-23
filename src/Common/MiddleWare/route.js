@@ -26,19 +26,11 @@ router.route('/').get(function (req, res) {
 //account router
 router.route("/account/:action").post((req, res, next)=> {
     let action = req.params.action;
-    switch (action) {
-        case "login":
-            account.login(req, res);
-            break;
-        case "logout":
-            account.logout(req, res);
-            break;
-        case "getCookieName":
-            account.getCookieName(req, res);
-            break;
-        default:
-            response.fail(res, "unknown action");
-            break;
+    if(!account.hasOwnProperty(action)){
+        console.log("unknown action:account " + action);
+        response.fail(res, "unknown action");
+    }else{
+        account[action](req, res);
     }
 });
 

@@ -1,13 +1,12 @@
 let response = require("./response");
 module.exports = {
-    getCookieName: (req, res)=> {
+    getItemName: (req, res) => {
         response.success(res, {
-            username: global.accountConfig.usernameCookie,
-            password: global.accountConfig.passwordCookie,
+            project: global.accountConfig.project,
             loginRedirect: global.accountConfig.loginRedirect
         });
     },
-    login: (req, res)=> {
+    login: (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         if (username == global.accountConfig.username && password == global.accountConfig.password) {
@@ -18,11 +17,11 @@ module.exports = {
             response.fail(res, "invalid username or password");
         }
     },
-    logout: ()=> {
+    logout: () => {
 
     },
-    relogin: (req, res)=> {
-        let [username,password] = ["username", "password"].map(d=> {
+    relogin: (req, res) => {
+        let [username, password] = ["username", "password"].map(d => {
             d = req.cookies[global.accountConfig[d + "Cookie"]];
             return d;
         });

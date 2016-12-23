@@ -2,34 +2,27 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
         <item url="file://$PROJECT_DIR$/src/app.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
+        <item url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/logInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Components/login/login.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
         <item url="file://$PROJECT_DIR$/src/Common/Models/log.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/init.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/G02DataAnalysis/Views/display/main.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Views/manage/main.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
         <item url="file://$PROJECT_DIR$/gulp.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -58,34 +51,33 @@
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/tableConfig.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Controllers/collection.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Components/karl-component-nav/index.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
+      <root url="file://$PROJECT_DIR$/src/Projects/G02DataAnalysis/Views/display/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Views/manage/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/app.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/logInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Components/login/login.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Models/log.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/init.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/manage/main.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/G02DataAnalysis/Views/display/main.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Components/table/table.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Views/manage/main.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Review/Views/display/main.js" />
       <root url="file://$PROJECT_DIR$/gulp.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
     </CLASSES>
     <SOURCES />
   </library>

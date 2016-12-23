@@ -1,137 +1,71 @@
-"use strict";
+let xml = require("karl-xml");
 
-var xml = require("karl-xml");
+let loadConfig = async() => {
+    try {
+        //set global account
+        let accountConfig = await xml.read("./server/config/account.xml");
+        accountConfig = accountConfig.root;
+        global.accountConfig = {
+            project: accountConfig.project[0],
+            username: accountConfig.username[0],
+            password: accountConfig.password[0],
+            loginRedirect: accountConfig.loginRedirect[0]
+        };
 
-var loadConfig = function _callee() {
-    var accountConfig, mysqlConfig, mysql, i, pool, _i, _global$pool$_i, database, _pool, showTables, tableNames, _i2, table, fields;
+        //init mysql
+        let mysqlConfig = await xml.read("./server/config/mysql.xml");
+        mysqlConfig = mysqlConfig.root;
+        let mysql = require("../../util/mysql");
 
-    return regeneratorRuntime.async(function _callee$(_context) {
-        while (1) {
-            switch (_context.prev = _context.next) {
-                case 0:
-                    _context.prev = 0;
-                    _context.next = 3;
-                    return regeneratorRuntime.awrap(xml.read("./server/config/account.xml"));
+        global.pool = [];
+        for (let i = 0; i < mysqlConfig.user.length; i++) {
+            let pool = mysql.init(mysqlConfig.host[i], mysqlConfig.user[i], mysqlConfig.password[i], mysqlConfig.database[i]);
+            global.pool.push({database: mysqlConfig.database[i], pool: pool});
+        }
 
-                case 3:
-                    accountConfig = _context.sent;
+        console.log("mysql init success");
+        global.log.server.info("mysql init success");
 
-                    accountConfig = accountConfig.root;
-                    global.accountConfig = {
-                        username: accountConfig.username[0],
-                        password: accountConfig.password[0],
-                        usernameCookie: accountConfig.usernameCookie[0],
-                        passwordCookie: accountConfig.passwordCookie[0],
-                        loginRedirect: accountConfig.loginRedirect[0]
-                    };
-
-                    //init mysql
-                    _context.next = 8;
-                    return regeneratorRuntime.awrap(xml.read("./server/config/mysql.xml"));
-
-                case 8:
-                    mysqlConfig = _context.sent;
-
-                    mysqlConfig = mysqlConfig.root;
-                    mysql = require("../../util/mysql");
-
-
-                    global.pool = [];
-                    for (i = 0; i < mysqlConfig.user.length; i++) {
-                        pool = mysql.init(mysqlConfig.host[i], mysqlConfig.user[i], mysqlConfig.password[i], mysqlConfig.database[i]);
-
-                        global.pool.push({ database: mysqlConfig.database[i], pool: pool });
-                    }
-
-                    console.log("mysql init success");
-                    global.log.server.info("mysql init success");
-
-                    global.dbStruct = [];
-                    _i = 0;
-
-                case 17:
-                    if (!(_i < global.pool.length)) {
-                        _context.next = 38;
-                        break;
-                    }
-
-                    //get all table names
-                    _global$pool$_i = global.pool[_i];
-                    database = _global$pool$_i.database;
-                    _pool = _global$pool$_i.pool;
-                    _context.next = 23;
-                    return regeneratorRuntime.awrap(mysql.excuteQuery({
-                        pool: _pool,
-                        sqlCommand: "show tables"
-                    }));
-
-                case 23:
-                    showTables = _context.sent;
-                    tableNames = showTables.map(function (d) {
-                        var tableName = void 0;
-                        for (var k in d) {
-                            tableName = d[k];
-                            break;
-                        }
-                        return tableName;
-                    });
-
-                    //set global table struct
-
-                    _i2 = 0;
-
-                case 26:
-                    if (!(_i2 < tableNames.length)) {
-                        _context.next = 35;
-                        break;
-                    }
-
-                    table = tableNames[_i2];
-                    _context.next = 30;
-                    return regeneratorRuntime.awrap(mysql.excuteQuery({
-                        pool: _pool,
-                        sqlCommand: "desc " + table
-                    }));
-
-                case 30:
-                    fields = _context.sent;
-
-                    global.dbStruct.push({
-                        database: database,
-                        table: table,
-                        fields: fields
-                    });
-
-                case 32:
-                    _i2++;
-                    _context.next = 26;
+        global.dbStruct = [];
+        for (let i = 0; i < global.pool.length; i++) {
+            //get all table names
+            let {database, pool} = global.pool[i];
+            let showTables = await mysql.excuteQuery({
+                pool: pool,
+                sqlCommand: "show tables"
+            });
+            let tableNames = showTables.map(d => {
+                let tableName;
+                for (let k in d) {
+                    tableName = d[k];
                     break;
+                }
+                return tableName;
+            });
 
-                case 35:
-                    _i++;
-                    _context.next = 17;
-                    break;
-
-                case 38:
-                    console.log("get database structure successfully");
-                    global.log.server.info("get database structure successfully");
-
-                    _context.next = 46;
-                    break;
-
-                case 42:
-                    _context.prev = 42;
-                    _context.t0 = _context["catch"](0);
-
-                    console.log("init config failed:" + _context.t0.message);
-                    global.log.error.info("init config failed:" + _context.t0.message);
-
-                case 46:
-                case "end":
-                    return _context.stop();
+            //set global table struct
+            for (let i = 0; i < tableNames.length; i++) {
+                let table = tableNames[i];
+                let fields = await mysql.excuteQuery({
+                    pool: pool,
+                    sqlCommand: "desc " + table
+                });
+                global.dbStruct.push({
+                    database: database,
+                    table: table,
+                    fields: fields
+                });
             }
         }
-    }, null, undefined, [[0, 42]]);
+        console.log("get database structure successfully");
+        global.log.server.info("get database structure successfully");
+
+    } catch (e) {
+        console.log("init config failed:" + e.message);
+        global.log.error.info("init config failed:" + e.message);
+    }
+
+
 };
 
 loadConfig();

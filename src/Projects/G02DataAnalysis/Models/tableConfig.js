@@ -20,13 +20,24 @@
 module.exports = (req) => {
     return [
         {
-            id: "online",
-            database: "raw",
+            id: "creat_data",
+            database: "log_nuclear",
             columns: [
-                {id: "serverid", name: "服务器", checked: true, select: true},
-                {id: "channel", name: "区域", checked: true, select: true},
-                {id: "num", name: "人数", checked: true},
-                {id: "time", name: "时间", checked: true,select:true}
+                {id: "imeiId", name: "IMEI", checked: true, select: true},
+                {id: "accountId", name: "账号id", checked: true, select: true},
+                {id: "account", name: "账号", checked: true},
+                {id: "roleId", name: "角色id", checked: true},
+                {id: "os", name: "系统", checked: true},
+                {id: "serverId", name: "服务器id", checked: true, select: true},
+                {id: "role_name", name: "角色名", checked: true},
+                {id: "role_createTime", name: "角色创建时间", checked: true},
+                {id: "js_ocu", name: "角色OCU", checked: true},
+                {id: "role_ip", name: "角色ip", checked: true},
+                {id: "account_createDate", name: "账号创建日期", checked: true},
+                {id: "imei_createDate", name: "IMEI创建日期", checked: true},
+                {id: "imei_os", name: "IMEI系统", checked: true},
+                {id: "region", name: "区域", checked: true, select: true},
+                {id: "update", name: "更新时间", checked: true},
             ]
         },
 
