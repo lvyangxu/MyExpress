@@ -3,24 +3,21 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var htmlmin = require('gulp-htmlmin');
 var del = require('del');
+var sass = require('gulp-sass');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
 var webpack = require('webpack-stream');
 var hash_src = require("gulp-hash-src");
 let xml = require("karl-xml");
+var fs = require('fs');
+var path = require('path');
 
 let project = process.argv[6].replace("--project=", "");
 
 // let project = "Review";
 
 let isProduction = false;
-let viewModules = {
-    Review: ["login", "display", "manage"],
-    Maintence: ["login", "manage"],
-    G02log: [],
-    G02DataAnalysis: ["login", "display"]
-};
 let mysqlConfig = {
     Review: {
         user: "root",
@@ -79,12 +76,15 @@ if (isProduction) {
     mysqlConfig.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan"];
 }
 
-gulp.task("build", ["build-util", "build-server", "build-client"], () => {
+gulp.task("build", ["async-task", "sync-task"], () => {
     // gulp.task();
-
+    console.log("all done");
 });
 
-gulp.task("build-server", () => {
+/**
+ * 可异步执行的任务
+ */
+gulp.task("async-task", () => {
     //app
     gulp.src(["src/app.js", "src/bin/www"])
         .pipe(gulp.dest("dist/" + project + "/server/js"));
@@ -133,68 +133,13 @@ gulp.task("build-server", () => {
         .pipe(replace(/\{password}/g, accountConfig[project].password))
         .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
         .pipe(gulp.dest("dist/" + project + "/server/config"));
+
     //controller
     gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
         .pipe(gulp.dest("dist/" + project + "/server/js"));
-
-});
-
-gulp.task("build-util", () => {
-
     //util
     gulp.src("src/Common/Utils/*.js")
         .pipe(gulp.dest("dist/" + project + "/util"));
-
-});
-
-gulp.task("build-client", () => {
-    //views html minify
-    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
-        .pipe(gulp.dest("dist/" + project + "/client"));
-
-    //views js
-    // gulp.src(["src/Common/Views/*/*.jsx", "src/Projects/" + project + "/Views/*/*.jsx"])
-    //     .pipe(gulp.dest("dist/" + project + "/webpack"))
-    //     .on("end", () => {
-    //         let webpackConfig = require('./webpack.config.js');
-    //         viewModules[project].map(d => {
-    //             gulp.src("dist/" + project + "/webpack/" + d + "/main.jsx")
-    //                 .pipe(webpack(webpackConfig))
-    //                 .pipe(gulp.dest("dist/" + project + "/client/" + d))
-    //
-    //         });
-    //     });
-
-
-    //views css bundle and minify
-    viewModules[project].map(d => {
-        let srcArr = [];
-        switch (d) {
-            case "login":
-                srcArr = ["src/Common/Views/" + d + "/*.css", "src/Common/Views/" + d + "/*.scss", "src/Common/Components/login/login.css"]
-                break;
-            case "display":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
-                    "src/Common/Components/*/*.css",
-                    "src/Common/Views/common/*.css",
-                    "src/Projects/" + project + "/Views/common/*.css"
-                ];
-                break;
-            case "manage":
-                srcArr = ["src/Projects/" + project + "/Views/" + d + "/*.css",
-                    "src/Common/Components/*/*.css",
-                    "src/Common/Views/common/*.css",
-                    "src/Projects/" + project + "/Views/common/*.css"
-                ];
-                break;
-        }
-        gulp.src(srcArr)
-            .pipe(concatCss("bundle.css", {rebaseUrls: false}))
-            .pipe(cleanCSS({compatibility: 'ie8'}))
-            .pipe(gulp.dest("dist/" + project + "/client/" + d));
-    });
     //icon
     gulp.src("src/Common/Icon/favicon.ico")
         .pipe(gulp.dest("dist/" + project + "/client"));
@@ -202,6 +147,108 @@ gulp.task("build-client", () => {
     gulp.src("package.json")
         .pipe(replace(/"name": "MyExpress"/g, "\"name\":\"" + project + "\""))
         .pipe(gulp.dest("dist/" + project));
+    //html
+    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
+        .pipe(gulp.dest("dist/" + project + "/client"));
+});
 
+let clientPath = "dist/" + project + "/client";
+let views = [];
+
+/**
+ * 必须同步执行的任务
+ */
+gulp.task("sync-task", ["compile-jsx"], () => {
+    //最终删除不需要的文件
+    return del([clientPath + "/common/", clientPath + "/*/*.css", clientPath + "/*/*.scss", clientPath + "/*/*.jsx", "!" + clientPath + "/*/bundle.css"]);
 
 });
+
+/**
+ * 移动.jsx文件
+ */
+gulp.task("move-jsx", () => {
+    let stream = gulp.src(["src/Common/Views/*/*.jsx", "src/Projects/" + project + "/Views/*/*.jsx"])
+        .pipe(gulp.dest("dist/" + project + "/client"));
+    return stream;
+});
+
+/**
+ * 移动.scss文件
+ */
+gulp.task("move-scss", () => {
+    let stream = gulp.src(["src/Common/Views/*/*.scss", "src/Projects/" + project + "/Views/*/*.scss"])
+        .pipe(gulp.dest("dist/" + project + "/client"));
+    return stream;
+});
+
+/**
+ * 获取所有视图的名称
+ */
+gulp.task("get-views", ["move-jsx", "move-scss"], ()=> {
+    //get all view
+    views = fs.readdirSync(clientPath).filter(d=> {
+        return fs.statSync(path.join(clientPath, d)).isDirectory();
+    });
+});
+
+/**
+ * 编译.scss
+ */
+gulp.task("compile-scss", ["get-views"], () => {
+    let promiseArr = [];
+    views.forEach(d=> {
+        let promise = new Promise((resolve, reject)=> {
+            gulp.src(clientPath + "/" + d + "/*.scss")
+                .pipe(sass().on('error', sass.logError))
+                .pipe(gulp.dest(clientPath + "/" + d))
+                .on("end", ()=> {
+                    resolve();
+                });
+        });
+        promiseArr.push(promise);
+    });
+    return Promise.all(promiseArr);
+});
+
+/**
+ * 合并css
+ */
+gulp.task("concat-css", ["compile-scss"], ()=> {
+    let promiseArr = [];
+    views.forEach(d=> {
+        let promise = new Promise((resolve, reject)=> {
+            gulp.src([clientPath + "/" + d + "/*.css", "dist/" + project + "/client/common/*.css"])
+                .pipe(concatCss("bundle.css", {rebaseUrls: false}))
+                .pipe(cleanCSS({compatibility: 'ie8'}))
+                .pipe(gulp.dest("dist/" + project + "/client/" + d))
+                .on("end", ()=> {
+                    resolve();
+                });
+        });
+        promiseArr.push(promise);
+    });
+    return Promise.all(promiseArr);
+})
+
+/**
+ * 编译jsx文件
+ */
+gulp.task("compile-jsx", ["concat-css"], ()=> {
+    let webpackConfig = require('./webpack.config.js');
+    let promiseArr = [];
+    views.forEach(d=> {
+        let promise = new Promise((resolve, reject)=> {
+            gulp.src(clientPath + "/" + d + "/*.jsx")
+                .pipe(webpack(webpackConfig))
+                .pipe(gulp.dest(clientPath + "/" + d))
+                .on("end", ()=> {
+                    resolve();
+                });
+        });
+        promiseArr.push(promise);
+    });
+    return Promise.all(promiseArr);
+})

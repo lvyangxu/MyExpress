@@ -1,7 +1,9 @@
 let xml = require("karl-xml");
+let jwt = require("karl-jwt");
 
 let loadConfig = async() => {
     try {
+
         //set global account
         let accountConfig = await xml.read("./server/config/account.xml");
         accountConfig = accountConfig.root;
@@ -11,6 +13,11 @@ let loadConfig = async() => {
             password: accountConfig.password[0],
             loginRedirect: accountConfig.loginRedirect[0]
         };
+
+        //set global jwt
+        global.jwt = new jwt({
+            secret: "Radiumme-" + global.accountConfig.project
+        });
 
         //init mysql
         let mysqlConfig = await xml.read("./server/config/mysql.xml");

@@ -26,20 +26,20 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json({type:"application/json"}));
 
 //cookie and session
-let cookieParser = require('cookie-parser');
-let cookieSession = require('cookie-session');
-app.use(cookieParser());
-app.use(cookieSession({
-    keys: ["username", "password"]
-}));
-app.use((req, res, next)=> {
-    req.cookieSession = cookieSession;
-    next();
-});
+// let cookieParser = require('cookie-parser');
+// let cookieSession = require('cookie-session');
+// app.use(cookieParser());
+// app.use(cookieSession({
+//     keys: ["username", "password"]
+// }));
+// app.use((req, res, next)=> {
+//     req.cookieSession = cookieSession;
+//     next();
+// });
 
-//session check
-let session = require("./session");
-app.use(session);
+//authenticate
+let authenticate = require("./authenticate");
+app.use(authenticate);
 
 //route
 let route = require("./route");

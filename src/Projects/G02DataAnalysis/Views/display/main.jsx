@@ -1,8 +1,8 @@
-let React = require("react");
-let ReactDom = require("react-dom");
-require("babel-polyfill");
-let Nav = require("karl-component-nav");
-let Table = require("../")
+import "babel-polyfill";
+import React from "react";
+import ReactDom from "react-dom";
+import Nav from "karl-component-nav";
+// let Table = require("../")
 
 ReactDom.render(<Nav sectionStyle={{padding: "50px"}} data={[
     {id: "online", name: "在线人数", group: "服务器信息", dom: <div></div>},
