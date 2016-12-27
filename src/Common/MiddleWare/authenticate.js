@@ -10,15 +10,13 @@ module.exports = (req, res, next)=> {
         }
 
         try {
-            let {header, payload, signature} = JSON.parse(global.jwt.decryptJWT(req.body.jwt));
-            header = JSON.parse(header);
-            payload = JSON.parse(payload);
+            let {header, payload, signature} = global.jwt.decryptJWT(req.body.jwt);
             if (!header.hasOwnProperty("exp") || !payload.hasOwnProperty("exp") || header.exp != payload.exp) {
                 console.log("header exp != payload.exp");
                 response.fail(res, "unauthorized");
                 return;
             }
-            let isValidHeader = header.alg == "aes192" && header.typ != "JWT" && header.exp > new Date().getTime();
+            let isValidHeader = header.alg == "aes192" && header.typ == "JWT" && header.exp > new Date().getTime();
             if (!isValidHeader) {
                 console.log("header is not valid");
                 response.fail(res, "unauthorized");

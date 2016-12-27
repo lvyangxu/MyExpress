@@ -4,7 +4,14 @@ let fs = require("fs");
 
 module.exports = {
     init: (req, res, config) => {
-        response.success(res, config.columns);
+        let data = {
+            columns: config.columns,
+            curd: config.curd
+        };
+        if (config.hasOwnProperty("rowPerPage")) {
+            data.rowPerPage = config.rowPerPage;
+        }
+        response.success(res, data);
     },
     create: (req, res, config) => {
         //find table struct

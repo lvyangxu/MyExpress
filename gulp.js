@@ -35,14 +35,10 @@ let mysqlConfig = {
         database: "G02log"
     },
     G02DataAnalysis: {
-        host: ["localhost"],
-        user: ["root"],
-        password: ["root"],
-        database: ["log_nuclear"]
-        // host: ["localhost", "localhost", "localhost"],
-        // user: ["root", "root", "root"],
-        // password: ["root", "root", "root"],
-        // database: ["raw", "res", "mid"]
+        host: ["localhost", "localhost", "localhost"],
+        user: ["root", "root", "root"],
+        password: ["root", "root", "root"],
+        database: ["log_nuclear", "raw", "res", "mid"]
     }
 };
 let accountConfig = {
@@ -166,10 +162,16 @@ gulp.task("sync-task", ["compile-jsx"], () => {
 
 });
 
+gulp.task("move-table", ()=> {
+    let stream = gulp.src(["src/index.*"])
+        .pipe(gulp.dest("dist/" + project + "/client/table"));
+    return stream;
+});
+
 /**
  * 移动.jsx文件
  */
-gulp.task("move-jsx", () => {
+gulp.task("move-jsx", ["move-table"], () => {
     let stream = gulp.src(["src/Common/Views/*/*.jsx", "src/Projects/" + project + "/Views/*/*.jsx"])
         .pipe(gulp.dest("dist/" + project + "/client"));
     return stream;
@@ -241,7 +243,7 @@ gulp.task("compile-jsx", ["concat-css"], ()=> {
     let promiseArr = [];
     views.forEach(d=> {
         let promise = new Promise((resolve, reject)=> {
-            gulp.src(clientPath + "/" + d + "/*.jsx")
+            gulp.src(clientPath + "/" + d + "/main.jsx")
                 .pipe(webpack(webpackConfig))
                 .pipe(gulp.dest(clientPath + "/" + d))
                 .on("end", ()=> {
