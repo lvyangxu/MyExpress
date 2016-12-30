@@ -3,15 +3,62 @@ let fs = require("fs");
 
 
 module.exports = {
-    init: (req, res, config) => {
+    init: async(req, res, config) => {
         let data = {
             columns: config.columns,
             curd: config.curd
         };
-        if (config.hasOwnProperty("rowPerPage")) {
-            data.rowPerPage = config.rowPerPage;
+        ["rowPerPage", "chart"].forEach(d=> {
+            if (config.hasOwnProperty(d)) {
+                data[d] = config[d];
+            }
+        })
+
+        let database, pool;
+        if (config.hasOwnProperty("database")) {
+            database = config.database;
+            pool = global.pool.find(d => {
+                return d.database == database;
+            }).pool;
+        } else {
+            database = global.pool[0].database;
+            pool = global.pool[0].pool;
         }
-        response.success(res, data);
+
+        //如果筛选条件类型为多选，则将该字段所有点值一起返回
+        let serverFilterInit = [];
+        config.columns.filter(d=> {
+            return d.queryCondition && d.hasOwnProperty("initSql");
+        }).forEach(d=> {
+            let promise = global.mysql.excuteQuery({
+                pool: pool,
+                sqlCommand: d.initSql
+            });
+            serverFilterInit.push({id: d.id, promise: promise});
+        });
+        //去除initSql，避免客户端获取
+        data.columns = data.columns.map(d=> {
+            if (d.hasOwnProperty("initSql")) {
+                d.initSql = "";
+            }
+            return d;
+        });
+
+        try {
+            let promiseArr = serverFilterInit.map(d=> {
+                return d.promise;
+            });
+            let initData = await Promise.all(promiseArr);
+            initData.forEach((d, i)=> {
+                let id = serverFilterInit[i].id;
+                data["serverFilter" + id] = d.map((d1, j)=> {
+                    return {id: j, name: d1[id], checked: false};
+                });
+            });
+            response.success(res, data);
+        } catch (e) {
+            response.success(res, data);
+        }
     },
     create: (req, res, config) => {
         //find table struct
@@ -190,6 +237,14 @@ module.exports = {
     },
     read: (req, res, config) => {
         let table = config.id;
+        //执行查询前的参数检查
+        if (config.hasOwnProperty("readCheck")) {
+            if (!config.readCheck()) {
+                response.fail(res, "invalid param");
+                return;
+            }
+        }
+
         let database, pool;
         if (config.hasOwnProperty("database")) {
             database = config.database;

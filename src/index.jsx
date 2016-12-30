@@ -1,7 +1,3 @@
-// let http = require("karl-http");
-// let React = require("react");
-// let Select = require("karl-component-select");
-// let upload = require("./upload");
 //
 // // class table extends React.Component {
 // //     constructor(props) {
@@ -303,10 +299,6 @@
 // //         return dom;
 // //     }
 // //
-// //     setBottom() {
-// //
-// //     }
-// //
 // //
 
 // //
@@ -415,209 +407,11 @@
 // //             displayData: sortedData
 // //         });
 // //     }
+// /
 // //
-// //     rowAllCheck() {
-// //         let newData = this.state.displayData.map(d => {
-// //             d.checkboxChecked = !this.state.rowAllChecked;
-// //             return d;
-// //         });
-// //         this.setState({
-// //             rowAllChecked: !this.state.rowAllChecked,
-// //             displayData: newData
-// //         });
-// //     }
 // //
-// //     rowCheck(d) {
-// //         let newData = this.state.displayData.map(d1 => {
-// //             if (d1 == d) {
-// //                 d1.checkboxChecked = !d1.checkboxChecked;
-// //             }
-// //             return d1;
-// //         });
-// //         this.setState({
-// //             displayData: newData
-// //         });
-// //     }
+//
 // //
-// //     backToMain() {
-// //         this.setState({
-// //             panel: "main"
-// //         });
-// //     }
-// //
-// //     create() {
-// //         let data = {panel: "create", createReferTableData: []};
-// //         if (this.props.createButtonCallback) {
-// //             let checkedData = this.state.displayData.filter(d => {
-// //                 return d.checkboxChecked;
-// //             });
-// //             if (checkedData.length != 0) {
-// //                 this.props.createButtonCallback(checkedData).then(d => {
-// //                     let defaultCreateValue = d.defaultData;
-// //                     if (d.hasOwnProperty("displayData")) {
-// //                         data.createReferTableData = d.displayData;
-// //                     }
-// //
-// //                     let ct = defaultCreateValue.concat();
-// //                     for (let i = 0; i < this.state.createLineNum; i++) {
-// //                         if (defaultCreateValue[i]) {
-// //                             this.state.columns.forEach(d1 => {
-// //                                 if (!defaultCreateValue[i].hasOwnProperty(d1.id)) {
-// //                                     ct[i][d1.id] = "";
-// //                                 }
-// //                             });
-// //                         } else {
-// //                             let row = {};
-// //                             this.state.columns.forEach(d1 => {
-// //                                 row[d1.id] = "";
-// //                             });
-// //                             ct.push(row);
-// //                         }
-// //                     }
-// //                     data.ct = ct;
-// //                     this.setState(data);
-// //                 }).catch(d => {
-// //                     this.setState(data);
-// //                 });
-// //             } else {
-// //                 this.setState(data);
-// //             }
-// //         } else {
-// //             this.setState(data);
-// //         }
-// //     }
-// //
-// //     createSubmit() {
-// //         let rows = this.state.ct.filter(d => {
-// //             let isEmpty = true;
-// //             for (let k in d) {
-// //                 if (d[k].trim() != "") {
-// //                     isEmpty = false;
-// //                     break;
-// //                 }
-// //             }
-// //             return !isEmpty;
-// //         });
-// //         if (rows.length == 0) {
-// //             alert("请至少填写一行数据");
-// //             return;
-// //         }
-// //         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
-// //             let data = {requestRowsLength: rows.length};
-// //             this.state.columns.forEach(d => {
-// //                 let v = rows.map(d1 => {
-// //                     return d1[d.id];
-// //                 });
-// //                 data[d.id] = v;
-// //             });
-// //             let tableId = this.props.tableId;
-// //             http.post("../table/" + tableId + "/create", data).then(d => {
-// //                 this.refresh();
-// //                 alert("提交成功");
-// //                 this.setState({panel: "main"});
-// //             }).catch(d => {
-// //                 alert("提交失败:" + d);
-// //             });
-// //         }
-// //     }
-// //
-// //     createTdChange(e, i, id) {
-// //         let ct = this.state.ct;
-// //         ct[i][id] = e.target.value;
-// //         this.setState({
-// //             ct: ct
-// //         });
-// //     }
-// //
-// //     update() {
-// //         let checkedData = this.state.displayData.filter(d => {
-// //             return d.checkboxChecked;
-// //         });
-// //         if (checkedData.length == 0) {
-// //             alert("请至少选择一行数据");
-// //             return;
-// //         }
-// //         let json = {
-// //             panel: "update",
-// //             ut: checkedData
-// //         };
-// //         checkedData.map((d, i) => {
-// //             for (let k in d) {
-// //                 json["ut" + i + "_" + k] = d[k];
-// //             }
-// //         });
-// //         this.setState(json);
-// //     }
-// //
-// //     updateSubmit() {
-// //         let rows = this.state.ut;
-// //         if (confirm("你确认要提交以下" + rows.length + "行数据吗?")) {
-// //             let data = {requestRowsLength: rows.length};
-// //             this.state.columns.forEach(d => {
-// //                 let v = [];
-// //                 for (let i = 0; i < rows.length; i++) {
-// //                     v.push(this.state["ut" + i + "_" + d.id]);
-// //                 }
-// //                 data[d.id] = v;
-// //             });
-// //             let tableId = this.props.tableId;
-// //             http.post("../table/" + tableId + "/update", data).then(d => {
-// //                 this.refresh();
-// //                 alert("提交成功");
-// //                 this.setState({panel: "main"});
-// //             }).catch(d => {
-// //                 alert("提交失败:" + d);
-// //             });
-// //         }
-// //     }
-// //
-// //     updateTdChange(e, i, id) {
-// //         let json = {};
-// //         json["ut" + i + "_" + id] = e.target.value;
-// //         this.setState(json);
-// //     }
-// //
-// //     delete() {
-// //         let checkedData = this.state.displayData.filter(d => {
-// //             return d.checkboxChecked;
-// //         });
-// //         if (checkedData.length == 0) {
-// //             alert("请至少选择一行数据");
-// //             return;
-// //         }
-// //         let data = {
-// //             id: checkedData.map(d => {
-// //                 return d.id;
-// //             })
-// //         };
-// //         if (confirm("确定要删除以下勾选的" + checkedData.length + "行数据吗?")) {
-// //             let tableId = this.props.tableId;
-// //             http.post("../table/" + tableId + "/delete", data).then(d => {
-// //                 this.refresh();
-// //                 alert("删除成功");
-// //             }).catch(d => {
-// //                 alert("删除失败:" + d);
-// //             });
-// //         }
-// //     }
-// //
-// //     attachment() {
-// //         let checkedData = this.state.displayData.filter(d => {
-// //             return d.checkboxChecked;
-// //         });
-// //         if (checkedData.length != 1) {
-// //             alert("请选择一行数据");
-// //             return;
-// //         }
-// //         let attachmentId = checkedData.map(d => {
-// //             return d.id;
-// //         })[0];
-// //         this.setState({
-// //             panel: "attachment",
-// //             attachmentId: attachmentId
-// //         });
-// //         this.refreshAttachment(attachmentId);
-// //     }
 // //
 // //     refreshAttachment(id) {
 // //         let tableId = this.props.tableId;
@@ -672,6 +466,7 @@ import "font-awesome-webpack";
 import Select from "karl-component-select";
 import Datepicker from "karl-component-datepicker";
 import Chart from "karl-component-chart";
+import Radio from "karl-component-radio";
 
 class table extends React.Component {
     constructor(props) {
@@ -687,7 +482,7 @@ class table extends React.Component {
             displayData: []
         };
 
-        let bindArr = ["setTable", "rowFilterCallback", "columnFilterCallback", "read"];
+        let bindArr = ["setTable", "rowFilterCallback", "columnFilterCallback", "read", "setConditionState", "setChart"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
@@ -697,8 +492,32 @@ class table extends React.Component {
     async componentWillMount() {
         try {
             let init = await this.request("init");
-            this.setState(init, ()=> {
-                this.read();
+            let initData = {
+                columns: init.columns,
+                curd: init.curd
+            };
+
+            //带有服务端筛选组件的初始数据
+            init.columns.filter(d=> {
+                return d.hasOwnProperty("queryCondition");
+            }).forEach(d=> {
+                if (d.type == "select") {
+                    let id = "serverFilter" + d.id;
+                    if (init.hasOwnProperty(id)) {
+                        initData[id] = init[id];
+                    }
+                }
+            });
+
+            //初始化图表
+            if (init.hasOwnProperty("chart")) {
+                initData.chart = init.chart;
+            }
+
+            this.setState(initData, ()=> {
+                if (init.hasOwnProperty("autoRead") && init.autoRead == false) {
+                    this.read();
+                }
             });
         } catch (e) {
             console.log("init table " + this.state.tableId + " failed:" + e);
@@ -749,11 +568,21 @@ class table extends React.Component {
     }
 
     setChart() {
-        if(!this.props.hasOwnProperty("chart")){
+        if (this.state.chart == undefined) {
             return "";
         }
         let dom = <div style={this.state.chart ? {} : {display: "none"}} className={css.chart}>
-
+            {
+                this.state.chart.map(d=> {
+                    let data = this.state.sourceData;
+                    data = data ? data : [];
+                    let yAxisText = d.hasOwnProperty("yAxisText") ? d.yAxisText : "";
+                    let chartSection = <div className={css.section}>
+                        <Chart type="bar" title={d.title} x={d.x} y={d.y} yAxisText={d.yAxisText} data={data}/>
+                    </div>;
+                    return chartSection;
+                })
+            }
         </div>;
         return dom;
     }
@@ -823,86 +652,104 @@ class table extends React.Component {
     }
 
     /**
-     * 设置表格查询条件的dom
+     * 设置表格服务端筛选的组件dom
      * @returns {*}
      */
     setQueryConditionDom() {
-        let arr = this.state.columns.filter(d=> {
+        let conditionArr = this.state.columns.filter(d=> {
             return d.queryCondition;
         });
-        if (arr.length == 0) {
+        if (conditionArr.length == 0) {
             return "";
         }
 
         let dom = <div className={css.condition}>
             {
-                arr.map(d=> {
+                conditionArr.map(d=> {
                     let condition;
+                    //设置条件筛选的默认日期
+                    let [add,startAdd,endAdd] = [0, -7, 0];
+                    if (d.type == "rangeMonth") {
+                        startAdd = -1;
+                    }
+                    if (d.type == "rangeSecond") {
+                        startAdd = -360;
+                    }
+                    if (d.hasOwnProperty("dateAdd")) {
+                        let dateAdd = d.dateAdd;
+                        add = dateAdd.hasOwnProperty("add") ? dateAdd.add : add;
+                        startAdd = dateAdd.hasOwnProperty("startAdd") ? dateAdd.startAdd : startAdd;
+                        endAdd = dateAdd.hasOwnProperty("endAdd") ? dateAdd.endAdd : endAdd;
+                    }
                     switch (d.type) {
-                        case "day":
+                        case "input":
                             condition = <div className={css.section}>
-                                <Datepicker callback={d1=> {
-                                    let json = {};
-                                    json[d.id + "Condition"] = d1;
-                                    this.setState(json, ()=> {
-                                        this.read();
-                                    });
+                                <input value={this.state[d.id + "Condition"]} onChange={e=> {
+                                    this.setConditionState(d.id + "Condition", e.target.value);
+                                }}/>
+                            </div>;
+                            break;
+                        case "radio":
+                            /*                            condition = <div>
+                             <Radio data={[]} defaultBlank={d.name} initCallback={d1=> {
+                             this.setConditionState(d.id + "Condition", d1);
+                             }} callback={d1=> {
+                             this.setConditionState(d.id + "Condition", d1);
+                             }}/>
+                             </div>;*/
+
+                            break;
+                        case "day":
+                        case "month":
+                        case "second":
+                            condition = <div className={css.section}>
+                                <Datepicker type={d.type} add={add} initCallback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
+                                }} callback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
                                 }}/>
                             </div>;
                             break;
                         case "rangeDay":
-                            condition = <div style={{display: "inline-block"}}>
-                                <div className={css.section}>
-                                    <Datepicker callback={d1=> {
-                                        let json = {};
-                                        json[d.id + "ConditionStart"] = d1;
-                                        this.setState(json, ()=> {
-                                            this.read();
-                                        });
-                                    }} add="-7"/>
-                                </div>
-                                <div className={css.section}>
-                                    <Datepicker callback={d1=> {
-                                        let json = {};
-                                        json[d.id + "ConditionEnd"] = d1;
-                                        this.setState(json, ()=> {
-                                            this.read();
-                                        });
-                                    }}/>
-                                </div>
-                            </div>;
-                            break;
-                        case "month":
-                            condition = <div className={css.section}>
-                                <Datepicker type="month" callback={d1=> {
-                                    let json = {};
-                                    json[d.id + "Condition"] = d1;
-                                    this.setState(json, ()=> {
-                                        this.read();
-                                    });
-                                }}/>
-                            </div>;
-                            break;
                         case "rangeMonth":
+                        case "rangeSecond":
+                            let type;
+                            switch (d.type) {
+                                case "rangeDay":
+                                    type = "day";
+                                    break;
+                                case "rangeMonth":
+                                    type = "month";
+                                    break;
+                                case "rangeSecond":
+                                    type = "second";
+                                    break;
+                            }
                             condition = <div style={{display: "inline-block"}}>
                                 <div className={css.section}>
-                                    <Datepicker add="-1" type="month" callback={d1=> {
-                                        let json = {};
-                                        json[d.id + "ConditionStart"] = d1;
-                                        this.setState(json, ()=> {
-                                            this.read();
-                                        });
+                                    <Datepicker type={type} add={startAdd} initCallback={d1=> {
+                                        this.setConditionState(d.id + "ConditionStart", d1);
+                                    }} callback={d1=> {
+                                        this.setConditionState(d.id + "ConditionStart", d1);
                                     }}/>
                                 </div>
                                 <div className={css.section}>
-                                    <Datepicker type="month" callback={d1=> {
-                                        let json = {};
-                                        json[d.id + "ConditionEnd"] = d1;
-                                        this.setState(json, ()=> {
-                                            this.read();
-                                        });
+                                    <Datepicker type={type} add={endAdd} initCallback={d1=> {
+                                        this.setConditionState(d.id + "ConditionEnd", d1);
+                                    }} callback={d1=> {
+                                        this.setConditionState(d.id + "ConditionEnd", d1);
                                     }}/>
                                 </div>
+                            </div>;
+                            break;
+                        case "select":
+                            let selectData = this.state.hasOwnProperty("serverFilter" + d.id) ? this.state["serverFilter" + d.id] : [];
+                            condition = <div className={css.section}>
+                                <Select data={selectData} text={d.name} initCallback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
+                                }} callback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
+                                }}/>
                             </div>;
                             break;
                     }
@@ -929,6 +776,7 @@ class table extends React.Component {
             this.setState({
                 loading: true
             });
+            //附加查询条件的数据
             let requestData = {};
             this.state.columns.filter(d=> {
                 return d.queryCondition;
@@ -936,10 +784,14 @@ class table extends React.Component {
                 switch (d.type) {
                     case "day":
                     case "month":
+                    case "select":
+                    case "input":
+                    case "radio":
                         requestData[d.id] = this.state[d.id + "Condition"];
                         break;
                     case "rangeDay":
                     case "rangeMonth":
+                    case "rangeSecond":
                         requestData[d.id] = {
                             start: this.state[d.id + "ConditionStart"],
                             end: this.state[d.id + "ConditionEnd"]
@@ -997,6 +849,20 @@ class table extends React.Component {
         this.setState({columns: columns});
     }
 
+    /**
+     * 设置筛选条件的状态
+     * @param id
+     * @param value
+     */
+    setConditionState(id, value, callback) {
+        let json = {};
+        json[id] = value;
+        this.setState(json, ()=> {
+            if (callback) {
+                callback();
+            }
+        });
+    }
 }
 
 module.exports = table;
