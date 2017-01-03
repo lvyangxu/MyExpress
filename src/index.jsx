@@ -477,6 +477,7 @@ class table extends React.Component {
             project: this.props.project,
             columns: [],
             sectionStyle: this.props.sectionStyle ? this.props.sectionStyle : {},
+            serverFilter: [],
             rowPerPage: 10,
             pageIndex: 1,
             displayData: []
@@ -491,31 +492,27 @@ class table extends React.Component {
 
     async componentWillMount() {
         try {
-            let init = await this.request("init");
+            let data = await this.request("init");
             let initData = {
-                columns: init.columns,
-                curd: init.curd
+                columns: data.columns,
+                curd: data.curd
             };
 
-            //带有服务端筛选组件的初始数据
-            init.columns.filter(d=> {
+            let serverFilter = data.columns.filter(d=> {
                 return d.hasOwnProperty("queryCondition");
-            }).forEach(d=> {
-                if (d.type == "select") {
-                    let id = "serverFilter" + d.id;
-                    if (init.hasOwnProperty(id)) {
-                        initData[id] = init[id];
-                    }
-                }
             });
+            if (data.hasOwnProperty("extraFilter")) {
+                serverFilter = serverFilter.concat(data.extraFilter);
+            }
+            initData.serverFilter = serverFilter;
 
             //初始化图表
-            if (init.hasOwnProperty("chart")) {
-                initData.chart = init.chart;
+            if (data.hasOwnProperty("chart")) {
+                initData.chart = data.chart;
             }
 
             this.setState(initData, ()=> {
-                if (init.hasOwnProperty("autoRead") && init.autoRead == false) {
+                if (data.hasOwnProperty("autoRead") && data.autoRead == false) {
                     this.read();
                 }
             });
@@ -656,16 +653,14 @@ class table extends React.Component {
      * @returns {*}
      */
     setQueryConditionDom() {
-        let conditionArr = this.state.columns.filter(d=> {
-            return d.queryCondition;
-        });
-        if (conditionArr.length == 0) {
+
+        if (this.state.serverFilter.length == 0) {
             return "";
         }
 
         let dom = <div className={css.condition}>
             {
-                conditionArr.map(d=> {
+                this.state.serverFilter.map(d=> {
                     let condition;
                     //设置条件筛选的默认日期
                     let [add,startAdd,endAdd] = [0, -7, 0];
@@ -684,20 +679,19 @@ class table extends React.Component {
                     switch (d.type) {
                         case "input":
                             condition = <div className={css.section}>
-                                <input value={this.state[d.id + "Condition"]} onChange={e=> {
+                                <input min="0" type="number" value={this.state[d.id + "Condition"]} onChange={e=> {
                                     this.setConditionState(d.id + "Condition", e.target.value);
                                 }}/>
                             </div>;
                             break;
                         case "radio":
-                            /*                            condition = <div>
-                             <Radio data={[]} defaultBlank={d.name} initCallback={d1=> {
-                             this.setConditionState(d.id + "Condition", d1);
-                             }} callback={d1=> {
-                             this.setConditionState(d.id + "Condition", d1);
-                             }}/>
-                             </div>;*/
-
+                            condition = <div className={css.section}>
+                                <Radio data={d.data} initCallback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
+                                }} callback={d1=> {
+                                    this.setConditionState(d.id + "Condition", d1);
+                                }}/>
+                            </div>;
                             break;
                         case "day":
                         case "month":
@@ -743,9 +737,8 @@ class table extends React.Component {
                             </div>;
                             break;
                         case "select":
-                            let selectData = this.state.hasOwnProperty("serverFilter" + d.id) ? this.state["serverFilter" + d.id] : [];
                             condition = <div className={css.section}>
-                                <Select data={selectData} text={d.name} initCallback={d1=> {
+                                <Select data={d.data} text={d.name} initCallback={d1=> {
                                     this.setConditionState(d.id + "Condition", d1);
                                 }} callback={d1=> {
                                     this.setConditionState(d.id + "Condition", d1);
@@ -778,9 +771,7 @@ class table extends React.Component {
             });
             //附加查询条件的数据
             let requestData = {};
-            this.state.columns.filter(d=> {
-                return d.queryCondition;
-            }).forEach(d=> {
+            this.state.serverFilter.forEach(d=> {
                 switch (d.type) {
                     case "day":
                     case "month":

@@ -4,16 +4,33 @@ let fs = require("fs");
 
 module.exports = {
     init: async(req, res, config) => {
+        //找出所有的服务端筛选条件
+        let serverFilter = config.columns.filter(d=> {
+            return d.queryCondition;
+        });
+        if (config.hasOwnProperty("extraFilter")) {
+            serverFilter = serverFilter.concat(config.extraFilter);
+        }
+
+        //设置最终要返回的数据
         let data = {
             columns: config.columns,
             curd: config.curd
         };
+
+        //设置额外的筛选条件
+        if (config.hasOwnProperty("extraFilter")) {
+            data.extraFilter = config.extraFilter;
+        }
+
+        //每一页显示的行数和图表
         ["rowPerPage", "chart"].forEach(d=> {
             if (config.hasOwnProperty(d)) {
                 data[d] = config[d];
             }
-        })
+        });
 
+        //根据所属的database获取对应的mysql对象
         let database, pool;
         if (config.hasOwnProperty("database")) {
             database = config.database;
@@ -25,10 +42,10 @@ module.exports = {
             pool = global.pool[0].pool;
         }
 
-        //如果筛选条件类型为多选，则将该字段所有点值一起返回
+        //获取所有initSql的字段,组合为1个promise数组进行查询
         let serverFilterInit = [];
-        config.columns.filter(d=> {
-            return d.queryCondition && d.hasOwnProperty("initSql");
+        serverFilter.filter(d=> {
+            return d.hasOwnProperty("initSql");
         }).forEach(d=> {
             let promise = global.mysql.excuteQuery({
                 pool: pool,
@@ -36,6 +53,7 @@ module.exports = {
             });
             serverFilterInit.push({id: d.id, promise: promise});
         });
+
         //去除initSql，避免客户端获取
         data.columns = data.columns.map(d=> {
             if (d.hasOwnProperty("initSql")) {
@@ -50,10 +68,36 @@ module.exports = {
             });
             let initData = await Promise.all(promiseArr);
             initData.forEach((d, i)=> {
+                //找出对应的column，将初始化的值附加到data属性中
                 let id = serverFilterInit[i].id;
-                data["serverFilter" + id] = d.map((d1, j)=> {
-                    return {id: j, name: d1[id], checked: false};
-                });
+                let attachData = (sourceData)=> {
+                    sourceData = sourceData.map(d1=> {
+                        if (d1.id == id) {
+                            let componentData = [];
+                            switch (d1.type) {
+                                case "select":
+                                    componentData = d.map((d2, j)=> {
+                                        return {id: j, name: d2[id], checked: false};
+                                    });
+                                    break;
+                                case "radio":
+                                    componentData = d.map(d2=> {
+                                        return d2[id];
+                                    })
+                                    break;
+                            }
+                            d1.data = componentData;
+                        }
+                        return d1;
+                    });
+                    return sourceData;
+                };
+
+                data.columns = attachData(data.columns);
+
+                if (data.hasOwnProperty("extraFilter")) {
+                    data.extraFilter = attachData(data.extraFilter)
+                }
             });
             response.success(res, data);
         } catch (e) {

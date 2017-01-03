@@ -36,9 +36,25 @@ ReactDom.render(<Nav sectionStyle={{padding: "50px"}} data={[
     {id: "retention", name: "留存", group: "用户分析", dom: <div></div>},
     {id: "ltv", name: "LTV", group: "用户分析", dom: <div></div>},
     {id: "level", name: "等级分布", group: "用户分析", dom: <div></div>},
-    {id: "diamond-range", name: "当前钻石持有排名", group: "快照查询", dom: <div></div>},
+    {
+        id: "diamond-range", name: "当前钻石持有排名", group: "快照查询",
+        dom: <div>
+            <Table project="G02DataAnalysis" tableId="diamond"/>
+        </div>
+    },
     {id: "role-total", name: "角色汇总表", group: "快照查询", dom: <div></div>},
     {id: "account-total", name: "账号汇总表", group: "快照查询", dom: <div></div>},
     {id: "device-total", name: "设备汇总表", group: "快照查询", dom: <div></div>},
-    {id: "charge-range", name: "当日充值排名", group: "排名相关", dom: <div></div>}
+    {
+        id: "charge-range", name: "当日充值排名", group: "排名相关",
+        dom: <div>
+            <Table project="G02DataAnalysis" tableId="chargeRank"/>
+        </div>
+    },
+    {
+        id: "device-charge-range", name: "当日充值排名(设备)", group: "排名相关",
+        dom: <div>
+            <Table project="G02DataAnalysis" tableId="deviceChargeRank"/>
+        </div>
+    }
 ]}/>, document.getElementById("display"));
