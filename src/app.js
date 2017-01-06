@@ -15,6 +15,8 @@ app.set('view engine', 'html');
 //static folder
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/", express.static(path.join(__dirname, "../../client")));
+//certbot https认证
+app.use("/.well-known", express.static(path.join(__dirname, "../../.well-known")));
 
 //log morgan for http request console
 let morgan = require('morgan');

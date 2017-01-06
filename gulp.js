@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var htmlmin = require('gulp-htmlmin');
 var del = require('del');
@@ -7,15 +6,14 @@ var sass = require('gulp-sass');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
-var webpack = require('webpack-stream');
+var webpack = require("webpack");
+var webpackStream = require('webpack-stream');
 var hash_src = require("gulp-hash-src");
 let xml = require("karl-xml");
 var fs = require('fs');
 var path = require('path');
 
 let project = process.argv[6].replace("--project=", "");
-
-// let project = "Review";
 
 let isProduction = false;
 let mysqlConfig = {
@@ -63,6 +61,10 @@ let accountConfig = {
         loginRedirect: "display"
     }
 };
+let portConfig = {
+    G02DataAnalysis: 3001
+};
+
 process.env.NODE_ENV = (isProduction) ? "production" : "development";
 if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
@@ -82,8 +84,17 @@ gulp.task("build", ["async-task", "sync-task"], () => {
  */
 gulp.task("async-task", () => {
     //app
-    gulp.src(["src/app.js", "src/bin/www"])
+    gulp.src("src/app.js")
         .pipe(gulp.dest("dist/" + project + "/server/js"));
+    if(isProduction && portConfig.hasOwnProperty(project)){
+        gulp.src("src/bin/www")
+            .pipe(replace(/3000/g, portConfig[project]))
+            .pipe(gulp.dest("dist/" + project + "/server/js"));
+    }else{
+        gulp.src("src/bin/www")
+            .pipe(gulp.dest("dist/" + project + "/server/js"));
+    }
+
     //init
     gulp.src(["src/Common/Init/*.js"])
         .pipe(gulp.dest("dist/" + project + "/server/js"));
@@ -240,11 +251,15 @@ gulp.task("concat-css", ["compile-scss"], ()=> {
  */
 gulp.task("compile-jsx", ["concat-css"], ()=> {
     let webpackConfig = require('./webpack.config.js');
+    if(isProduction){
+        //压缩
+        webpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin());
+    }
     let promiseArr = [];
     views.forEach(d=> {
         let promise = new Promise((resolve, reject)=> {
             gulp.src(clientPath + "/" + d + "/main.jsx")
-                .pipe(webpack(webpackConfig))
+                .pipe(webpackStream(webpackConfig))
                 .pipe(gulp.dest(clientPath + "/" + d))
                 .on("end", ()=> {
                     resolve();

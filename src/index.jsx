@@ -362,51 +362,7 @@
 // //         this.props[id + "TdCallback"](value);
 // //     }
 // //
-// //     sort(id) {
-// //         let sortDesc = this.state.sortDesc;
-// //         if (this.state.sortColumnId == id) {
-// //             sortDesc = !sortDesc;
-// //         }
-// //         let sortedData = this.state.displayData.concat();
-// //         let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
-// //         if (sortDesc) {
-// //             sortedData.sort((a, b) => {
-// //                 let va, vb;
-// //                 if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
-// //                     va = a[id];
-// //                     vb = b[id];
-// //                 } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
-// //                     va = parseFloat(a[id]);
-// //                     vb = parseFloat(b[id]);
-// //                 } else {
-// //                     va = (a[id] == null) ? "" : a[id];
-// //                     vb = (b[id] == null) ? "" : b[id];
-// //                 }
-// //                 return va > vb ? 1 : -1;
-// //             });
-// //         } else {
-// //             sortedData.sort((a, b) => {
-// //                 let va, vb;
-// //                 if (a[id] != null && b[id] != null && a[id].match(regex) != null && b[id].match(regex) != null) {
-// //                     va = a[id];
-// //                     vb = b[id];
-// //                 } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
-// //                     va = parseFloat(a[id]);
-// //                     vb = parseFloat(b[id]);
-// //                 } else {
-// //                     va = (a[id] == null) ? "" : a[id];
-// //                     vb = (b[id] == null) ? "" : b[id];
-// //                 }
-// //                 return va < vb ? 1 : -1;
-// //             });
-// //         }
-// //
-// //         this.setState({
-// //             sortColumnId: id,
-// //             sortDesc: sortDesc,
-// //             displayData: sortedData
-// //         });
-// //     }
+
 // /
 // //
 // //
@@ -480,7 +436,11 @@ class table extends React.Component {
             serverFilter: [],
             rowPerPage: 10,
             pageIndex: 1,
-            displayData: []
+            sourceData: [],
+            filterData: [],
+            displayData: [],
+            sortDesc: true,
+            sortColumnId: "",
         };
 
         let bindArr = ["setTable", "rowFilterCallback", "columnFilterCallback", "read", "setConditionState", "setChart"];
@@ -512,7 +472,7 @@ class table extends React.Component {
             }
 
             this.setState(initData, ()=> {
-                if (data.hasOwnProperty("autoRead") && data.autoRead == false) {
+                if (data.hasOwnProperty("autoRead") && data.autoRead == true) {
                     this.read();
                 }
             });
@@ -549,10 +509,13 @@ class table extends React.Component {
         return (
             <div style={this.state.sectionStyle} className={css.base + " react-table"}>
                 {
+                    this.setServerFilterDom()
+                }
+                {
                     this.setChart()
                 }
                 {
-                    this.setTop()
+                    this.setClientFilterDom()
                 }
                 {
                     this.setTable()
@@ -584,30 +547,6 @@ class table extends React.Component {
         return dom;
     }
 
-    setTop() {
-        let dom = <div className={css.top}>
-            <div>
-                <div className={css.section}>
-                    <Select data={this.state.columns} text="列过滤" callback={this.columnFilterCallback}
-                            optionNumPerColumn={5}/>
-                </div>
-                <div className={css.section}>
-                    <input className={css.rowFilter} onChange={this.rowFilterCallback} placeholder="行过滤"
-                           value={this.state.rowFilterValue}/>
-                </div>
-                <div className={css.section}>
-                    <button className={this.state.loading ? css.loading : ""} onClick={this.read}>
-                        <i className={this.state.loading ? (css.loading + " fa fa-refresh") : "fa fa-refresh"}></i>刷新
-                    </button>
-                </div>
-            </div>
-            {
-                this.setQueryConditionDom()
-            }
-        </div>;
-        return dom;
-    }
-
     setTable() {
         let dom = <div className={css.middle}>
             <table>
@@ -615,7 +554,16 @@ class table extends React.Component {
                 <tr>
                     {
                         this.state.columns.map(d=> {
-                            return <th style={d.checked ? {} : {display: "none"}}>{d.name}</th>;
+                            let th = <th style={d.checked ? {} : {display: "none"}} onClick={() => {
+                                this.sort(d.id);
+                            }}>{d.name}{
+                                (this.state.sortColumnId == d.id) ? (
+                                    this.state.sortDesc ?
+                                        <i className="fa fa-caret-up"></i> :
+                                        <i className="fa fa-caret-down"></i>
+                                ) : ""
+                            }</th>;
+                            return th;
                         })
                     }
                 </tr>
@@ -652,13 +600,8 @@ class table extends React.Component {
      * 设置表格服务端筛选的组件dom
      * @returns {*}
      */
-    setQueryConditionDom() {
-
-        if (this.state.serverFilter.length == 0) {
-            return "";
-        }
-
-        let dom = <div className={css.condition}>
+    setServerFilterDom() {
+        let dom = <div className={css.serverFilter}>
             {
                 this.state.serverFilter.map(d=> {
                     let condition;
@@ -679,9 +622,20 @@ class table extends React.Component {
                     switch (d.type) {
                         case "input":
                             condition = <div className={css.section}>
-                                <input min="0" type="number" value={this.state[d.id + "Condition"]} onChange={e=> {
-                                    this.setConditionState(d.id + "Condition", e.target.value);
-                                }}/>
+                                <input className={css.filter} placeholder={d.name}
+                                       value={this.state[d.id + "Condition"]}
+                                       onChange={e=> {
+                                           this.setConditionState(d.id + "Condition", e.target.value);
+                                       }}/>
+                            </div>;
+                            break;
+                        case "integer":
+                            condition = <div className={css.section}>
+                                <input className={css.filter} placeholder={d.name} min="0" type="number"
+                                       value={this.state[d.id + "Condition"]}
+                                       onChange={e=> {
+                                           this.setConditionState(d.id + "Condition", e.target.value);
+                                       }}/>
                             </div>;
                             break;
                         case "radio":
@@ -749,10 +703,58 @@ class table extends React.Component {
                     return condition;
                 })
             }
+            <div className={css.section}>
+                <button className={this.state.loading ? (css.loading + " " + css.filter) : css.filter}
+                        onClick={this.read}>
+                    <i className={this.state.loading ? (css.loading + " fa fa-refresh") : "fa fa-refresh"}></i>刷新
+                </button>
+            </div>
         </div>;
         return dom;
     }
 
+    /**
+     * 设置表格客户端筛选的组件dom
+     * @returns {*}
+     */
+    setClientFilterDom() {
+        let pageArr = [];
+        for (let i = 0; i < Math.ceil(this.state.filterData.length / this.state.rowPerPage); i++) {
+            pageArr.push(i + 1);
+        }
+        let dom = <div className={css.clientFilter}>
+            <div className={css.section}>
+                <Select data={this.state.columns} text="列过滤" callback={this.columnFilterCallback}
+                        optionNumPerColumn={5}/>
+            </div>
+            <div className={css.section}>
+                <input className={css.rowFilter} onChange={this.rowFilterCallback} placeholder="行过滤"
+                       value={this.state.rowFilterValue}/>
+            </div>
+            <div className={css.section}>
+                <select className={css.filter} value={this.state.pageValue} onChange={e=> {
+                    this.setState({pageIndex: e.target.value}, ()=> {
+                        let displayData = this.setDisplayData(this.state.filterData);
+                        this.setState({displayData: displayData});
+                    });
+                }}>
+                    {
+                        pageArr.map(d=> {
+                            return <option value={d}>{d}</option>
+                        })
+                    }
+                </select>
+                <label>共{pageArr.length}页</label>
+            </div>
+        </div>;
+        return dom;
+    }
+
+    /**
+     * 根据客户端过滤后的数据和当前页数计算当前页显示的数据
+     * @param filterData
+     * @returns {*}
+     */
     setDisplayData(filterData) {
         let start = (this.state.pageIndex - 1) * this.state.rowPerPage;
         let end = this.state.pageIndex * this.state.rowPerPage;
@@ -777,6 +779,7 @@ class table extends React.Component {
                     case "month":
                     case "select":
                     case "input":
+                    case "integer":
                     case "radio":
                         requestData[d.id] = this.state[d.id + "Condition"];
                         break;
@@ -852,6 +855,57 @@ class table extends React.Component {
             if (callback) {
                 callback();
             }
+        });
+    }
+
+    /**
+     * 根据列的值对行排序
+     * @param id
+     */
+    sort(id) {
+        let sortDesc = this.state.sortDesc;
+        if (this.state.sortColumnId == id) {
+            sortDesc = !sortDesc;
+        }
+        let sortedData = this.state.filterData.concat();
+        let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
+        if (sortDesc) {
+            sortedData.sort((a, b) => {
+                let va, vb;
+                if (a[id] != null && b[id] != null && a[id].toString().match(regex) != null && b[id].toString().match(regex) != null) {
+                    va = a[id];
+                    vb = b[id];
+                } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
+                    va = parseFloat(a[id]);
+                    vb = parseFloat(b[id]);
+                } else {
+                    va = (a[id] == null) ? "" : a[id];
+                    vb = (b[id] == null) ? "" : b[id];
+                }
+                return va > vb ? 1 : -1;
+            });
+        } else {
+            sortedData.sort((a, b) => {
+                let va, vb;
+                if (a[id] != null && b[id] != null && a[id].toString().match(regex) != null && b[id].toString().match(regex) != null) {
+                    va = a[id];
+                    vb = b[id];
+                } else if (!isNaN(parseFloat(a[id])) && !isNaN(parseFloat(b[id]))) {
+                    va = parseFloat(a[id]);
+                    vb = parseFloat(b[id]);
+                } else {
+                    va = (a[id] == null) ? "" : a[id];
+                    vb = (b[id] == null) ? "" : b[id];
+                }
+                return va < vb ? 1 : -1;
+            });
+        }
+
+        let displayData = this.setDisplayData(sortedData);
+        this.setState({
+            sortColumnId: id,
+            sortDesc: sortDesc,
+            displayData: displayData
         });
     }
 }

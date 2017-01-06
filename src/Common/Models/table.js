@@ -23,6 +23,11 @@ module.exports = {
             data.extraFilter = config.extraFilter;
         }
 
+        //是否在初始化时自动读取一次数据
+        if (config.hasOwnProperty("autoRead")) {
+            data.autoRead = config.autoRead;
+        }
+
         //每一页显示的行数和图表
         ["rowPerPage", "chart"].forEach(d=> {
             if (config.hasOwnProperty(d)) {
