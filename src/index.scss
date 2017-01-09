@@ -78,7 +78,7 @@
             display: inline-block;
             margin-right: 20px;
 
-            input[type=number].filter {
+            input[type=number].filter, input[type=text].filter {
                 padding-left: 10px;
                 padding-right: 10px;
                 height: 28px;

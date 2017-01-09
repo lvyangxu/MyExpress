@@ -18,16 +18,6 @@ import css from "./index.css";
 // </div>
 // },
 
-// {id: "charge-query", name: "充值流水", group: "日志查询", dom: <div></div>},
-// {id: "cost-query", name: "消耗流水", group: "日志查询", dom: <div></div>},
-
-// {id: "output-query", name: "产出流水", group: "日志查询", dom: <div></div>},
-
-
-// {id: "role-total", name: "角色汇总表", group: "快照查询", dom: <div></div>},
-// {id: "account-total", name: "账号汇总表", group: "快照查询", dom: <div></div>},
-// {id: "device-total", name: "设备汇总表", group: "快照查询", dom: <div></div>},
-
 ReactDom.render(
     <Nav sectionStyle={{padding: "50px"}} data={[
         {
@@ -37,9 +27,27 @@ ReactDom.render(
             </div>
         },
         {
+            id: "charge-query", name: "充值流水", group: "日志查询",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="charge"/>
+            </div>
+        },
+        {
+            id: "cost-query", name: "消耗流水", group: "日志查询",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="cost"/>
+            </div>
+        },
+        {
             id: "stamina-query", name: "体力购买流水", group: "日志查询",
             dom: <div>
                 <Table project="G02DataAnalysis" tableId="stamina"/>
+            </div>
+        },
+        {
+            id: "produce-query", name: "产出流水", group: "日志查询",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="produce"/>
             </div>
         },
         {
@@ -48,14 +56,42 @@ ReactDom.render(
                 <Table project="G02DataAnalysis" tableId="retentionAndLtv"/>
             </div>
         },
-        {id: "level", name: "等级分布", group: "用户分析", dom: <div></div>},
         {
-            id: "diamond-range", name: "当前钻石持有排名", group: "快照查询",
+            id: "level", name: "等级分布", group: "用户分析",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="level"/>
+            </div>
+        },
+        {
+            id: "vipLevel", name: "VIP等级分布", group: "用户分析",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="vipLevel"/>
+            </div>
+        },
+        {
+            id: "snap-diamond", name: "当前钻石持有排名", group: "快照查询",
             dom: <div>
                 <Table project="G02DataAnalysis" tableId="diamond"/>
             </div>
         },
+        {
+            id: "snap-role", name: "角色汇总表", group: "快照查询",
+            dom: <div>
+                <Table project="G02DataAnalysis" tableId="snapRole"/>
+            </div>
+        },
+        {
+            id: "snap-account", name: "账号汇总表", group: "快照查询",
+            dom: <div>
 
+            </div>
+        },
+        {
+            id: "snap-device", name: "设备汇总表", group: "快照查询",
+            dom: <div>
+
+            </div>
+        },
         {
             id: "charge-range", name: "当日充值排名", group: "排名相关",
             dom: <div>
@@ -67,7 +103,7 @@ ReactDom.render(
             dom: <div>
                 <Table project="G02DataAnalysis" tableId="deviceChargeRank"/>
             </div>
-        }
+        },
     ]}/>
     , document.getElementById("display"));
 

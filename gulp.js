@@ -33,9 +33,9 @@ let mysqlConfig = {
         database: "G02log"
     },
     G02DataAnalysis: {
-        host: ["localhost", "localhost", "localhost"],
-        user: ["root", "root", "root"],
-        password: ["root", "root", "root"],
+        host: ["localhost", "localhost", "localhost", "localhost"],
+        user: ["root", "root", "root", "root"],
+        password: ["root", "root", "root", "root"],
         database: ["log_nuclear", "raw", "res", "mid"]
     }
 };
@@ -70,8 +70,8 @@ if (isProduction) {
     mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
     mysqlConfig.G02log.password = "kMXWy16GHVXlsEhXtwKh";
-    mysqlConfig.G02DataAnalysis.user = ["nuclear", "nuclear", "nuclear"];
-    mysqlConfig.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan"];
+    mysqlConfig.G02DataAnalysis.user = ["nuclear", "nuclear", "nuclear", "nuclear"];
+    mysqlConfig.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan", "wozhinengkan"];
 }
 
 gulp.task("build", ["async-task", "sync-task"], () => {

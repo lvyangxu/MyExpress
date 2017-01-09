@@ -528,7 +528,7 @@ class table extends React.Component {
     }
 
     setChart() {
-        if (this.state.chart == undefined) {
+        if (this.state.chart == undefined || this.state.sourceData.length == 0) {
             return "";
         }
         let dom = <div style={this.state.chart ? {} : {display: "none"}} className={css.chart}>
@@ -538,7 +538,8 @@ class table extends React.Component {
                     data = data ? data : [];
                     let yAxisText = d.hasOwnProperty("yAxisText") ? d.yAxisText : "";
                     let chartSection = <div className={css.section}>
-                        <Chart type="bar" title={d.title} x={d.x} y={d.y} yAxisText={d.yAxisText} data={data}/>
+                        <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
+                               yAxisText={d.yAxisText} data={data}/>
                     </div>;
                     return chartSection;
                 })
@@ -578,6 +579,7 @@ class table extends React.Component {
                                     if (tdHtml) {
                                         tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
                                     }
+                                    tdHtml = d1.hasOwnProperty("suffix") ? (tdHtml + d1.suffix) : tdHtml;
                                     return <td key={j} style={d1.checked ? {} : {display: "none"}}
                                                dangerouslySetInnerHTML={{__html: tdHtml}}></td>
 
@@ -622,7 +624,7 @@ class table extends React.Component {
                     switch (d.type) {
                         case "input":
                             condition = <div className={css.section}>
-                                <input className={css.filter} placeholder={d.name}
+                                <input className={css.filter} placeholder={d.name} type="text"
                                        value={this.state[d.id + "Condition"]}
                                        onChange={e=> {
                                            this.setConditionState(d.id + "Condition", e.target.value);
@@ -640,7 +642,7 @@ class table extends React.Component {
                             break;
                         case "radio":
                             condition = <div className={css.section}>
-                                <Radio data={d.data} initCallback={d1=> {
+                                <Radio data={d.data} prefix={d.name + " : "} initCallback={d1=> {
                                     this.setConditionState(d.id + "Condition", d1);
                                 }} callback={d1=> {
                                     this.setConditionState(d.id + "Condition", d1);
