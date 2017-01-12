@@ -140,18 +140,26 @@ module.exports = (req) => {
         optionalInputStr: (field, param)=> {
             let str = "";
             if (req.body[param] != undefined && req.body[param] != "") {
-                str = ` ${field}=${req.body[param]} `;
+                str = ` ${field}="${req.body[param]}" `;
+            }
+            return str;
+        },
+        //前端输入框传入的模糊匹配值
+        optionalInputLikeStr: (field, param)=> {
+            let str = "";
+            if (req.body[param] != undefined && req.body[param] != "") {
+                str = ` ${field} like "%${req.body[param]}%" `;
             }
             return str;
         },
         //不等于固定的值
         notEqual: (field, value)=> {
-            let str = ` ${field}<>${value} `;
+            let str = ` ${field}<>"${value}" `;
             return str;
         },
         //等于固定的值
         equal: (field, value)=> {
-            let str = ` ${field}=${value} `;
+            let str = ` ${field}="${value}" `;
             return str;
         },
     };
@@ -239,7 +247,7 @@ module.exports = (req) => {
             ],
             chart: [
                 {
-                    title: "新增", x: "day", type: "bar",
+                    title: "新增", x: "day", type: "bar", group: ["server"],
                     y: [
                         {id: "role", name: "角色"},
                         {id: "deviceRole", name: "角色(设备排重)"},
@@ -250,14 +258,14 @@ module.exports = (req) => {
                     ]
                 },
                 {
-                    title: "在线人数", x: "day", type: "bar",
+                    title: "在线人数", x: "day", type: "bar", group: ["server"],
                     y: [
                         {id: "maxOnline", name: "最高"},
                         {id: "avgOnline", name: "平均"},
                     ]
                 },
                 {
-                    title: "活跃", x: "day", type: "bar",
+                    title: "活跃", x: "day", type: "bar", group: ["server"],
                     y: [
                         {id: "roleActivation", name: "角色数"},
                         {id: "accountActivation", name: "账号数"},
@@ -266,14 +274,14 @@ module.exports = (req) => {
                     ]
                 },
                 {
-                    title: "充值总额", x: "day", type: "bar",
+                    title: "充值总额", x: "day", type: "bar", group: ["server"],
                     y: [
                         {id: "totalCharge", name: "充值总额"},
                         {id: "newRoleTotalCharge", name: "新增玩家付费总额"},
                     ]
                 },
                 {
-                    title: "充值人数", x: "day", type: "bar",
+                    title: "充值人数", x: "day", type: "bar", group: ["server"],
                     y: [
                         {id: "chargeRoleNum", name: "付费用户"},
                         {id: "chargeNewRoleNum", name: "新增玩家付费用户"},
@@ -809,59 +817,93 @@ module.exports = (req) => {
             }
         },
         {
-            id: "snapRole",
-            database: "mid",
+            id: "snap",
+            database: "log_nuclear",
             curd: "r",
             columns: [
-                {id: "roleId", name: "角色id", checked: true, type: "integer", queryCondition: true},
-                {id: "account", name: "账号id", checked: true},
-                {id: "role", name: "角色名", checked: true, type: "input", queryCondition: true},
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverid as server from mid.js_distinct where serverid <> 0"
+                    initSql: "select distinct serverId as server from log_nuclear.player_info where serverid <> 0"
                 },
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "vipLevel", name: "vip等级", checked: true},
+                {id: "deviceId", name: "设备id", checked: true, type: "integer", queryCondition: true},
+                {id: "accountId", name: "账号id", checked: true, type: "integer", queryCondition: true},
+                {id: "roleId", name: "角色id", checked: true, type: "integer", queryCondition: true},
+                {id: "region", name: "区域", checked: true},
+                {id: "role", name: "角色名", checked: true, type: "input", queryCondition: true},
+                {id: "account", name: "账号", checked: true, type: "input", queryCondition: true},
+                {id: "deviceCreateDay", name: "设备创建日期", checked: true},
+                {id: "accountCreateDay", name: "账号创建日期", checked: true},
+                {id: "roleCreateDay", name: "角色创建日期", checked: true},
                 {id: "level", name: "角色等级", checked: true},
+                {id: "vipLevel", name: "vip等级", checked: true},
+                {id: "roleCreateTime", name: "角色创建时间", checked: true},
                 {id: "profession", name: "职业", checked: true},
-                {id: "totalCharge", name: "充值总额", checked: true},
-                {id: "lastChargeNum", name: "最后一次充值金额", checked: true},
-                {id: "lastChargeTime", name: "最后一次充值时间", checked: true},
-                {id: "totalDiamond", name: "钻石", checked: true},
-                {id: "totalGold", name: "金钻", checked: true},
-                {id: "totalSilver", name: "银币", checked: true},
-                {id: "totalCostDiamond", name: "钻石消耗总额", checked: true},
-                {id: "totalCostGold", name: "金钻消耗总额", checked: true},
-                {id: "totalCostSilver", name: "银币消耗总额", checked: true},
-                {id: "totalBuyStamina", name: "体力购买总额", checked: true},
-                {id: "loginTimes", name: "登录次数", checked: true},
+                {id: "roleIp", name: "角色ip", checked: true},
+                {id: "deviceSystem", name: "系统", checked: true},
+                {id: "roleKey", name: "角色pk", checked: true},
+                {id: "lastLoginDay", name: "最后登录日期", checked: true},
+                {id: "loginDays", name: "登录天数", checked: true},
                 {id: "onlineDuration", name: "在线时长", checked: true},
-                {id: "lastLoginDevice", name: "最后一次登录设备", checked: true},
-                {id: "createDevice", name: "创建设备", checked: true},
-                {id: "createIp", name: "创建IP", checked: true},
-                {id: "lastLoginTime", name: "最后一次登录时间", checked: true},
-                {id: "createTime", name: "创建时间", checked: true},
-                {id: "updateTime", name: "更新时间", checked: true},
+                {id: "loginTimes", name: "登录次数", checked: true},
+                {id: "goldAddNum", name: "金钻增量", checked: true},
+                {id: "goldAddTimes", name: "金钻增加次数", checked: true},
+                {id: "diamondAddNum", name: "钻石增量", checked: true},
+                {id: "diamondAddTimes", name: "钻石增加次数", checked: true},
+                {id: "silverAddNum", name: "银币增量", checked: true},
+                {id: "silverAddTimes", name: "银币增加次数", checked: true},
+                {id: "staminaAddNum", name: "体力增量", checked: true},
+                {id: "staminaAddTimes", name: "体力增加次数", checked: true},
+                {id: "goldCostNum", name: "金钻消耗数量", checked: true},
+                {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
+                {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
+                {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
+                {id: "silverCostNum", name: "银币消耗数量", checked: true},
+                {id: "silverCostTimes", name: "银币消耗次数", checked: true},
+                {id: "staminaCostNum", name: "体力消耗数量", checked: true},
+                {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
+                {id: "totalPay", name: "充值总额", checked: true},
+                {id: "firstPayDay", name: "首次充值日期", checked: true},
+                {id: "lastPayDay", name: "最近充值日期", checked: true},
+                {id: "payTimes", name: "充值次数", checked: true},
+                {id: "payDays", name: "充值天数", checked: true},
+            ],
+            extraFilter: [
+                {id: "roleQueryType", name: "角色名", type: "radio", data: ["精确匹配", "模糊查询"]}
             ],
             read: ()=> {
-                let whereStr = where([
-                    condition.optionalInputStr("js_id", "roleId"),
-                    condition.optionalInputStr("js_na", "role"),
+                let whereArr = [
+                    condition.optionalInputStr("imeiId", "deviceId"),
+                    condition.optionalInputStr("accountId", "accountId"),
+                    condition.optionalInputStr("roleId", "roleId"),
+                    condition.optionalInputStr("account", "account"),
                     condition.optionalSelectNum("serverid", "server"),
                     condition.notEqual("serverid", 0)
-                ]);
-                let sqlCommand = `select js_id as roleId,zh_id as account,js_na as role,serverid as server,channel,ptid as client,viplevel as vipLevel,level,
-                                    ocu as profession,charge_total as totalCharge,last_charge_total as lastChargeNum,last_charge_time as lastChargeTime,
-                                        zuansi_total as totalDiamond,jinzuan_total as totalGold,yinbi_total as totalSilver,zuansi_cost_total as totalCostDiamond,
-                                            jinzuan_cost_total as totalCostGold,yinbi_cost_total as totalCostSilver,tili_buy_total as totalBuyStamina,
-                                                login_num as loginTimes,on_time as onlineDuration,last_login_dv as lastLoginDevice,create_dv as createDevice,
-                                                    create_ip as createIp,last_login_time as lastLoginTime,create_time as createTime,update_time as updateTime
-                                                        from mid.js_distinct ${whereStr}`;
+                ];
+                if (req.body.roleQueryType == "精确匹配") {
+                    whereArr.push(condition.optionalInputStr("role_name", "role"));
+                } else {
+                    whereArr.push(condition.optionalInputLikeStr("role_name", "role"));
+                }
+                let whereStr = where(whereArr);
+                let limitStr = req.body.roleQueryType == "精确匹配" ? "" : "limit 100";
+                let orderStr = "order by totalPay desc";
+                let sqlCommand = `select imeiId as deviceId,accountId,roleId,serverId as server,region,role_name as role,account,imei_createDate as deviceCreateDay,
+                                    account_createDate as accountCreateDay,role_createDate as roleCreateDay,level,vipLevel,role_createTime as roleCreateTime,
+                                        js_ocu as profession,role_ip as roleIp,imei_os as deviceSystem,pk as roleKey,login_last as lastLoginDay,login_days as loginDays,
+                                            online_times as onlineDuration,login_counts as loginTimes,jinzuan_append as goldAddNum,jinzuan_append_count as goldAddTimes,
+                                                zuansi_append as diamondAddNum,zuansi_append_count as diamondAddTimes,yinbi_append as silverAddNum,
+                                                    yinbi_append_count as silverAddTimes,tili_append as staminaAddNum,tili_append_count as staminaAddTimes,
+                                                        jinzuan_cost as goldCostNum,jinzuan_cost_count as goldCostTimes,zuansi_cost as diamondCostNum,
+                                                            zuansi_cost_count as diamondCostTimes,yinbi_cost as silverCostNum,yinbi_cost_count as silverCostTimes,
+                                                                tili_cost as staminaCostNum,tili_cost_count as staminaCostTimes,pay_all as totalPay,
+                                                                    pay_first as firstPayDay,pay_last as lastPayDay,pay_count as payTimes,pay_days as payDays
+                                                                        from log_nuclear.player_info ${whereStr} ${orderStr} ${limitStr}`;
                 return sqlCommand;
             },
             readCheck: ()=> {
-                return check.optionalRegex("roleId", /^\d+$/) && check.optionalRegex("role", /^[^ ]+$/) && check.select("server");
+                return check.optionalRegex("deviceId", /^\d+$/) && check.optionalRegex("accountId", /^\d+$/) && check.optionalRegex("roleId", /^\d+$/)
+                    && check.optionalRegex("role", /^[^ ]+$/) && check.optionalRegex("account", /^[^ ]+$/)
+                    && check.regex("roleQueryType", /^(精确匹配|模糊查询)$/) && check.select("server");
             }
         },
     ];

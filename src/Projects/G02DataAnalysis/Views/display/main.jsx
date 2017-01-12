@@ -51,6 +51,12 @@ ReactDom.render(
             </div>
         },
         {
+            id: "log-query", name: "操作日志", group: "日志查询",
+            dom: <div>
+
+            </div>
+        },
+        {
             id: "retentionAndLtv", name: "留存和LTV", group: "用户分析",
             dom: <div>
                 <Table project="G02DataAnalysis" tableId="retentionAndLtv"/>
@@ -75,21 +81,9 @@ ReactDom.render(
             </div>
         },
         {
-            id: "snap-role", name: "角色汇总表", group: "快照查询",
+            id: "snap", name: "汇总表", group: "快照查询",
             dom: <div>
-                <Table project="G02DataAnalysis" tableId="snapRole"/>
-            </div>
-        },
-        {
-            id: "snap-account", name: "账号汇总表", group: "快照查询",
-            dom: <div>
-
-            </div>
-        },
-        {
-            id: "snap-device", name: "设备汇总表", group: "快照查询",
-            dom: <div>
-
+                <Table project="G02DataAnalysis" tableId="snap"/>
             </div>
         },
         {

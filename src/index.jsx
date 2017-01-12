@@ -538,8 +538,13 @@ class table extends React.Component {
                     data = data ? data : [];
                     let yAxisText = d.hasOwnProperty("yAxisText") ? d.yAxisText : "";
                     let chartSection = <div className={css.section}>
-                        <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
-                               yAxisText={d.yAxisText} data={data}/>
+                        {
+                            d.group ?
+                                <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
+                                       yAxisText={d.yAxisText} data={data} group={d.group}/> :
+                                <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
+                                       yAxisText={d.yAxisText} data={data}/>
+                        }
                     </div>;
                     return chartSection;
                 })
