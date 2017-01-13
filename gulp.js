@@ -15,7 +15,7 @@ var path = require('path');
 
 let project = process.argv[6].replace("--project=", "");
 
-let isProduction = true;
+let isProduction = false;
 let mysqlConfig = {
     Review: {
         user: "root",
@@ -39,6 +39,13 @@ let mysqlConfig = {
         database: ["log_nuclear", "raw", "res", "mid"]
     }
 };
+let mongodbConfig = {
+    G02DataAnalysis: {
+        host: ["localhost"],
+        port: [27017],
+        database: ["g02_log"]
+    }
+}
 let accountConfig = {
     Review: {
         username: "business",
@@ -86,14 +93,17 @@ gulp.task("async-task", () => {
     //app
     gulp.src("src/app.js")
         .pipe(gulp.dest("dist/" + project + "/server/js"));
-    if(isProduction && portConfig.hasOwnProperty(project)){
+    if (isProduction && portConfig.hasOwnProperty(project)) {
         gulp.src("src/bin/www")
             .pipe(replace(/3000/g, portConfig[project]))
             .pipe(gulp.dest("dist/" + project + "/server/js"));
-    }else{
+    } else {
         gulp.src("src/bin/www")
             .pipe(gulp.dest("dist/" + project + "/server/js"));
     }
+
+    //delete log
+    del(["dist/" + project + "/server/log/*"]);
 
     //init
     gulp.src(["src/Common/Init/*.js"])
@@ -108,6 +118,7 @@ gulp.task("async-task", () => {
     gulp.src([`src/Projects/${project}/Config/*`])
         .pipe(gulp.dest(`dist/${project}/server/config`));
 
+    //mysql.xml
     if (Array.isArray(mysqlConfig[project].user)) {
         let json = mysqlConfig[project];
         if (!json.hasOwnProperty("host")) {
@@ -118,8 +129,8 @@ gulp.task("async-task", () => {
             json.host = hostArr;
         }
 
-        let mysqlPath = "./dist/" + project + "/server/config/mysql.xml";
-        xml.write(json, mysqlPath);
+        let path = "./dist/" + project + "/server/config/mysql.xml";
+        xml.write(json, path);
     } else {
         //config
         let stream = gulp.src("src/Common/Config/mysql.xml");
@@ -134,6 +145,24 @@ gulp.task("async-task", () => {
         stream.pipe(gulp.dest("dist/" + project + "/server/config"));
     }
 
+    //mongodb.xml
+    if (Array.isArray(mongodbConfig[project].user)) {
+        let json = mongodbConfig[project];
+        let path = "./dist/" + project + "/server/config/mongodb.xml";
+        xml.write(json, mysqlPath);
+    } else {
+        //config
+        if (mongodbConfig.hasOwnProperty(project)) {
+            gulp.src("src/Common/Config/mongodb.xml")
+                .pipe(replace(/\{host}/g, mongodbConfig[project].host))
+                .pipe(replace(/\{port}/g, mongodbConfig[project].port))
+                .pipe(replace(/\{database}/g, mongodbConfig[project].database))
+                .pipe(gulp.dest("dist/" + project + "/server/config"));
+        }
+
+    }
+
+    //account.xml
     gulp.src("src/Common/Config/account.xml")
         .pipe(replace(/\{project}/g, project))
         .pipe(replace(/\{username}/g, accountConfig[project].username))
@@ -251,7 +280,7 @@ gulp.task("concat-css", ["compile-scss"], ()=> {
  */
 gulp.task("compile-jsx", ["concat-css"], ()=> {
     let webpackConfig = require('./webpack.config.js');
-    if(isProduction){
+    if (isProduction) {
         //压缩
         webpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin());
     }

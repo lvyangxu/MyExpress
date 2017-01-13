@@ -7,7 +7,13 @@ require("./dirInit");
 //log4js
 require("./logInit");
 
-//account and mysql config
-require("./configInit");
+//account
+require("./accountInit");
+
+//mysql
+require("./mysqlInit");
+
+//mongodb
+require("./mongodbInit");
 
 module.exports = "";

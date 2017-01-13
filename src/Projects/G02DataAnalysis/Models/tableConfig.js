@@ -218,14 +218,14 @@ module.exports = (req) => {
             curd: "r",
             autoRead: true,
             columns: [
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -1}},
+                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
                 {
                     id: "server",
                     name: "服务器",
                     checked: true,
                     type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverid as server from res.new_all where serverid <> 0"
+                    initSql: "select distinct serverid as server from res.new where serverid <> 0"
                 },
                 {id: "role", name: "新增角色", checked: true},
                 {id: "deviceRole", name: "新增角色(设备排重)", checked: true},
@@ -314,7 +314,7 @@ module.exports = (req) => {
                                     charge.chargeNewRoleNum as chargeNewRoleNum,charge.charge3DayRoleNum as charge3DayRoleNum
                     from
                         (((select serverid as server,date as day,sum(new_js) as role,sum(new_js_dv) as deviceRole,sum(new_zh) as account,sum(new_zh_dv) as deviceAcount,
-                            sum(new_dv_js) as activeRole,sum(new_dv) as active from res.new_all 
+                            sum(new_dv_js) as activeRole,sum(new_dv) as active from res.new
                                 ${whereStr1} ${groupStr}) as new
                     left join 
                          (select serverid as server,date as day,sum(day_active_js) as roleActivation,sum(day_active_zh) as accountActivation,
@@ -382,7 +382,7 @@ module.exports = (req) => {
                 whereStr = whereStr.replace(/status="正式充值"/, "status=\"1\"");
                 let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,money,
                                     amount as num,transtamp as arrivalTime,orderid as orderId,now_channel as chargeChannel,now_ptid as chargeClient,
-                                        status as chargeStatus,dv_id as device,time as second from raw.charge ${whereStr}`;
+                                        status as chargeStatus,dv_id as device,time as second from raw.charge ${whereStr} limit 5000`;
                 return sqlCommand;
             },
             readCheck: ()=> {
@@ -424,7 +424,7 @@ module.exports = (req) => {
                 ]);
                 let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,cost_key as costKey,
                                     jinzuan as gold,zuansi as diamond,yinbi as silver,jinzuan_total as leftGold,zuansi_total as leftDiamond,yinbi_total as leftSilver,
-                                        dv_id as device,time as second from raw.cost ${whereStr}`;
+                                        dv_id as device,time as second from raw.cost ${whereStr} limit 5000`;
                 return sqlCommand;
             },
             readCheck: ()=> {
@@ -467,7 +467,7 @@ module.exports = (req) => {
                 ]);
                 let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,jinzuan as gold,
                                     zuansi as diamond,yinbi as silver,jinzuan_total as leftGold,zuansi_total as leftDiamond,yinbi_total as leftSilver,
-                                        dv_id as device,time as second,sid,tili as stamina from raw.shouyi ${whereStr}`;
+                                        dv_id as device,time as second,sid,tili as stamina from raw.shouyi ${whereStr} limit 5000`;
                 return sqlCommand;
             },
             readCheck: ()=> {
@@ -502,7 +502,7 @@ module.exports = (req) => {
                     condition.notEqual("serverid", 0)
                 ]);
                 let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,tili_total as totalStamina,
-                                    tili as stamina,dv_id as device,time as second from raw.tili_buy ${whereStr}`;
+                                    tili as stamina,dv_id as device,time as second from raw.tili_buy ${whereStr} limit 5000`;
                 return sqlCommand;
             },
             readCheck: ()=> {
@@ -629,6 +629,7 @@ module.exports = (req) => {
                 {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true},
                 {id: "dnu", name: "DNU", checked: true},
                 {id: "retention1", name: "次日留存", checked: true, suffix: "%"},
+                {id: "retention2", name: "2日留存", checked: true, suffix: "%"},
                 {id: "retention3", name: "3日留存", checked: true, suffix: "%"},
                 {id: "retention7", name: "7日留存", checked: true, suffix: "%"},
                 {id: "retention14", name: "14日留存", checked: true, suffix: "%"},
@@ -637,6 +638,7 @@ module.exports = (req) => {
                 {id: "retention60", name: "60日留存", checked: true, suffix: "%"},
                 {id: "retention90", name: "90日留存", checked: true, suffix: "%"},
                 {id: "ltv1", name: "次日LTV", checked: true},
+                {id: "ltv2", name: "2日LTV", checked: true},
                 {id: "ltv3", name: "3日LTV", checked: true},
                 {id: "ltv7", name: "7日LTV", checked: true},
                 {id: "ltv14", name: "14日LTV", checked: true},
@@ -654,6 +656,7 @@ module.exports = (req) => {
                     title: "留存", x: "day", tipsSuffix: "%",
                     y: [
                         {id: "retention1", name: "次日留存"},
+                        {id: "retention2", name: "2日留存"},
                         {id: "retention3", name: "3日留存"},
                         {id: "retention7", name: "7日留存"},
                         {id: "retention14", name: "14日留存"},
@@ -667,6 +670,7 @@ module.exports = (req) => {
                     title: "LTV", x: "day",
                     y: [
                         {id: "ltv1", name: "次日LTV"},
+                        {id: "ltv2", name: "2日LTV"},
                         {id: "ltv3", name: "3日LTV"},
                         {id: "ltv7", name: "7日LTV"},
                         {id: "ltv14", name: "14日LTV"},
@@ -679,11 +683,6 @@ module.exports = (req) => {
                 },
             ],
             read: ()=> {
-                let whereArr = [
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0),
-                    condition.rangeDate("date", "day")
-                ];
                 let groupArr = ["server", "day"];
                 let dnuColumnStr, dayNumStr, dayColumnStr;
                 switch (req.body.type) {
@@ -706,22 +705,34 @@ module.exports = (req) => {
                         dayNumStr = "imei_tianshu";
                         break;
                 }
+                let whereArr = [
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0),
+                    condition.rangeDate(dayColumnStr, "day")
+                ];
                 let whereStr = where(whereArr);
                 let groupStr = group(groupArr);
+                let dnu = `count(case when ${dayNumStr} = 0 then ${dnuColumnStr} end)`;
                 let retention = (dayNum)=> {
-                    return `round(count(distinct case when ${dayNumStr} = ${dayNum} then ${dayNumStr} end)*100/count(${dnuColumnStr}),2) as retention${dayNum}`;
+                    let numerator = `count(distinct case when ${dayNumStr} = ${dayNum} then ${dayNumStr} end)`;
+                    let denominator = dnu;
+                    return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}*100/${denominator},2)) as retention${dayNum}`;
                 };
                 let ltv = (dayNum)=> {
+                    let numerator;
+                    let denominator = dnu;
                     if (dayNum == undefined) {
-                        return `round(sum(case when ${dayNumStr} >= 0 then pay end)/count(${dnuColumnStr}),2) as ltvAll`;
+                        numerator = `sum(case when ${dayNumStr} >= 0 then pay end)`;
+                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltvAll`;
                     } else {
-                        return `round(sum(case when ${dayNumStr} <= ${dayNum} then pay end)/count(${dnuColumnStr}),2) as ltv${dayNum}`;
+                        numerator = `sum(case when ${dayNumStr} <= ${dayNum} then pay end)`;
+                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltv${dayNum}`;
                     }
                 };
 
-                let sqlCommand = `select ${column.optionalSelect("serverId", "server")}${dayColumnStr} as day,count(${dnuColumnStr}) as dnu,${retention(1)},${retention(3)},${retention(7)},
-                                    ${retention(14)},${retention(30)},${retention(45)},${retention(60)},${retention(90)},${ltv(1)},${ltv(3)},${ltv(7)},${ltv(14)},
-                                        ${ltv(30)},${ltv(45)},${ltv(60)},${ltv(90)},${ltv()} 
+                let sqlCommand = `select ${column.optionalSelect("serverId", "server")}${dayColumnStr} as day,${dnu} as dnu,${retention(1)},${retention(2)},
+                                    ${retention(3)},${retention(7)},${retention(14)},${retention(30)},${retention(45)},${retention(60)},${retention(90)},
+                                        ${ltv(1)},${ltv(2)},${ltv(3)},${ltv(7)},${ltv(14)},${ltv(30)},${ltv(45)},${ltv(60)},${ltv(90)},${ltv()} 
                                             from log_nuclear.login_data 
                                                 ${whereStr} ${groupStr}`;
                 return sqlCommand;
@@ -843,7 +854,7 @@ module.exports = (req) => {
                 {id: "roleKey", name: "角色pk", checked: true},
                 {id: "lastLoginDay", name: "最后登录日期", checked: true},
                 {id: "loginDays", name: "登录天数", checked: true},
-                {id: "onlineDuration", name: "在线时长", checked: true},
+                {id: "onlineDuration", name: "在线时长(秒)", checked: true},
                 {id: "loginTimes", name: "登录次数", checked: true},
                 {id: "goldAddNum", name: "金钻增量", checked: true},
                 {id: "goldAddTimes", name: "金钻增加次数", checked: true},
@@ -907,29 +918,5 @@ module.exports = (req) => {
             }
         },
     ];
-}
-;
-
-// {
-//     id: "create_data",
-//         database: "log_nuclear",
-//     curd: "r",
-//     columns: [
-//     {id: "imeiId", name: "IMEI", checked: true, select: true},
-//     {id: "accountId", name: "账号id", checked: true, select: true},
-//     {id: "account", name: "账号", checked: true},
-//     {id: "roleId", name: "角色id", checked: true},
-//     {id: "os", name: "系统", checked: true},
-//     {id: "serverId", name: "服务器id", checked: true, select: true},
-//     {id: "role_name", name: "角色名", checked: true},
-//     {id: "role_createTime", name: "角色创建时间", checked: true},
-//     {id: "js_ocu", name: "角色OCU", checked: true},
-//     {id: "role_ip", name: "角色ip", checked: true},
-//     {id: "account_createDate", name: "账号创建日期", checked: true},
-//     {id: "imei_createDate", name: "IMEI创建日期", checked: true},
-//     {id: "imei_os", name: "IMEI系统", checked: true},
-//     {id: "region", name: "区域", checked: true, select: true},
-//     {id: "update", name: "更新时间", checked: true},
-// ]
-// }
+};
 

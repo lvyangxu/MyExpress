@@ -584,7 +584,10 @@ class table extends React.Component {
                                     if (tdHtml) {
                                         tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
                                     }
-                                    tdHtml = d1.hasOwnProperty("suffix") ? (tdHtml + d1.suffix) : tdHtml;
+                                    //当含有后缀并且不为空字符串时，附加后缀
+                                    if(d1.hasOwnProperty("suffix") && tdHtml != ""){
+                                        tdHtml += d1.suffix;
+                                    }
                                     return <td key={j} style={d1.checked ? {} : {display: "none"}}
                                                dangerouslySetInnerHTML={{__html: tdHtml}}></td>
 
@@ -712,7 +715,7 @@ class table extends React.Component {
             }
             <div className={css.section}>
                 <button className={this.state.loading ? (css.loading + " " + css.filter) : css.filter}
-                        onClick={this.read}>
+                        onClick={this.read} disabled={this.state.loading}>
                     <i className={this.state.loading ? (css.loading + " fa fa-refresh") : "fa fa-refresh"}></i>刷新
                 </button>
             </div>
