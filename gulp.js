@@ -69,7 +69,8 @@ let accountConfig = {
     }
 };
 let portConfig = {
-    G02DataAnalysis: 3001
+    G02DataAnalysis: 3001,
+    G02Error: 3002
 };
 
 process.env.NODE_ENV = (isProduction) ? "production" : "development";
@@ -119,56 +120,61 @@ gulp.task("async-task", () => {
         .pipe(gulp.dest(`dist/${project}/server/config`));
 
     //mysql.xml
-    if (Array.isArray(mysqlConfig[project].user)) {
-        let json = mysqlConfig[project];
-        if (!json.hasOwnProperty("host")) {
-            let hostArr = [];
-            for (let i = 0; i < json.user.length; i++) {
-                hostArr.push("localhost");
+    if (mysqlConfig.hasOwnProperty(project)) {
+        if (Array.isArray(mysqlConfig[project].user)) {
+            let json = mysqlConfig[project];
+            if (!json.hasOwnProperty("host")) {
+                let hostArr = [];
+                for (let i = 0; i < json.user.length; i++) {
+                    hostArr.push("localhost");
+                }
+                json.host = hostArr;
             }
-            json.host = hostArr;
-        }
 
-        let path = "./dist/" + project + "/server/config/mysql.xml";
-        xml.write(json, path);
-    } else {
-        //config
-        let stream = gulp.src("src/Common/Config/mysql.xml");
-        if (mysqlConfig[project].hasOwnProperty("host")) {
-            stream = stream.pipe(replace(/\{host}/g, mysqlConfig[project].host));
+            let path = "./dist/" + project + "/server/config/mysql.xml";
+            xml.write(json, path);
         } else {
-            stream = stream.pipe(replace(/\{host}/g, "localhost"));
+            //config
+            let stream = gulp.src("src/Common/Config/mysql.xml");
+            if (mysqlConfig[project].hasOwnProperty("host")) {
+                stream = stream.pipe(replace(/\{host}/g, mysqlConfig[project].host));
+            } else {
+                stream = stream.pipe(replace(/\{host}/g, "localhost"));
+            }
+            stream = stream.pipe(replace(/\{user}/g, mysqlConfig[project].user))
+                .pipe(replace(/\{password}/g, mysqlConfig[project].password))
+                .pipe(replace(/\{database}/g, mysqlConfig[project].database));
+            stream.pipe(gulp.dest("dist/" + project + "/server/config"));
         }
-        stream = stream.pipe(replace(/\{user}/g, mysqlConfig[project].user))
-            .pipe(replace(/\{password}/g, mysqlConfig[project].password))
-            .pipe(replace(/\{database}/g, mysqlConfig[project].database));
-        stream.pipe(gulp.dest("dist/" + project + "/server/config"));
     }
 
     //mongodb.xml
-    if (Array.isArray(mongodbConfig[project].user)) {
-        let json = mongodbConfig[project];
-        let path = "./dist/" + project + "/server/config/mongodb.xml";
-        xml.write(json, mysqlPath);
-    } else {
-        //config
-        if (mongodbConfig.hasOwnProperty(project)) {
-            gulp.src("src/Common/Config/mongodb.xml")
-                .pipe(replace(/\{host}/g, mongodbConfig[project].host))
-                .pipe(replace(/\{port}/g, mongodbConfig[project].port))
-                .pipe(replace(/\{database}/g, mongodbConfig[project].database))
-                .pipe(gulp.dest("dist/" + project + "/server/config"));
+    if (mongodbConfig.hasOwnProperty(project)) {
+        if (Array.isArray(mongodbConfig[project].host)) {
+            let json = mongodbConfig[project];
+            let path = "./dist/" + project + "/server/config/mongodb.xml";
+            xml.write(json, path);
+        } else {
+            //config
+            if (mongodbConfig.hasOwnProperty(project)) {
+                gulp.src("src/Common/Config/mongodb.xml")
+                    .pipe(replace(/\{host}/g, mongodbConfig[project].host))
+                    .pipe(replace(/\{port}/g, mongodbConfig[project].port))
+                    .pipe(replace(/\{database}/g, mongodbConfig[project].database))
+                    .pipe(gulp.dest("dist/" + project + "/server/config"));
+            }
         }
-
     }
 
     //account.xml
-    gulp.src("src/Common/Config/account.xml")
-        .pipe(replace(/\{project}/g, project))
-        .pipe(replace(/\{username}/g, accountConfig[project].username))
-        .pipe(replace(/\{password}/g, accountConfig[project].password))
-        .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
-        .pipe(gulp.dest("dist/" + project + "/server/config"));
+    if (accountConfig.hasOwnProperty(project)) {
+        gulp.src("src/Common/Config/account.xml")
+            .pipe(replace(/\{project}/g, project))
+            .pipe(replace(/\{username}/g, accountConfig[project].username))
+            .pipe(replace(/\{password}/g, accountConfig[project].password))
+            .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
+            .pipe(gulp.dest("dist/" + project + "/server/config"));
+    }
 
     //controller
     gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
@@ -187,6 +193,10 @@ gulp.task("async-task", () => {
     gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
+        .pipe(gulp.dest("dist/" + project + "/client"));
+
+    //image
+    gulp.src(["src/Common/Views/*/image/*", "src/Projects/" + project + "/Views/*/image/*"])
         .pipe(gulp.dest("dist/" + project + "/client"));
 });
 

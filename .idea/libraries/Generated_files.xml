@@ -13,7 +13,6 @@
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
         <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
         <item url="file://$PROJECT_DIR$/src/app.js" />
         <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
         <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
@@ -58,6 +57,7 @@
       <root url="file://$PROJECT_DIR$/src/Common/Views/login/main.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
+      <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
@@ -69,7 +69,6 @@
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
       <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
       <root url="file://$PROJECT_DIR$/src/app.js" />
       <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />

@@ -97,33 +97,7 @@
 // //                     this.setTop()
 // //                 }
 // //                 <div style={this.state.panel == "main" ? {} : {display: "none"}}>
-// //
-// //                     <div className="table-body">
-// //                         <table style={this.props.fillWidth == false ? {} : {width: "100%"}}>
-// //                             <thead>
-// //                             <tr>
-// //                                 <th className="checkbox"
-// //                                     style={this.state.curd.includes("d") ? {} : {display: "none"}}>
-// //                                     <input type="checkbox" checked={this.state.rowAllChecked} onChange={() => {
-// //                                         this.rowAllCheck();
-// //                                     }}/>
-// //                                 </th>
-// //                                 {
-// //                                     this.state.columns.map(d => {
-// //                                         return <th key={d.id} onClick={() => {
-// //                                             this.sort(d.id);
-// //                                         }} data-columnId={d.id} className={d.checked ? "" : "hide"}>{d.name}{
-// //                                             (this.state.sortColumnId == d.id) ? (
-// //                                                     this.state.sortDesc ?
-// //                                                         <i className="fa fa-caret-up"></i> :
-// //                                                         <i className="fa fa-caret-down"></i>
-// //                                                 ) : ""
-// //                                         }</th>
-// //                                     })
-// //                                 }
-// //                             </tr>
-// //                             </thead>
-// //                             <tbody>
+// /
 
 // //                             </tbody>
 // //                         </table>
@@ -141,36 +115,7 @@
 // //                         }}><i className="fa fa-plus"></i>提交
 // //                         </button>
 // //                     </div>
-// //                     <table>
-// //                         <thead>
-// //                         <tr>
-// //                             {
-// //                                 this.state.columns.filter(d => {
-// //                                     let filter = (d.id == "id");
-// //                                     return !filter;
-// //                                 }).map(d => {
-// //                                     return <th key={d.id}>{d.name}</th>;
-// //                                 })
-// //                             }
-// //                         </tr>
-// //                         </thead>
-// //                         <tbody>
-// //                         {
-// //                             this.state.createReferTableData.map((d, i) => {
-// //                                 return <tr key={i}>
-// //                                     {
-// //                                         this.state.columns.filter(d1 => {
-// //                                             let filter = (d1.id == "id");
-// //                                             return !filter;
-// //                                         }).map(d1 => {
-// //                                             let td = <td data-columnId={d1.id} key={d1.id}
-// //                                                          dangerouslySetInnerHTML={{__html: d[d1.id].toString().replace(/\n/g, "<br/>")}}></td>;
-// //                                             return td;
-// //                                         })
-// //                                     }
-// //                                 </tr>
-// //                             })
-// //                         }
+
 // //                         {
 // //                             this.state.ct.map((d, i) => {
 // //                                 return <tr key={i}>
@@ -227,31 +172,7 @@
 // //                         <button onClick={(e) => {
 // //                             this.uploadAttachment(e);
 // //                         }}>上传附件
-// //                         </button>
-// //                     </div>
-// //                     <table>
-// //                         <thead>
-// //                         <tr>
-// //                             <th>附件名称</th>
-// //                             <th>删除</th>
-// //                         </tr>
-// //                         </thead>
-// //                         <tbody>
-// //                         {
-// //                             (this.state.attachmentList.length == 0) ?
-// //                                 <tr>
-// //                                     <td colSpan="2">no attachment</td>
-// //                                 </tr> :
-// //                                 this.state.attachmentList.map(d => {
-// //                                     return <tr key={d}>
-// //                                         <td>{d}</td>
-// //                                         <td><i className="fa fa-times" onClick={() => {
-// //                                             this.deleteAttachment(d);
-// //                                         }}></i></td>
-// //                                     </tr>
-// //                                 })
-// //                         }
-// //                         </tbody>
+
 // //                     </table>
 // //                 </div>
 // //                 {
@@ -428,15 +349,17 @@ class table extends React.Component {
     constructor(props) {
         super(props);
 
+        //数据顺序为 sourceData > filterData > sortedData > displayData
         this.state = {
             tableId: this.props.tableId,
             project: this.props.project,
             columns: [],
             sectionStyle: this.props.sectionStyle ? this.props.sectionStyle : {},
             serverFilter: [],
-            rowPerPage: 10,
+            rowPerPage: this.props.rowPerPage ? this.props.rowPerPage : 10,
             pageIndex: 1,
             sourceData: [],
+            sortedData: [],
             filterData: [],
             displayData: [],
             sortDesc: true,
@@ -469,6 +392,9 @@ class table extends React.Component {
             //初始化图表
             if (data.hasOwnProperty("chart")) {
                 initData.chart = data.chart;
+            }
+            if (data.hasOwnProperty("rowPerPage")) {
+                initData.rowPerPage = data.rowPerPage;
             }
 
             this.setState(initData, ()=> {
@@ -560,8 +486,14 @@ class table extends React.Component {
                 <tr>
                     {
                         this.state.columns.map(d=> {
-                            let th = <th style={d.checked ? {} : {display: "none"}} onClick={() => {
-                                this.sort(d.id);
+                            let style = d.hasOwnProperty("thStyle") ? d.thStyle : {};
+                            if (d.hasOwnProperty("checked") && d.checked == false) {
+                                style.display = "none";
+                            }
+                            let th = <th style={style} onClick={() => {
+                                let json = this.sort(d.id);
+                                json.displayData = this.setDisplayData(json.sortedData);
+                                this.setState(json);
                             }}>{d.name}{
                                 (this.state.sortColumnId == d.id) ? (
                                     this.state.sortDesc ?
@@ -585,10 +517,14 @@ class table extends React.Component {
                                         tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
                                     }
                                     //当含有后缀并且不为空字符串时，附加后缀
-                                    if(d1.hasOwnProperty("suffix") && tdHtml != ""){
+                                    if (d1.hasOwnProperty("suffix") && tdHtml != "") {
                                         tdHtml += d1.suffix;
                                     }
-                                    return <td key={j} style={d1.checked ? {} : {display: "none"}}
+                                    let style = d1.hasOwnProperty("tdStyle") ? d1.tdStyle : {};
+                                    if (d1.hasOwnProperty("checked") && d1.checked == false) {
+                                        style.display = "none";
+                                    }
+                                    return <td key={j} style={style}
                                                dangerouslySetInnerHTML={{__html: tdHtml}}></td>
 
                                 })
@@ -742,10 +678,11 @@ class table extends React.Component {
                        value={this.state.rowFilterValue}/>
             </div>
             <div className={css.section}>
-                <select className={css.filter} value={this.state.pageValue} onChange={e=> {
+                <select className={css.filter} value={this.state.pageIndex} onChange={e=> {
                     this.setState({pageIndex: e.target.value}, ()=> {
-                        let displayData = this.setDisplayData(this.state.filterData);
-                        this.setState({displayData: displayData});
+                        let json = this.sort();
+                        json.displayData = this.setDisplayData(json.sortedData);
+                        this.setState(json);
                     });
                 }}>
                     {
@@ -756,20 +693,35 @@ class table extends React.Component {
                 </select>
                 <label>共{pageArr.length}页</label>
             </div>
+            <div className={css.section}>
+                <Radio prefix="每页" value={this.state.rowPerPage} suffix="行" data={[5, 10, 15, 20, 25, 50, 100]}
+                       callback={d=> {
+                           this.setState({
+                               pageIndex: 1,
+                               rowPerPage: d
+                           }, ()=> {
+                               let json = this.sort();
+                               json.displayData = this.setDisplayData(this.state.sortedData);
+                               this.setState(json);
+                           });
+
+
+                       }}/>
+            </div>
         </div>;
         return dom;
     }
 
     /**
      * 根据客户端过滤后的数据和当前页数计算当前页显示的数据
-     * @param filterData
+     * @param sortedData
      * @returns {*}
      */
-    setDisplayData(filterData) {
+    setDisplayData(sortedData) {
         let start = (this.state.pageIndex - 1) * this.state.rowPerPage;
         let end = this.state.pageIndex * this.state.rowPerPage;
-        end = Math.min(end, filterData.length);
-        let displayData = filterData.slice(start, end);
+        end = Math.min(end, sortedData.length);
+        let displayData = sortedData.slice(start, end);
         return displayData;
     }
 
@@ -803,15 +755,22 @@ class table extends React.Component {
                         break;
                 }
             });
-            let data = await this.request("read", requestData);
+            let message = await this.request("read", requestData);
+            let data = message.data;
             let displayData = this.setDisplayData(data);
-            this.setState({
+            let json = {
                 loading: false,
                 sourceData: data,
+                sortedData: data,
                 filterData: data,
                 displayData: displayData,
+                sortColumnId: "",
                 rowFilterValue: ""
-            });
+            };
+            if (message.hasOwnProperty("columns")) {
+                json.columns = message.columns;
+            }
+            this.setState(json);
 
         } catch (e) {
             this.setState({
@@ -837,11 +796,18 @@ class table extends React.Component {
             }
             return isFind;
         });
-        let displayData = this.setDisplayData(filterData);
+        let json = this.sort();
         this.setState({
+            pageIndex: 1,
             filterData: filterData,
-            displayData: displayData,
             rowFilterValue: matchValue
+        }, ()=> {
+            let json1 = this.sort();
+            for (let k in json1) {
+                json[k] = json1[k];
+            }
+            json.displayData = this.setDisplayData(json.sortedData);
+            this.setState(json);
         });
     }
 
@@ -874,9 +840,14 @@ class table extends React.Component {
      */
     sort(id) {
         let sortDesc = this.state.sortDesc;
-        if (this.state.sortColumnId == id) {
-            sortDesc = !sortDesc;
+        if (id == undefined) {
+            id = this.state.sortColumnId;
+        } else {
+            if (this.state.sortColumnId == id) {
+                sortDesc = !sortDesc;
+            }
         }
+
         let sortedData = this.state.filterData.concat();
         let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
         if (sortDesc) {
@@ -910,13 +881,11 @@ class table extends React.Component {
                 return va < vb ? 1 : -1;
             });
         }
-
-        let displayData = this.setDisplayData(sortedData);
-        this.setState({
+        return {
             sortColumnId: id,
             sortDesc: sortDesc,
-            displayData: displayData
-        });
+            sortedData: sortedData,
+        };
     }
 }
 

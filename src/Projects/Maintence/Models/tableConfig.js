@@ -1,19 +1,37 @@
 /**
  * json含义
  * id:客户端请求的表名，唯一标识
- * database:表所属数据库,默认为global.pool变量中的第一个,单一数据库使用默认值
+ * type:数据库类型mysql/mongodb，未定义时默认为mysql
+ * database:表所属数据库,默认为global.mysqlObject变量中的第一个,单一数据库使用默认值
  * curd:表格需要展示的增删查改操作
+ * autoRead:加载时是否自动执行一次读取,默认不读取,只有在为true时执行
+ * rowPerPage:每一页显示的table数据行数,默认为10
  * columns:前端所需的列及其属性，
  *          id:列id，
  *          name:列显示名称，
  *          checked:是否默认显示
- *          select:是否作为过滤条件
- *          type:表格创建和修改时显示的类型，可为input,textarea,radio，默认为input
- *          radioArr:所有单选值的数组，仅在type为radio有效
+ *          clientFilter:是否作为客户端筛选条件
+ *          type:表格创建和修改时显示的类型，可为input,textarea,radio,select,day,month,week,rangeDay,rangeMonth,rangeWeek，默认为input
+ *          queryCondition;是否作为服务端查询筛选条件
+ *          initSql:该筛选组件初始化数据的sql
+ *          data:该筛选组件初始化数据的数组
+ *          radioArr:所有单选值的数组，仅在type为radio有效,
+ *          dateAdd：筛选条件为日期类型时，默认的日期偏移量，默认为{add:0,startAdd:-7(日)或-1(月),endAdd:0}
+ *          suffix：table中td显示的后缀文字
+ * chart:图表数组
+ *          title:标题
+ *          x:x轴坐标id
+ *          y:y轴坐标json，如{id: "aa", name: "bb"}
+ *          yAxisText:y轴坐标单位
+ *          type:图表类型，默认为curve
+ *          tipsSuffix:tips后缀
+ * extraFilter:额外的查询条件
  * create:表格创建默认json值，如果某个键的值为undefined，表示sql语句中忽略该键值对
  * update:表格更新默认json值，如果某个键的值为undefined，表示sql语句中忽略该键值对
  * read:表格查询语句
+ * readCheck:表格查询前的参数检查
  * readValue:表格查询默认json值，匹配read值中的？
+ * readMap:从数据库读取后对数据进行处理
  * @param req express中的req对象
  * @returns {*[]} 返回json数组
  */

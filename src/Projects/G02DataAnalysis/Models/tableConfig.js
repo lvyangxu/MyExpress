@@ -1,7 +1,11 @@
 /**
  * json含义
  * id:客户端请求的表名，唯一标识
- * database:表所属数据库,默认为global.pool变量中的第一个,单一数据库使用默认值
+ * type:数据库类型mysql/mongodb，未定义时默认为mysql
+ * dynamicColumn:动态列
+ * limitNum:mongo查询的最大返回行
+ * sort:mongo查询的排序字段json
+ * database:表所属数据库,默认为global.mysqlObject变量中的第一个,单一数据库使用默认值
  * curd:表格需要展示的增删查改操作
  * autoRead:加载时是否自动执行一次读取,默认不读取,只有在为true时执行
  * rowPerPage:每一页显示的table数据行数,默认为10
@@ -9,14 +13,16 @@
  *          id:列id，
  *          name:列显示名称，
  *          checked:是否默认显示
- *          select:是否作为客户端筛选条件
+ *          clientFilter:是否作为客户端筛选条件
  *          type:表格创建和修改时显示的类型，可为input,textarea,radio,select,day,month,week,rangeDay,rangeMonth,rangeWeek，默认为input
  *          queryCondition;是否作为服务端查询筛选条件
- *          initSql:该筛选组件初始化数据的sql
- *          data:该筛选组件初始化数据的数组
+ *          data:该筛选组件初始化数据的数组，函数或固定值，为函数时参数为pool
+ *          dataMap:对data初始化的值进行处理
  *          radioArr:所有单选值的数组，仅在type为radio有效,
  *          dateAdd：筛选条件为日期类型时，默认的日期偏移量，默认为{add:0,startAdd:-7(日)或-1(月),endAdd:0}
  *          suffix：table中td显示的后缀文字
+ *          thStyle:默认css样式
+ *          tdStyle:默认td的样式
  * chart:图表数组
  *          title:标题
  *          x:x轴坐标id
@@ -30,6 +36,7 @@
  * read:表格查询语句
  * readCheck:表格查询前的参数检查
  * readValue:表格查询默认json值，匹配read值中的？
+ * readMap:从数据库读取后对数据进行处理
  * @param req express中的req对象
  * @returns {*[]} 返回json数组
  */
@@ -211,6 +218,14 @@ module.exports = (req) => {
         },
     };
 
+    //通过mysql数据库,初始化服务端筛选控件的数据
+    let initMysqlServerFilter = (pool, sqlCommand)=> {
+        return global.mysql.excuteQuery({
+            pool: pool,
+            sqlCommand: sqlCommand
+        });
+    };
+
     return [
         {
             id: "daily",
@@ -225,7 +240,10 @@ module.exports = (req) => {
                     checked: true,
                     type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverid as server from res.new where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from res.new where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "role", name: "新增角色", checked: true},
                 {id: "deviceRole", name: "新增角色(设备排重)", checked: true},
@@ -347,7 +365,10 @@ module.exports = (req) => {
                 {id: "account", name: "账号id", checked: true},
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverid as server from raw.charge where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from raw.charge where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -399,7 +420,10 @@ module.exports = (req) => {
                 {id: "account", name: "账号id", checked: true},
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverid as server from raw.cost where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from raw.cost where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -440,7 +464,10 @@ module.exports = (req) => {
                 {id: "account", name: "账号id", checked: true},
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverid as server from raw.shouyi where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from raw.shouyi where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -483,7 +510,10 @@ module.exports = (req) => {
                 {id: "account", name: "账号id", checked: true},
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverid as server from raw.tili_buy where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from raw.tili_buy where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -517,7 +547,10 @@ module.exports = (req) => {
                 {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverid as server from res.rank where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from res.rank where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -563,7 +596,10 @@ module.exports = (req) => {
                 {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverid as server from res.rank_charge where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from res.rank_charge where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
@@ -624,7 +660,10 @@ module.exports = (req) => {
                 {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverId as server from log_nuclear.login_data where serverId <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.login_data where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true},
                 {id: "dnu", name: "DNU", checked: true},
@@ -714,7 +753,7 @@ module.exports = (req) => {
                 let groupStr = group(groupArr);
                 let dnu = `count(case when ${dayNumStr} = 0 then ${dnuColumnStr} end)`;
                 let retention = (dayNum)=> {
-                    let numerator = `count(distinct case when ${dayNumStr} = ${dayNum} then ${dayNumStr} end)`;
+                    let numerator = `count(distinct case when ${dayNumStr} = ${dayNum} then ${dnuColumnStr} end)`;
                     let denominator = dnu;
                     return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}*100/${denominator},2)) as retention${dayNum}`;
                 };
@@ -749,7 +788,10 @@ module.exports = (req) => {
                 {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverId as server from res.level_ds where serverId <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from res.level_ds where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
                 {id: "channel", name: "渠道id", checked: true},
@@ -792,7 +834,10 @@ module.exports = (req) => {
                 {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     queryCondition: true,
-                    initSql: "select distinct serverId as server from res.vip_ds where serverId <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from res.vip_ds where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
                 {id: "channel", name: "渠道id", checked: true},
@@ -834,7 +879,10 @@ module.exports = (req) => {
             columns: [
                 {
                     id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    initSql: "select distinct serverId as server from log_nuclear.player_info where serverid <> 0"
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.player_info where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
                 },
                 {id: "deviceId", name: "设备id", checked: true, type: "integer", queryCondition: true},
                 {id: "accountId", name: "账号id", checked: true, type: "integer", queryCondition: true},
@@ -915,6 +963,308 @@ module.exports = (req) => {
                 return check.optionalRegex("deviceId", /^\d+$/) && check.optionalRegex("accountId", /^\d+$/) && check.optionalRegex("roleId", /^\d+$/)
                     && check.optionalRegex("role", /^[^ ]+$/) && check.optionalRegex("account", /^[^ ]+$/)
                     && check.regex("roleQueryType", /^(精确匹配|模糊查询)$/) && check.select("server");
+            }
+        },
+        {
+            id: "action",
+            type: "mongodb",
+            database: "g02_log",
+            collection: ()=> {
+                return req.body.server;
+            },
+            curd: "r",
+            rowPerPage: 100,
+            dynamicColumn: [
+                {id: "addbullet", name: "获得狩猎场子弹", checked: true},
+                {id: "shuiguo11", name: "顶水果11", checked: true},
+                {id: "shuiguo15", name: "顶水果15", checked: true},
+                {id: "shuiguo17", name: "顶水果17", checked: true},
+                {id: "shuiguo7", name: "顶水果7", checked: true},
+                {id: "shuiguo9", name: "顶水果9", checked: true},
+                {id: "shuiguo13", name: "顶水果13", checked: true},
+                {id: "shuiguo3", name: "顶水果3", checked: true},
+                {id: "shuiguo4", name: "顶水果4", checked: true},
+                {id: "shuiguo1", name: "顶水果1", checked: true},
+                {id: "shuiguo5", name: "顶水果5", checked: true},
+                {id: "shuiguo", name: "顶水果", checked: true},
+                {id: "shuiguo2", name: "顶水果2", checked: true},
+                {id: "clubwilldestory", name: "军团解散倒计时开始", checked: true},
+                {id: "destorystarttime", name: "军团解散倒计时开始的时间", checked: true},
+                {id: "buyer", name: "拍卖行-买家记录", checked: true},
+                {id: "buyer_name", name: "拍卖行-买家名字记录", checked: true},
+                {id: "end_time", name: "下架时间", checked: true},
+                {id: "paimaiPrice", name: "拍卖行-价格", checked: true},
+                {id: "paimaiSID", name: "拍卖行-物品sid", checked: true},
+                {id: "paimaiUID", name: "拍卖行-物品uid", checked: true},
+                {id: "price", name: "拍卖行-价格", checked: true},
+                {id: "seller", name: "拍卖行-卖家记录", checked: true},
+                {id: "seller_name", name: "拍卖行-卖家记录", checked: true},
+                {id: "start_time", name: "上架时间", checked: true},
+                {id: "jinzuancost", name: "非绑钻消费", checked: true},
+                {id: "AchiveEnum", name: "活动-规则类型", checked: true},
+                {id: "Description", name: "活动-规则描述", checked: true},
+                {id: "rule_id", name: "活动-活动规则", checked: true},
+                {id: "newExtraExp", name: "新的额外经验加成数量%", checked: true},
+                {id: "newExtraGold", name: "新的额外金币加成数量%", checked: true},
+                {id: "oldExtraExp", name: "旧的额外经验加成数量%", checked: true},
+                {id: "oldExtraGold", name: "旧的额外金币加成数量%", checked: true},
+                {id: "jinzuan", name: "非绑钻获得", checked: true},
+                {id: "jinzuan_total", name: "非绑钻总数", checked: true},
+                {id: "flv", name: "试炼神殿-对应func的当前等级", checked: true},
+                {id: "func", name: "试炼神殿-功能ID", checked: true},
+                {id: "todaylootnumber", name: "跨服资源争夺-今天的掠夺次数", checked: true},
+                {id: "buynum", name: "购买次数", checked: true},
+                {id: "jtPk", name: "军团pk", checked: true},
+                {id: "yaoqian_yaoshi", name: "摇钱树-钥匙", checked: true},
+                {id: "yaoqian_yaoshi_total", name: "摇钱树-钥匙总数", checked: true},
+                {id: "jyfd", name: "精英副本", checked: true},
+                {id: "zuanshicost", name: "绑钻消费", checked: true},
+                {id: "todayzhanling", name: "跨服资源争夺-今天的占领次数", checked: true},
+                {id: "clubuid", name: "军团UID", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "jiaoxuecur", name: "教学-当前教学点", checked: true},
+                {id: "jiaoxuejindu", name: "教学-当前教学进度", checked: true},
+                {id: "sh_meili", name: "魅力值获得", checked: true},
+                {id: "sh_meili_total", name: "魅力值总数", checked: true},
+                {id: "jjc_lingpai", name: "竞技场令牌获得", checked: true},
+                {id: "jjc_lingpai_total", name: "竞技场令牌总数", checked: true},
+                {id: "ptfd", name: "普通副本", checked: true},
+                {id: "zhenying", name: "阵营", checked: true},
+                {id: "mapID", name: "普通秘境和精英秘境的地图ID", checked: true},
+                {id: "cubeArg", name: "魔方奖励参数", checked: true},
+                {id: "cubeIndex", name: "魔方中奖索引", checked: true},
+                {id: "cubeType", name: "魔方奖励参数", checked: true},
+                {id: "extend", name: "额外信息", checked: true},
+                {id: "attach", name: "附件", checked: true},
+                {id: "mailinfo", name: "邮件信息", checked: true},
+                {id: "gveID", name: "自由组队和军团组队的副本ID", checked: true},
+                {id: "type2", name: "区分自由组队和军团组队", checked: true},
+                {id: "tili", name: "体力获得", checked: true},
+                {id: "tili_total", name: "体力总数", checked: true},
+                {id: "backbullet", name: "狩猎场返还子弹", checked: true},
+                {id: "bigpetid", name: "狩猎场大宠物（不同阶段打出的宠物）", checked: true},
+                {id: "cjid", name: "狩猎场场景ID", checked: true},
+                {id: "curBullet", name: "狩猎场当前子弹数量", checked: true},
+                {id: "curMax", name: "狩猎场当前出小宠物的要求值", checked: true},
+                {id: "curNum", name: "狩猎场当前小宠物达到值", checked: true},
+                {id: "fire", name: "狩猎场-开火", checked: true},
+                {id: "largecurMax", name: "狩猎场当前出大宠物的要求值", checked: true},
+                {id: "largecurNum", name: "狩猎场当前出大宠物的达到值", checked: true},
+                {id: "monsterid", name: "怪物ID", checked: true},
+                {id: "petid", name: "宠物ID", checked: true},
+                {id: "zuanshi", name: "绑钻获得", checked: true},
+                {id: "zuanshi_total", name: "绑钻总数", checked: true},
+                {id: "jjc_score", name: "竞技场积分获得", checked: true},
+                {id: "jjc_score_total", name: "竞技场积分总数", checked: true},
+                {id: "yinbi", name: "金币获得", checked: true},
+                {id: "yinbi_total", name: "金币总数", checked: true},
+                {id: "curr_teamexp", name: "当前队伍经验", checked: true},
+                {id: "curr_teamexpadded", name: "当前增加的队伍经验", checked: true},
+                {id: "curr_teamlevel", name: "当前队伍等级", checked: true},
+                {id: "wupin", name: "物品栏", checked: true, thStyle: {"min-width": "100px"}},
+                {id: "module", name: "模块ID", checked: true},
+                {id: "pk", name: "玩家PK", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "timestamp", name: "时间戳", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "type", name: "操作类型", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "mac", name: "mac", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "idfa", name: "idfa", checked: true, tdStyle: {"white-space": "nowrap"}},
+            ],
+            columns: [],
+            extraFilter: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "radio", queryCondition: true,
+                    data: (db)=> {
+                        return db.collections();
+                    },
+                    dataMap: (data)=> {
+                        data = data.map(d=> {
+                            d.server = d.s.name;
+                            return d;
+                        });
+                        return data;
+                    }
+                },
+                {id: "second", name: "时间", type: "rangeSecond", dateAdd: -7},
+                {id: "pk", name: "角色pk", type: "integer"},
+                {id: "action", name: "角色pk", type: "radio",data:[]},
+                {id: "type", name: "操作类型", type: "radio",data:[]}
+            ],
+            read: ()=> {
+                let {start, end} = req.body.second;
+                [start, end] = [start, end].map(d=> {
+                    let arr = d.split(" ");
+                    let arr1 = arr[0].split("-");
+                    let arr2 = arr[1].split(":");
+                    let date = new Date(arr1[0], arr1[1] - 1, arr1[2], arr2[0], arr2[1], arr2[2]);
+                    let timestamp = date.getTime();
+                    return timestamp;
+                });
+                let jsonFilter = {timestamp: {"$gte": `${start}`, "$lte": `${end}`}};
+                if (req.body.pk != undefined && req.body.pk != "") {
+                    jsonFilter.pk = req.body.pk;
+                }
+                return jsonFilter;
+            },
+            limitNum: 5000,
+            sort: {"timestamp": 1},
+            readCheck: ()=> {
+                return check.rangeSecond("second") && check.regex("pk", /^\d+$/) && check.optionalRegex("server", /^s\d+$/);
+            }
+        },
+        {
+            id: "resource",
+            database: "log_nuclear",
+            curd: "r",
+            columns: [
+                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
+                {
+                    id: "server",
+                    name: "服务器",
+                    checked: true,
+                    type: "select",
+                    queryCondition: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.diamond_data where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "source", name: "类型", checked: true, clientFilter: true, type: "select"},
+                {id: "roleNum", name: "人数", checked: true},
+                {id: "times", name: "次数", checked: true},
+                {id: "value", name: "值", checked: true},
+            ],
+            extraFilter: [
+                {id: "resourceType", name: "资源类型", type: "radio", data: ["金钻", "钻石", "银币", "体力"]},
+                {
+                    id: "vipLevel",
+                    name: "vip等级",
+                    type: "select",
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct vipLevel from log_nuclear.diamond_data";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                }
+            ],
+            chart: [
+                {
+                    title: "资源汇总", x: "day", type: "bar", group: ["server"],
+                    y: [
+                        {id: "roleNum", name: "人数"},
+                        {id: "times", name: "次数"},
+                        {id: "value", name: "值"},
+                    ]
+                },
+            ],
+            read: ()=> {
+                let timesStr, valueStr;
+                switch (req.body.resourceType) {
+                    case "金钻":
+                        timesStr = "jinzuan_count";
+                        valueStr = "jinzuan_value";
+                        break;
+                    case "钻石":
+                        timesStr = "zuansi_count";
+                        valueStr = "zuansi_value";
+                        break;
+                    case "银币":
+                        timesStr = "yinbi_count";
+                        valueStr = "yinbi_value";
+                        break;
+                    case "体力":
+                        timesStr = "tili_count";
+                        valueStr = "tili_value";
+                        break;
+                }
+                let whereArr = [
+                    condition.optionalSelectNum("serverId", "server"),
+                    condition.notEqual("serverId", 0),
+                    condition.rangeDate("date", "day"),
+                    condition.optionalSelectNum("vipLevel", "vipLevel")
+                ];
+                let whereStr = where(whereArr);
+                let groupStr = group(["server", "day", "source"]);
+                let sqlCommand = `select date as day,serverId as server,source,count(distinct roleId) as roleNum,sum(${timesStr}) as times,sum(${valueStr}) as value
+                                    from log_nuclear.diamond_data 
+                                        ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.rangeDay("day") && check.select("server") && check.select("vipLevel");
+            },
+            readMap: (data)=> {
+                let sourceArr = [
+                    {id: "1320930600", name: "精英秘境探宝-重置地图"},
+                    {id: "1571031800", name: "跨服军团战-押注"},
+                    {id: "60270700", name: "挖矿-一键挖矿"},
+                    {id: "320260500", name: "宝石合成-宝石拆分"},
+                    {id: "370280400", name: "宝物星级交换-宝物神铸"},
+                    {id: "1050790300", name: "军团技能-交换伙伴军团技能"},
+                    {id: "1461000200", name: "武道会-清除冷却时间"},
+                    {id: "1440980400", name: "元素攻击位-符文强化"},
+                    {id: "1420960800", name: "怪物攻城-强化"},
+                    {id: "1410000000", name: "梦想基金-??日志有问题"},
+                    {id: "1461000300", name: "武道会-购买竞技场挑战次数"},
+                    {id: "1420960700", name: "怪物攻城-复活"},
+                    {id: "1050790000", name: "军团技能-使用卷轴"},
+                    {id: "1440980800", name: "元素攻击位-符文转化"},
+                    {id: "1520450900", name: "超能币礼盒-购买超能币礼盒"},
+                    {id: "1440980900", name: "元素攻击位-符文进化"},
+                    {id: "30290200", name: "消除冷却时间"},
+                    {id: "40140100", name: "普通招募"},
+                    {id: "40140101", name: "高级招募"},
+                    {id: "92000100", name: "创建军团"},
+                    {id: "200210400", name: "一键钻石抽卡"},
+                    {id: "200210500", name: "点亮高级箱"},
+                    {id: "250200000", name: "招财"},
+                    {id: "80250001", name: "淘宝-按钮1"},
+                    {id: "80250002", name: "淘宝-按钮2"},
+                    {id: "80250003", name: "淘宝-按钮3"},
+                    {id: "340230101", name: "顶水果小倍数"},
+                    {id: "340230102", name: "顶水果中倍数"},
+                    {id: "340230103", name: "顶水果大倍数"},
+                    {id: "560580000", name: "购买体力"},
+                    {id: "200210200", name: "抽取一次卡带"},
+                    {id: "200210310", name: "一键银币10次"},
+                    {id: "200210350", name: "一键银币50次"},
+                    {id: "660640800", name: "世界BOSS-buff强化"},
+                    {id: "60270100", name: "挖矿"},
+                    {id: "20150200", name: "装备鉴定"},
+                    {id: "60270300", name: "开辟矿洞"},
+                    {id: "260210700", name: "洗练卡带"},
+                    {id: "630450500", name: "手动刷新随机商城物品"},
+                    {id: "660640700", name: "世界BOSS-复活"},
+                    {id: "10240700", name: "重置地图"},
+                    {id: "390150500", name: "装备精炼"},
+                    {id: "30290600", name: "购买竞技场挑战次数"},
+                    {id: "680470500", name: "买弹药"},
+                    {id: "390150600", name: "属性恢复"},
+                    {id: "630450400", name: "购买随机商城物品"},
+                    {id: "460610700", name: "刷新扫荡次数"},
+                    {id: "310300100", name: "送花"},
+                    {id: "610450200", name: "购买普通商城物品"},
+                    {id: "92020100", name: "军团贡献"},
+                    {id: "1012041600", name: "召唤BOSS"},
+                    {id: "110720200", name: "购买物品"},
+                    {id: "620450200", name: "VIP礼包"},
+                    {id: "962030100", name: "军团红包"},
+                    {id: "200210555", name: "点亮高级箱子"},
+                    {id: "1190450700", name: "限量商城"},
+                    {id: "737081212", name: "折扣商城"},
+                    {id: "1160000000", name: "月卡礼包"},
+                    {id: "1112052100", name: "刷新收集任务"},
+                    {id: "472010900", name: "军团捐献"},
+                    {id: "1112080200", name: "幸运魔轮改运"},
+                    {id: "1180000000", name: "成长基金"}
+                ];
+                data = data.map(d=> {
+                    let findData = sourceArr.find(d1=> {
+                        return d1.id == d.source;
+                    });
+                    if (findData != undefined) {
+                        d.source = findData.name;
+                    }
+                    return d;
+                });
+                return data;
             }
         },
     ];

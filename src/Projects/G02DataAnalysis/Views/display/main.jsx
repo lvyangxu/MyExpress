@@ -28,6 +28,13 @@ ReactDom.render(
             </div>
         },
         {
+            id: "resource", name: "资源信息", group: "服务器信息",
+            dom: <div>
+                <div className={css.tableTips}>该数据每1天更新一次</div>
+                <Table project="G02DataAnalysis" tableId="resource"/>
+            </div>
+        },
+        {
             id: "charge-query", name: "充值流水", group: "日志查询",
             dom: <div>
                 <div className={css.tableTips}>该数据每1小时更新一次，最多返回5000行数据</div>
@@ -58,7 +65,8 @@ ReactDom.render(
         {
             id: "log-query", name: "操作日志", group: "日志查询",
             dom: <div>
-
+                <div className={css.tableTips}>该数据每1天更新一次，最多返回5000行数据</div>
+                <Table project="G02DataAnalysis" tableId="action"/>
             </div>
         },
         {
