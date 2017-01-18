@@ -19,6 +19,7 @@
  *          data:该筛选组件初始化数据的数组，函数或固定值，为函数时参数为pool
  *          dataMap:对data初始化的值进行处理
  *          radioArr:所有单选值的数组，仅在type为radio有效,
+ *          placeholder:input输入框的placeholder，仅在type为integer或input时有效
  *          dateAdd：筛选条件为日期类型时，默认的日期偏移量，默认为{add:0,startAdd:-7(日)或-1(月),endAdd:0}
  *          suffix：table中td显示的后缀文字
  *          thStyle:默认css样式
@@ -36,7 +37,7 @@
  * read:表格查询语句
  * readCheck:表格查询前的参数检查
  * readValue:表格查询默认json值，匹配read值中的？
- * readMap:从数据库读取后对数据进行处理
+ * readMap:从数据库读取后对数据进行处理,参数为处理的data
  * @param req express中的req对象
  * @returns {*[]} 返回json数组
  */
@@ -357,6 +358,163 @@ module.exports = (req) => {
             }
         },
         {
+            id: "resource",
+            database: "log_nuclear",
+            curd: "r",
+            columns: [
+                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
+                {
+                    id: "server",
+                    name: "服务器",
+                    checked: true,
+                    type: "select",
+                    queryCondition: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.diamond_data where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "source", name: "类型", checked: true, clientFilter: true, type: "select"},
+                {id: "roleNum", name: "人数", checked: true},
+                {id: "times", name: "次数", checked: true},
+                {id: "value", name: "值", checked: true},
+            ],
+            extraFilter: [
+                {id: "resourceType", name: "资源类型", type: "radio", data: ["金钻", "钻石", "银币", "体力"]},
+                {
+                    id: "vipLevel",
+                    name: "vip等级",
+                    type: "select",
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct vipLevel from log_nuclear.diamond_data";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                }
+            ],
+            chart: [
+                {
+                    title: "资源汇总", x: "day", type: "bar", 
+                    y: [
+                        {id: "roleNum", name: "人数"},
+                        {id: "times", name: "次数"},
+                        {id: "value", name: "值"},
+                    ]
+                },
+            ],
+            read: ()=> {
+                let timesStr, valueStr;
+                switch (req.body.resourceType) {
+                    case "金钻":
+                        timesStr = "jinzuan_count";
+                        valueStr = "jinzuan_value";
+                        break;
+                    case "钻石":
+                        timesStr = "zuansi_count";
+                        valueStr = "zuansi_value";
+                        break;
+                    case "银币":
+                        timesStr = "yinbi_count";
+                        valueStr = "yinbi_value";
+                        break;
+                    case "体力":
+                        timesStr = "tili_count";
+                        valueStr = "tili_value";
+                        break;
+                }
+                let whereArr = [
+                    condition.optionalSelectNum("serverId", "server"),
+                    condition.notEqual("serverId", 0),
+                    condition.rangeDate("date", "day"),
+                    condition.optionalSelectNum("vipLevel", "vipLevel")
+                ];
+                let whereStr = where(whereArr);
+                let groupStr = group(["server", "day", "source"]);
+                let sqlCommand = `select date as day,serverId as server,source,count(distinct roleId) as roleNum,sum(${timesStr}) as times,sum(${valueStr}) as value
+                                    from log_nuclear.diamond_data 
+                                        ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.rangeDay("day") && check.select("server") && check.select("vipLevel");
+            },
+            readMap: (data)=> {
+                let sourceArr = [
+                    {id: "1320930600", name: "精英秘境探宝-重置地图"},
+                    {id: "1571031800", name: "跨服军团战-押注"},
+                    {id: "60270700", name: "挖矿-一键挖矿"},
+                    {id: "320260500", name: "宝石合成-宝石拆分"},
+                    {id: "370280400", name: "宝物星级交换-宝物神铸"},
+                    {id: "1050790300", name: "军团技能-交换伙伴军团技能"},
+                    {id: "1461000200", name: "武道会-清除冷却时间"},
+                    {id: "1440980400", name: "元素攻击位-符文强化"},
+                    {id: "1420960800", name: "怪物攻城-强化"},
+                    {id: "1410000000", name: "梦想基金-??日志有问题"},
+                    {id: "1461000300", name: "武道会-购买竞技场挑战次数"},
+                    {id: "1420960700", name: "怪物攻城-复活"},
+                    {id: "1050790000", name: "军团技能-使用卷轴"},
+                    {id: "1440980800", name: "元素攻击位-符文转化"},
+                    {id: "1520450900", name: "超能币礼盒-购买超能币礼盒"},
+                    {id: "1440980900", name: "元素攻击位-符文进化"},
+                    {id: "30290200", name: "消除冷却时间"},
+                    {id: "40140100", name: "普通招募"},
+                    {id: "40140101", name: "高级招募"},
+                    {id: "92000100", name: "创建军团"},
+                    {id: "200210400", name: "一键钻石抽卡"},
+                    {id: "200210500", name: "点亮高级箱"},
+                    {id: "250200000", name: "招财"},
+                    {id: "80250001", name: "淘宝-按钮1"},
+                    {id: "80250002", name: "淘宝-按钮2"},
+                    {id: "80250003", name: "淘宝-按钮3"},
+                    {id: "340230101", name: "顶水果小倍数"},
+                    {id: "340230102", name: "顶水果中倍数"},
+                    {id: "340230103", name: "顶水果大倍数"},
+                    {id: "560580000", name: "购买体力"},
+                    {id: "200210200", name: "抽取一次卡带"},
+                    {id: "200210310", name: "一键银币10次"},
+                    {id: "200210350", name: "一键银币50次"},
+                    {id: "660640800", name: "世界BOSS-buff强化"},
+                    {id: "60270100", name: "挖矿"},
+                    {id: "20150200", name: "装备鉴定"},
+                    {id: "60270300", name: "开辟矿洞"},
+                    {id: "260210700", name: "洗练卡带"},
+                    {id: "630450500", name: "手动刷新随机商城物品"},
+                    {id: "660640700", name: "世界BOSS-复活"},
+                    {id: "10240700", name: "重置地图"},
+                    {id: "390150500", name: "装备精炼"},
+                    {id: "30290600", name: "购买竞技场挑战次数"},
+                    {id: "680470500", name: "买弹药"},
+                    {id: "390150600", name: "属性恢复"},
+                    {id: "630450400", name: "购买随机商城物品"},
+                    {id: "460610700", name: "刷新扫荡次数"},
+                    {id: "310300100", name: "送花"},
+                    {id: "610450200", name: "购买普通商城物品"},
+                    {id: "92020100", name: "军团贡献"},
+                    {id: "1012041600", name: "召唤BOSS"},
+                    {id: "110720200", name: "购买物品"},
+                    {id: "620450200", name: "VIP礼包"},
+                    {id: "962030100", name: "军团红包"},
+                    {id: "200210555", name: "点亮高级箱子"},
+                    {id: "1190450700", name: "限量商城"},
+                    {id: "737081212", name: "折扣商城"},
+                    {id: "1160000000", name: "月卡礼包"},
+                    {id: "1112052100", name: "刷新收集任务"},
+                    {id: "472010900", name: "军团捐献"},
+                    {id: "1112080200", name: "幸运魔轮改运"},
+                    {id: "1180000000", name: "成长基金"}
+                ];
+                data = data.map(d=> {
+                    let findData = sourceArr.find(d1=> {
+                        return d1.id == d.source;
+                    });
+                    if (findData != undefined) {
+                        d.source = findData.name;
+                    }
+                    return d;
+                });
+                return data;
+            }
+        },
+        {
             id: "charge",
             database: "raw",
             curd: "r",
@@ -585,7 +743,7 @@ module.exports = (req) => {
                 return sqlCommand;
             },
             readCheck: ()=> {
-                return check.select("server") && check.day("day") && check.regex("rankType", /^金钻|钻石$/) && check.regex("limit", /^\d+$/);
+                return check.select("server") && check.day("day") && check.regex("rankType", /^(金钻|钻石)$/) && check.regex("limit", /^\d+$/);
             }
         },
         {
@@ -665,7 +823,7 @@ module.exports = (req) => {
                         return initMysqlServerFilter(pool, sqlCommand);
                     }
                 },
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true},
+                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "dnu", name: "DNU", checked: true},
                 {id: "retention1", name: "次日留存", checked: true, suffix: "%"},
                 {id: "retention2", name: "2日留存", checked: true, suffix: "%"},
@@ -887,20 +1045,34 @@ module.exports = (req) => {
                 {id: "deviceId", name: "设备id", checked: true, type: "integer", queryCondition: true},
                 {id: "accountId", name: "账号id", checked: true, type: "integer", queryCondition: true},
                 {id: "roleId", name: "角色id", checked: true, type: "integer", queryCondition: true},
-                {id: "region", name: "区域", checked: true},
-                {id: "role", name: "角色名", checked: true, type: "input", queryCondition: true},
-                {id: "account", name: "账号", checked: true, type: "input", queryCondition: true},
-                {id: "deviceCreateDay", name: "设备创建日期", checked: true},
-                {id: "accountCreateDay", name: "账号创建日期", checked: true},
-                {id: "roleCreateDay", name: "角色创建日期", checked: true},
+                {id: "region", name: "区域", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {
+                    id: "role",
+                    name: "角色名",
+                    checked: true,
+                    type: "input",
+                    queryCondition: true,
+                    tdStyle: {"white-space": "nowrap"}
+                },
+                {
+                    id: "account",
+                    name: "账号",
+                    checked: true,
+                    type: "input",
+                    queryCondition: true,
+                    thStyle: {"min-width": "100px"}
+                },
+                {id: "deviceCreateDay", name: "设备创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "accountCreateDay", name: "账号创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "roleCreateDay", name: "角色创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "level", name: "角色等级", checked: true},
                 {id: "vipLevel", name: "vip等级", checked: true},
-                {id: "roleCreateTime", name: "角色创建时间", checked: true},
+                {id: "roleCreateTime", name: "角色创建时间", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "profession", name: "职业", checked: true},
                 {id: "roleIp", name: "角色ip", checked: true},
                 {id: "deviceSystem", name: "系统", checked: true},
-                {id: "roleKey", name: "角色pk", checked: true},
-                {id: "lastLoginDay", name: "最后登录日期", checked: true},
+                {id: "roleKey", name: "角色pk", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "lastLoginDay", name: "最后登录日期", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "loginDays", name: "登录天数", checked: true},
                 {id: "onlineDuration", name: "在线时长(秒)", checked: true},
                 {id: "loginTimes", name: "登录次数", checked: true},
@@ -916,7 +1088,7 @@ module.exports = (req) => {
                 {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
                 {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
                 {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
-                {id: "silverCostNum", name: "银币消耗数量", checked: true},
+                {id: "silverCostNum", name: "银币消耗数量", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "silverCostTimes", name: "银币消耗次数", checked: true},
                 {id: "staminaCostNum", name: "体力消耗数量", checked: true},
                 {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
@@ -1084,9 +1256,24 @@ module.exports = (req) => {
                     }
                 },
                 {id: "second", name: "时间", type: "rangeSecond", dateAdd: -7},
-                {id: "pk", name: "角色pk", type: "integer"},
-                {id: "action", name: "角色pk", type: "radio",data:[]},
-                {id: "type", name: "操作类型", type: "radio",data:[]}
+                {id: "pk", name: "角色pk", type: "integer", placeholder: "角色pk,必填"},
+                {
+                    id: "module", name: "模块", type: "radio",
+                    data: [
+                        "角色战力", "角色登出", "教学", "角色创建", "等级提升", "最后登录信息", "在线人数", "costGVEnum", "阵营选择", "账号创建", "角色登录",
+                        "成长基金", "梦想基金", "月卡礼包购买", "月卡礼包领取", "充值活动", "日常活动", "活动", "限时礼包", "转轮活动", "魔方礼包", "招财猫",
+                        "顶水果", "高级挖矿", "收矿", "随机矿石", "一键挖矿", "一键收矿", "拍卖行物品上架", "拍卖行到期下架", "拍卖行购买物品", "拍卖行物品售出",
+                        "宝石城抽一次", "宝石城抽次", "宝石城抽次", "普通狩猎场击杀获得饲料", "普通狩猎场捕获宠物", "普通狩猎场购买子弹", "普通狩猎场击杀buff怪",
+                        "普通狩猎场击杀任务怪", "普通狩猎场领取任务奖励", "普通狩猎场击杀宝箱怪", "钻石场捕获宠物", "等级礼包", "VIP礼包", "限量商场", "超能币礼盒",
+                        "超能币商场", "超级英雄", "抽取碎片", "英雄拆分", "英雄升级", "英雄升阶", "军团副本", "军团组队副本", "军团捐献", "军团BOSS", "主线副本",
+                        "精英副本一次消耗及获得", "精英副本扫荡次消耗及获得", "精英副本重置扫荡次数钻石消耗", "自由组队", "秘境探宝普通：触发战斗",
+                        "秘境探宝普通：战斗结束", "秘境探宝普通：扫荡", "秘境探宝普通：随机宝箱奖励", "秘境探宝普通：重置", "秘境探宝精英：触发战斗",
+                        "秘境探宝精英：战斗结束", "秘境探宝精英：扫荡", "秘境探宝精英：重置", "元素塔挑战结束", "元素塔扫荡结束", "抽卡金币", "抽卡钻石",
+                        "卡带洗练", "吞噬卡带", "合成卡带", "宝石合成", "宝石宝石拆分", "宝石一键合成", "天赋分解装备", "天赋提升技能", "邮件收到邮件",
+                        "邮件查看邮件", "邮件领取附件", "邮件删除邮件", "背包使用物品", "背包出售物品", "天登陆", "签到每日签到奖励", "签到累计签到奖励",
+                        "星际掠夺刷新", "星际掠夺收矿", "星际掠夺占领/掠夺"
+                    ]
+                }
             ],
             read: ()=> {
                 let {start, end} = req.body.second;
@@ -1098,7 +1285,133 @@ module.exports = (req) => {
                     let timestamp = date.getTime();
                     return timestamp;
                 });
-                let jsonFilter = {timestamp: {"$gte": `${start}`, "$lte": `${end}`}};
+                let jsonFilter = {
+                    timestamp: {"$gte": `${start}`, "$lte": `${end}`},
+                };
+
+                let actionMap = [
+                    {id: "juesezhanli", name: "角色战力"},
+                    {id: "js_logout", name: "角色登出"},
+                    {id: "JiaoXue", name: "教学"},
+                    {id: "js_create", name: "角色创建"},
+                    {id: "lvup", name: "等级提升"},
+                    {id: "login_last_info", name: "最后登录信息"},
+                    {id: "online", name: "在线人数"},
+                    {id: "costGVEnum", name: "costGVEnum"},
+                    {id: "zhenyingxuanze", name: "阵营选择"},
+                    {id: "zh_create", name: "账号创建"},
+                    {id: "js_login", name: "角色登录"}
+                ];
+                let moduleMap = [
+                    {id: "118-1", name: "成长基金"},
+                    {id: "141-1", name: "梦想基金"},
+                    {id: "116-0", name: "月卡礼包购买"},
+                    {id: "116-1", name: "月卡礼包领取"},
+                    {id: "107-8100", name: "充值活动"},
+                    {id: "107-8400", name: "日常活动"},
+                    {id: "151-7417", name: "活动"},
+                    {id: "23-3303", name: "限时礼包"},
+                    {id: "136-9401", name: "转轮活动"},
+                    {id: "148-", name: "魔方礼包"},
+                    {id: "25-2000", name: "招财猫"},
+                    {id: "34-2301", name: "顶水果"},
+                    {id: "6-2701", name: "高级挖矿"},
+                    {id: "6-2702", name: "收矿"},
+                    {id: "6-2705", name: "随机矿石"},
+                    {id: "6-2707", name: "一键挖矿"},
+                    {id: "6-2708", name: "一键收矿"},
+                    {id: "11-7204", name: "拍卖行物品上架"},
+                    {id: "11-7206", name: "拍卖行到期下架"},
+                    {id: "11-7202", name: "拍卖行购买物品"},
+                    {id: "11-7207", name: "拍卖行物品售出"},
+                    {id: "8-2500", name: "宝石城抽一次"},
+                    {id: "8-2500", name: "宝石城抽50次"},
+                    {id: "8-2500", name: "宝石城抽400次"},
+                    {id: "68-4702", name: "普通狩猎场击杀获得饲料"},
+                    {id: "68-4704", name: "普通狩猎场捕获宠物"},
+                    {id: "68-4705", name: "普通狩猎场购买子弹"},
+                    {id: "68-4709", name: "普通狩猎场击杀buff怪"},
+                    {id: "68-4710", name: "普通狩猎场击杀任务怪"},
+                    {id: "68-4711", name: "普通狩猎场领取任务奖励"},
+                    {id: "68-4713", name: "普通狩猎场击杀宝箱怪"},
+                    {id: "131-9103", name: "钻石场捕获宠物"},
+                    {id: "61-4502", name: "等级礼包"},
+                    {id: "62-4502", name: "VIP礼包"},
+                    {id: "119-4507", name: "限量商场"},
+                    {id: "152-4509", name: "超能币礼盒"},
+                    {id: "153-4511", name: "超能币商场"},
+                    {id: "123-1404", name: "超级英雄"},
+                    {id: "4-1401", name: "抽取碎片"},
+                    {id: "16-1306", name: "英雄拆分"},
+                    {id: "123-1304", name: "英雄升级"},
+                    {id: "123-1305", name: "英雄升阶"},
+                    {id: "104-7802", name: "军团副本"},
+                    {id: "Apr-47", name: "军团组队副本"},
+                    {id: "47-20109", name: "军团捐献"},
+                    {id: "23-1305", name: "军团BOSS"},
+                    {id: "50-", name: "主线副本"},
+                    {id: "46-6106", name: "精英副本一次消耗及获得"},
+                    {id: "46-6103", name: "精英副本扫荡3次消耗及获得"},
+                    {id: "46-6107", name: "精英副本重置扫荡次数钻石消耗"},
+                    {id: "97-", name: "自由组队"},
+                    {id: "1-2403", name: "秘境探宝普通：触发战斗"},
+                    {id: "1-2404", name: "秘境探宝普通：战斗结束"},
+                    {id: "1-2405", name: "秘境探宝普通：扫荡"},
+                    {id: "1-2406", name: "秘境探宝普通：随机宝箱奖励"},
+                    {id: "1-2407", name: "秘境探宝普通：重置"},
+                    {id: "132-9302", name: "秘境探宝精英：触发战斗"},
+                    {id: "132-9303", name: "秘境探宝精英：战斗结束"},
+                    {id: "132-9305", name: "秘境探宝精英：扫荡"},
+                    {id: "132-9306", name: "秘境探宝精英：重置"},
+                    {id: "143-9702", name: "元素塔挑战结束"},
+                    {id: "143-9703", name: "元素塔扫荡结束"},
+                    {id: "20-2103", name: "抽卡金币"},
+                    {id: "20-2104", name: "抽卡钻石"},
+                    {id: "26-2107", name: "卡带洗练"},
+                    {id: "20-2110", name: "吞噬卡带"},
+                    {id: "27-2106", name: "合成卡带"},
+                    {id: "32-2603", name: "宝石合成"},
+                    {id: "32-2605", name: "宝石宝石拆分"},
+                    {id: "30-2604", name: "宝石一键合成"},
+                    {id: "4600-4603", name: "天赋分解装备"},
+                    {id: "4600-4601", name: "天赋提升技能"},
+                    {id: "23-3303", name: "邮件收到邮件"},
+                    {id: "23-3302", name: "邮件查看邮件"},
+                    {id: "23-3305", name: "邮件领取附件"},
+                    {id: "23-3306", name: "邮件删除邮件"},
+                    {id: "17-1203", name: "背包使用物品"},
+                    {id: "17-1201", name: "背包出售物品"},
+                    {id: "70-6501", name: "7天登陆"},
+                    {id: "57-4300", name: "签到每日签到奖励"},
+                    {id: "57-4303", name: "签到累计签到奖励"},
+                    {id: "154-10202", name: "星际掠夺刷新"},
+                    {id: "154-10216", name: "星际掠夺收矿"},
+                    {id: "154-10203", name: "星际掠夺占领/掠夺"},
+                ];
+                let module = req.body.module;
+                let [findAction,findModule] = [actionMap, moduleMap].map(d=> {
+                    let findElement = d.find(d1=> {
+                        return d1.name == module;
+                    });
+                    return findElement;
+                });
+                if (findAction != undefined) {
+                    type = "action";
+                    module = findAction.id;
+                    jsonFilter.action = `${module}`;
+                }
+                let module1 = "", module2 = "";
+                if (findModule != undefined) {
+                    type = "module";
+                    module = findModule.id;
+                    let arr = module.split("-");
+                    if (arr.length == 2) {
+                        module1 = arr[0];
+                        module2 = arr[1];
+                        jsonFilter.module = module1;
+                        jsonFilter.type = module2;
+                    }
+                }
                 if (req.body.pk != undefined && req.body.pk != "") {
                     jsonFilter.pk = req.body.pk;
                 }
@@ -1107,160 +1420,39 @@ module.exports = (req) => {
             limitNum: 5000,
             sort: {"timestamp": 1},
             readCheck: ()=> {
-                return check.rangeSecond("second") && check.regex("pk", /^\d+$/) && check.optionalRegex("server", /^s\d+$/);
-            }
-        },
-        {
-            id: "resource",
-            database: "log_nuclear",
-            curd: "r",
-            columns: [
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
-                {
-                    id: "server",
-                    name: "服务器",
-                    checked: true,
-                    type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from log_nuclear.diamond_data where serverid <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "source", name: "类型", checked: true, clientFilter: true, type: "select"},
-                {id: "roleNum", name: "人数", checked: true},
-                {id: "times", name: "次数", checked: true},
-                {id: "value", name: "值", checked: true},
-            ],
-            extraFilter: [
-                {id: "resourceType", name: "资源类型", type: "radio", data: ["金钻", "钻石", "银币", "体力"]},
-                {
-                    id: "vipLevel",
-                    name: "vip等级",
-                    type: "select",
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct vipLevel from log_nuclear.diamond_data";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                }
-            ],
-            chart: [
-                {
-                    title: "资源汇总", x: "day", type: "bar", group: ["server"],
-                    y: [
-                        {id: "roleNum", name: "人数"},
-                        {id: "times", name: "次数"},
-                        {id: "value", name: "值"},
-                    ]
-                },
-            ],
-            read: ()=> {
-                let timesStr, valueStr;
-                switch (req.body.resourceType) {
-                    case "金钻":
-                        timesStr = "jinzuan_count";
-                        valueStr = "jinzuan_value";
-                        break;
-                    case "钻石":
-                        timesStr = "zuansi_count";
-                        valueStr = "zuansi_value";
-                        break;
-                    case "银币":
-                        timesStr = "yinbi_count";
-                        valueStr = "yinbi_value";
-                        break;
-                    case "体力":
-                        timesStr = "tili_count";
-                        valueStr = "tili_value";
-                        break;
-                }
-                let whereArr = [
-                    condition.optionalSelectNum("serverId", "server"),
-                    condition.notEqual("serverId", 0),
-                    condition.rangeDate("date", "day"),
-                    condition.optionalSelectNum("vipLevel", "vipLevel")
-                ];
-                let whereStr = where(whereArr);
-                let groupStr = group(["server", "day", "source"]);
-                let sqlCommand = `select date as day,serverId as server,source,count(distinct roleId) as roleNum,sum(${timesStr}) as times,sum(${valueStr}) as value
-                                    from log_nuclear.diamond_data 
-                                        ${whereStr} ${groupStr}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.rangeDay("day") && check.select("server") && check.select("vipLevel");
+                let moduleRegex = new RegExp("^(角色战力|角色登出|教学|角色创建|等级提升|最后登录信息|在线人数|costGVEnum|阵营选择|账号创建|角色登录|" +
+                    "成长基金|梦想基金|月卡礼包购买|月卡礼包领取|充值活动|日常活动|活动|限时礼包|转轮活动|魔方礼包|招财猫|顶水果|高级挖矿" +
+                    "|收矿|随机矿石|一键挖矿|一键收矿|拍卖行物品上架|拍卖行到期下架|拍卖行购买物品|拍卖行物品售出|宝石城抽一次|宝石城抽次|宝石城抽次" +
+                    "|普通狩猎场击杀获得饲料|普通狩猎场捕获宠物|普通狩猎场购买子弹|普通狩猎场击杀buff怪|普通狩猎场击杀任务怪|普通狩猎场领取任务奖励" +
+                    "|普通狩猎场击杀宝箱怪|钻石场捕获宠物|等级礼包|VIP礼包|限量商场|超能币礼盒|超能币商场|超级英雄|抽取碎片|英雄拆分|英雄升级|英雄升阶|军团副本" +
+                    "|军团组队副本|军团捐献|军团BOSS|主线副本|精英副本一次消耗及获得|精英副本扫荡次消耗及获得|精英副本重置扫荡次数钻石消耗|自由组队" +
+                    "|秘境探宝普通：触发战斗|秘境探宝普通：战斗结束|秘境探宝普通：扫荡|秘境探宝普通：随机宝箱奖励|秘境探宝普通：重置|秘境探宝精英：触发战斗" +
+                    "|秘境探宝精英：战斗结束|秘境探宝精英：扫荡|秘境探宝精英：重置|元素塔挑战结束|元素塔扫荡结束|抽卡金币|抽卡钻石|卡带洗练|吞噬卡带|合成卡带" +
+                    "|宝石合成|宝石宝石拆分|宝石一键合成|天赋分解装备|天赋提升技能|邮件收到邮件|邮件查看邮件|邮件领取附件|邮件删除邮件|背包使用物品|背包出售物品" +
+                    "|天登陆|签到每日签到奖励|签到累计签到奖励|星际掠夺刷新|星际掠夺收矿|星际掠夺占领/掠夺)$");
+                return check.rangeSecond("second") && check.regex("pk", /^\d+$/) && check.optionalRegex("server", /^s\d+$/)
+                    && check.regex("module", moduleRegex);
             },
             readMap: (data)=> {
-                let sourceArr = [
-                    {id: "1320930600", name: "精英秘境探宝-重置地图"},
-                    {id: "1571031800", name: "跨服军团战-押注"},
-                    {id: "60270700", name: "挖矿-一键挖矿"},
-                    {id: "320260500", name: "宝石合成-宝石拆分"},
-                    {id: "370280400", name: "宝物星级交换-宝物神铸"},
-                    {id: "1050790300", name: "军团技能-交换伙伴军团技能"},
-                    {id: "1461000200", name: "武道会-清除冷却时间"},
-                    {id: "1440980400", name: "元素攻击位-符文强化"},
-                    {id: "1420960800", name: "怪物攻城-强化"},
-                    {id: "1410000000", name: "梦想基金-??日志有问题"},
-                    {id: "1461000300", name: "武道会-购买竞技场挑战次数"},
-                    {id: "1420960700", name: "怪物攻城-复活"},
-                    {id: "1050790000", name: "军团技能-使用卷轴"},
-                    {id: "1440980800", name: "元素攻击位-符文转化"},
-                    {id: "1520450900", name: "超能币礼盒-购买超能币礼盒"},
-                    {id: "1440980900", name: "元素攻击位-符文进化"},
-                    {id: "30290200", name: "消除冷却时间"},
-                    {id: "40140100", name: "普通招募"},
-                    {id: "40140101", name: "高级招募"},
-                    {id: "92000100", name: "创建军团"},
-                    {id: "200210400", name: "一键钻石抽卡"},
-                    {id: "200210500", name: "点亮高级箱"},
-                    {id: "250200000", name: "招财"},
-                    {id: "80250001", name: "淘宝-按钮1"},
-                    {id: "80250002", name: "淘宝-按钮2"},
-                    {id: "80250003", name: "淘宝-按钮3"},
-                    {id: "340230101", name: "顶水果小倍数"},
-                    {id: "340230102", name: "顶水果中倍数"},
-                    {id: "340230103", name: "顶水果大倍数"},
-                    {id: "560580000", name: "购买体力"},
-                    {id: "200210200", name: "抽取一次卡带"},
-                    {id: "200210310", name: "一键银币10次"},
-                    {id: "200210350", name: "一键银币50次"},
-                    {id: "660640800", name: "世界BOSS-buff强化"},
-                    {id: "60270100", name: "挖矿"},
-                    {id: "20150200", name: "装备鉴定"},
-                    {id: "60270300", name: "开辟矿洞"},
-                    {id: "260210700", name: "洗练卡带"},
-                    {id: "630450500", name: "手动刷新随机商城物品"},
-                    {id: "660640700", name: "世界BOSS-复活"},
-                    {id: "10240700", name: "重置地图"},
-                    {id: "390150500", name: "装备精炼"},
-                    {id: "30290600", name: "购买竞技场挑战次数"},
-                    {id: "680470500", name: "买弹药"},
-                    {id: "390150600", name: "属性恢复"},
-                    {id: "630450400", name: "购买随机商城物品"},
-                    {id: "460610700", name: "刷新扫荡次数"},
-                    {id: "310300100", name: "送花"},
-                    {id: "610450200", name: "购买普通商城物品"},
-                    {id: "92020100", name: "军团贡献"},
-                    {id: "1012041600", name: "召唤BOSS"},
-                    {id: "110720200", name: "购买物品"},
-                    {id: "620450200", name: "VIP礼包"},
-                    {id: "962030100", name: "军团红包"},
-                    {id: "200210555", name: "点亮高级箱子"},
-                    {id: "1190450700", name: "限量商城"},
-                    {id: "737081212", name: "折扣商城"},
-                    {id: "1160000000", name: "月卡礼包"},
-                    {id: "1112052100", name: "刷新收集任务"},
-                    {id: "472010900", name: "军团捐献"},
-                    {id: "1112080200", name: "幸运魔轮改运"},
-                    {id: "1180000000", name: "成长基金"}
+                let actionMap = [
+                    {id: "juesezhanli", name: "角色战力"},
+                    {id: "js_logout", name: "角色登出"},
+                    {id: "JiaoXue", name: "教学"},
+                    {id: "js_create", name: "角色创建"},
+                    {id: "lvup", name: "等级提升"},
+                    {id: "login_last_info", name: "最后登录信息"},
+                    {id: "online", name: "在线人数"},
+                    {id: "costGVEnum", name: "costGVEnum"},
+                    {id: "zhenyingxuanze", name: "阵营选择"},
+                    {id: "zh_create", name: "账号创建"},
+                    {id: "js_login", name: "角色登录"}
                 ];
                 data = data.map(d=> {
-                    let findData = sourceArr.find(d1=> {
-                        return d1.id == d.source;
+                    let isFind = actionMap.find(d1=> {
+                        return d1.id == d.action;
                     });
-                    if (findData != undefined) {
-                        d.source = findData.name;
+                    if (isFind != undefined) {
+                        d.action = isFind.name;
                     }
                     return d;
                 });

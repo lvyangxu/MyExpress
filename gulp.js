@@ -296,15 +296,20 @@ gulp.task("compile-jsx", ["concat-css"], ()=> {
     }
     let promiseArr = [];
     views.forEach(d=> {
-        let promise = new Promise((resolve, reject)=> {
-            gulp.src(clientPath + "/" + d + "/main.jsx")
-                .pipe(webpackStream(webpackConfig))
-                .pipe(gulp.dest(clientPath + "/" + d))
-                .on("end", ()=> {
-                    resolve();
-                });
-        });
-        promiseArr.push(promise);
+        let path = clientPath + "/" + d + "/main.jsx";
+        if (fs.existsSync(path)) {
+            let promise = new Promise((resolve, reject)=> {
+                gulp.src(clientPath + "/" + d + "/main.jsx")
+                    .pipe(webpackStream(webpackConfig))
+                    .pipe(gulp.dest(clientPath + "/" + d))
+                    .on("end", ()=> {
+                        resolve();
+                    });
+            });
+            promiseArr.push(promise);
+        }
     });
-    return Promise.all(promiseArr);
+    if (promiseArr.length > 0) {
+        return Promise.all(promiseArr);
+    }
 })

@@ -557,7 +557,7 @@ class table extends React.Component {
                         startAdd = -1;
                     }
                     if (d.type == "rangeSecond") {
-                        startAdd = -360;
+                        startAdd = -60 * 60 * 24 * 7;
                     }
                     if (d.hasOwnProperty("dateAdd")) {
                         let dateAdd = d.dateAdd;
@@ -565,10 +565,12 @@ class table extends React.Component {
                         startAdd = dateAdd.hasOwnProperty("startAdd") ? dateAdd.startAdd : startAdd;
                         endAdd = dateAdd.hasOwnProperty("endAdd") ? dateAdd.endAdd : endAdd;
                     }
+                    let placeholder;
                     switch (d.type) {
                         case "input":
+                            placeholder = d.hasOwnProperty("placeholder") ? d.placeholder : d.name;
                             condition = <div className={css.section}>
-                                <input className={css.filter} placeholder={d.name} type="text"
+                                <input className={css.filter} placeholder={placeholder} type="text"
                                        value={this.state[d.id + "Condition"]}
                                        onChange={e=> {
                                            this.setConditionState(d.id + "Condition", e.target.value);
@@ -576,8 +578,9 @@ class table extends React.Component {
                             </div>;
                             break;
                         case "integer":
+                            placeholder = d.hasOwnProperty("placeholder") ? d.placeholder : d.name;
                             condition = <div className={css.section}>
-                                <input className={css.filter} placeholder={d.name} min="0" type="number"
+                                <input className={css.filter} placeholder={placeholder} min="0" type="number"
                                        value={this.state[d.id + "Condition"]}
                                        onChange={e=> {
                                            this.setConditionState(d.id + "Condition", e.target.value);

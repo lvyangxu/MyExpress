@@ -374,7 +374,7 @@ module.exports = {
             }).map(d=> {
                 let findColumn = config.dynamicColumn.find(d1=> {
                     return d1.id == d;
-                })
+                });
                 let name = findColumn == undefined ? d : findColumn.name;
                 let checked = findColumn == undefined ? true : findColumn.checked;
                 let json = {id: d, name: name, checked: checked};
@@ -389,7 +389,7 @@ module.exports = {
             //去除_id列
             columnArr = columnArr.filter(d=> {
                 return d.id != "_id";
-            })
+            });
             message.columns = columnArr;
         }
         res.send({success: "true", message: message});

@@ -1,7 +1,6 @@
-@charset "utf-8";
 body {
     font-family: "Microsoft YaHei UI", Arial;
-    overflow-y: scroll;
+    background-color: black;
     .list {
         position: absolute;
         overflow: hidden;
@@ -12,12 +11,37 @@ body {
     }
 
     .background {
-        position: absolute;
-        width: 100%;
         z-index: 2;
         img {
             width: 100%;
         }
+    }
+
+    .controll {
+        position: absolute;
+        z-index: 1;
+        .line {
+            font-size: 18px;
+            font-weight: bolder;
+            button {
+                color: white;
+                border: none;
+                background-color: rgba(186, 39, 45, 1);
+                outline: none;
+                cursor: pointer;
+            }
+        }
+        .speed{
+            font-size: 18px;
+            font-weight: bolder;
+            input{
+                padding-left: 10px;
+                padding-right: 10px;
+                border: none;
+                outline: none;
+            }
+        }
+
     }
 
 }
