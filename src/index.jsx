@@ -1,341 +1,3 @@
-//
-// // class table extends React.Component {
-// //     constructor(props) {
-// //         super(props);
-// //         this.state = {
-// //             curd: (this.props.curd == undefined) ? "r" : this.props.curd,
-// //             panel: "main",
-// //             columns: [],
-// //             sourceData: [],
-// //             filterData: [],
-// //             displayData: [],
-// //             rowFilterValue: "",
-// //             rowAllChecked: false,
-// //             sortDesc: true,
-// //             sortColumnId: "",
-// //             createLineNum: 5,
-// //             ct: [],
-// //             ut: [],
-// //             attachmentList: [],
-// //             attachmentProgress: "0%",
-// //             loading: false,
-// //             selectFilter: [],
-// //             createReferTableData: []
-// //         };
-// //         let bindArr = ["columnFilterCallback", "rowFilterChange", "refresh", "radioFilterChange", "tdCallback", "sort", "rowAllCheck",
-// //             "rowCheck", "backToMain", "create", "createSubmit", "createTdChange", "update", "updateSubmit", "updateTdChange", "delete"];
-// //         bindArr.forEach(d => {
-// //             this[d] = this[d].bind(this);
-// //         });
-// //     }
-// //
-// //     async componentDidMount() {
-// //         let tableId = this.props.tableId;
-// //         if (tableId) {
-// //             try {
-// //                 let initData = await http.post("../table/" + tableId + "/init");
-// //                 let readData = await http.post("../table/" + tableId + "/read");
-// //                 readData = readData.map(d => {
-// //                     d.checkboxChecked = false;
-// //                     return d;
-// //                 });
-// //
-// //                 //初始化创建ct的值
-// //                 let ct = [];
-// //                 for (let i = 0; i < this.state.createLineNum; i++) {
-// //                     let ctRow = {};
-// //                     initData.forEach(d => {
-// //                         ctRow[d.id] = "";
-// //                     });
-// //                     ct.push(ctRow);
-// //                 }
-// //
-// //                 let selectFilter = initData.filter(d => {
-// //                     return d.select;
-// //                 }).map(d => {
-// //                     let values = [];
-// //                     let data = [];
-// //                     readData.forEach((d1, j) => {
-// //                         if (!values.includes(d1[d.id])) {
-// //                             values.push(d1[d.id]);
-// //                             data.push({id: j, name: d1[d.id], checked: true});
-// //                         }
-// //                     });
-// //                     return {id: d.id, name: d.name, data: data};
-// //                 });
-// //
-// //                 this.setState({
-// //                     columns: initData,
-// //                     sourceData: readData,
-// //                     filterData: readData,
-// //                     displayData: readData,
-// //                     ct: ct,
-// //                     selectFilter: selectFilter
-// //                 });
-// //
-// //             } catch (e) {
-// //                 console.log("init table failed:" + tableId);
-// //             }
-// //         }
-// //
-// //
-// //     }
-// //
-// //     componentWillReceiveProps(nextProps) {
-// //         if (this.props.rowFilterValue != nextProps.rowFilterValue) {
-// //             this.rowFilterChange({target: {value: nextProps.rowFilterValue}});
-// //             this.setState({
-// //                 rowFilterValue: nextProps.rowFilterValue
-// //             });
-// //         }
-// //     }
-// //
-// //     render() {
-// //         return (
-// //             <div className="react-table">
-// //                 {
-// //                     this.setTop()
-// //                 }
-// //                 <div style={this.state.panel == "main" ? {} : {display: "none"}}>
-// /
-
-// //                             </tbody>
-// //                         </table>
-// //                     </div>
-// //                 </div>
-// //                 <div className="panel-create"
-// //                      style={this.state.panel == "create" ? {} : {display: "none"}}>
-// //                     <div className="panel-head">
-// //                         <button className="backToMain" onClick={() => {
-// //                             this.backToMain();
-// //                         }}><i className="fa fa-arrow-left"></i>返回表格主界面
-// //                         </button>
-// //                         <button className="submit" onClick={() => {
-// //                             this.createSubmit();
-// //                         }}><i className="fa fa-plus"></i>提交
-// //                         </button>
-// //                     </div>
-
-// //                         {
-// //                             this.state.ct.map((d, i) => {
-// //                                 return <tr key={i}>
-// //                                     {
-// //                                         this.state.columns.filter(d1 => {
-// //                                             let filter = (d1.id == "id");
-// //                                             return !filter;
-// //                                         }).map(d1 => {
-// //                                             let td;
-// //                                             switch (d1.type) {
-// //                                                 case "textarea":
-// //                                                     td = <textarea disabled={d1.createReadonly} value={d[d1.id]}
-// //                                                                    onChange={(e) => {
-// //                                                                        this.createTdChange(e, i, d1.id);
-// //                                                                    }}/>;
-// //                                                     break;
-// //                                                 case "radio":
-// //                                                     td = <select disabled={d1.createReadonly}
-// //                                                                  value={d[d1.id]}
-// //                                                                  onChange={(e) => {
-// //                                                                      this.createTdChange(e, i, d1.id);
-// //                                                                  }}>
-// //                                                         <option></option>
-// //                                                         {d1.radioArr.map((d2, j) => {
-// //                                                             return <option key={j}>{d2}</option>;
-// //                                                         })}</select>;
-// //                                                     break;
-// //                                                 default:
-// //                                                     td = <input disabled={d1.createReadonly} value={d[d1.id]}
-// //                                                                 onChange={(e) => {
-// //                                                                     this.createTdChange(e, i, d1.id);
-// //                                                                 }}/>;
-// //                                                     break;
-// //                                             }
-// //                                             td = <td key={d1.id}>{td}</td>;
-// //                                             return td;
-// //                                         })
-// //                                     }</tr>;
-// //                             })
-// //                         }
-// //                         </tbody>
-// //                     </table>
-// //                 </div>
-// //                 <div className="panel-attachment" style={this.state.panel == "attachment" ? {} : {display: "none"}}>
-// //                     <div className="panel-head">
-// //                         <button className="backToMain" onClick={() => {
-// //                             this.backToMain();
-// //                         }}><i className="fa fa-arrow-left"></i>返回表格主界面
-// //                         </button>
-// //                     </div>
-// //                     <div className="upload">
-// //                         <input type="file" multiple="multiple"/>
-// //                         <div className="progress">{this.state.attachmentProgress}</div>
-// //                         <button onClick={(e) => {
-// //                             this.uploadAttachment(e);
-// //                         }}>上传附件
-
-// //                     </table>
-// //                 </div>
-// //                 {
-// //                     this.setBottom()
-// //                 }
-// //             </div>
-// //         );
-// //     }
-// //
-// //     /**
-// //      * 设置table顶部的dom
-// //      * @returns {XML}
-// //      */
-// //     setTop() {
-// //         let dom = <div className="table-head">
-// //             <div className="delete"
-// //                  style={this.state.curd.includes("d") ? {marginLeft: "20px"} : {display: "none"}}>
-// //                 <button onClick={() => {
-// //                     this.delete();
-// //                 }}><i className="fa fa-times"></i>删除
-// //                 </button>
-// //             </div>
-// //             <div className="attachment"
-// //                  style={this.props.attachment ? {marginLeft: "20px"} : {display: "none"}}>
-// //                 <button onClick={() => {
-// //                     this.attachment();
-// //                 }}><i className="fa fa-paperclip"></i>附件
-// //                 </button>
-// //             </div>
-// //             <div className="select-filter" style={this.state.columns.filter(d => {
-// //                 return d.select;
-// //             }).length > 0 ? {marginTop: "20px"} : {}}>
-// //                 {
-// //                     this.state.selectFilter.map((d, i) => {
-// //                         let select = <Select key={i} data={d.data} text={d.name}
-// //                                              callback={(d1 => {
-// //                                                  this.rowFilterCallback(d.id, d1);
-// //                                              })}
-// //                                              optionNumPerColumn={5}/>;
-// //                         return select;
-// //                     })
-// //                 }
-// //             </div>
-// //         </div>;
-// //         return dom;
-// //     }
-// //
-// //
-
-// //
-
-// //
-// //     rowFilterCallback(id, data) {
-// //         let checkedValues = data.filter(d => {
-// //             return d.checked;
-// //         }).map(d => {
-// //             return d.name;
-// //         });
-// //         let filterData = this.state.sourceData.filter(d => {
-// //             let isFind = false;
-// //             checkedValues.forEach(d1 => {
-// //                 if (d[id] != null && d[id].toString().toLowerCase() == d1.toString().toLowerCase()) {
-// //                     isFind = true;
-// //                 }
-// //             });
-// //             return isFind;
-// //         });
-// //         this.state.selectFilter.filter(d => {
-// //             return d.id != id;
-// //         }).map(d => {
-// //             let checkedValues = d.data.filter(d1 => {
-// //                 return d1.checked;
-// //             });
-// //
-// //             filterData = filterData.filter(d1 => {
-// //                 let isFind = false;
-// //                 checkedValues.forEach(d2 => {
-// //                     let tdValue = d1[d.id];
-// //                     let matchValue = d2.name.toString().toLowerCase();
-// //                     if (tdValue != null && tdValue.toString().toLowerCase() == matchValue) {
-// //                         isFind = true;
-// //                     }
-// //                 });
-// //                 return isFind;
-// //             })
-// //         });
-// //
-// //         this.setState({
-// //             filterData: filterData,
-// //             displayData: filterData
-// //         });
-// //     }
-// //
-// //
-// //     radioFilterChange(e, d) {
-// //         let filterData = (e.target.value == d.name) ? this.state.sourceData : this.state.sourceData.filter(d1 => {
-// //                 d1 = d1[d.id];
-// //                 d1 = (d1 == null) ? "" : d1.toString();
-// //                 return d1 == e.target.value;
-// //             });
-// //         this.setState({
-// //             filterData: filterData,
-// //             displayData: filterData
-// //         });
-// //     }
-// //
-// //     tdCallback(id, value) {
-// //         this.props[id + "TdCallback"](value);
-// //     }
-// //
-
-// /
-// //
-// //
-//
-// //
-// //
-// //     refreshAttachment(id) {
-// //         let tableId = this.props.tableId;
-// //         http.post("../table/" + tableId + "/attachmentRead", {id: id}).then(d => {
-// //             this.setState({
-// //                 panel: "attachment",
-// //                 attachmentList: d
-// //             });
-// //         }).catch(d => {
-// //             alert("获取附件列表失败:" + d);
-// //         });
-// //     }
-// //
-// //     deleteAttachment(d) {
-// //         let id = this.state.attachmentId;
-// //         let tableId = this.props.tableId;
-// //         let data = {
-// //             id: id,
-// //             name: d
-// //         };
-// //         http.post("../table/" + tableId + "/attachmentDelete", data).then(d1 => {
-// //             this.refreshAttachment(id);
-// //             alert("删除成功");
-// //         }).catch(d1 => {
-// //             alert("删除失败:" + d1);
-// //         })
-// //     }
-// //
-// //     uploadAttachment(e) {
-// //         let id = this.state.attachmentId;
-// //         let tableId = this.props.tableId;
-// //         upload.do("../table/" + tableId + "/attachmentUpload?id=" + id, e.target.parentNode.childNodes[0], d => {
-// //             this.setState({
-// //                 attachmentProgress: d + "%"
-// //             });
-// //         }).then(d => {
-// //             this.refreshAttachment(id);
-// //             alert("上传成功");
-// //         }).catch(d => {
-// //             alert("上传失败:" + d);
-// //         });
-// //     }
-// // }
-//
-//
-// module.exports = table;
-
 import React from "react";
 import css from "./index.scss";
 import http from "karl-http";
@@ -349,7 +11,7 @@ class table extends React.Component {
     constructor(props) {
         super(props);
 
-        //数据顺序为 sourceData > filterData > sortedData > displayData
+        //数据顺序为 sourceData > componentFilterData > inputFilterData > sortedData > displayData
         this.state = {
             tableId: this.props.tableId,
             project: this.props.project,
@@ -359,14 +21,15 @@ class table extends React.Component {
             rowPerPage: this.props.rowPerPage ? this.props.rowPerPage : 10,
             pageIndex: 1,
             sourceData: [],
+            componentFilterData: [],
+            inputFilterData: [],
             sortedData: [],
-            filterData: [],
             displayData: [],
             sortDesc: true,
             sortColumnId: "",
         };
 
-        let bindArr = ["setTable", "rowFilterCallback", "columnFilterCallback", "read", "setConditionState", "setChart"];
+        let bindArr = ["setTable", "setInputFilterData", "columnFilterCallback", "read", "setConditionState", "setChart"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
@@ -382,7 +45,7 @@ class table extends React.Component {
             };
 
             let serverFilter = data.columns.filter(d=> {
-                return d.hasOwnProperty("queryCondition");
+                return d.hasOwnProperty("serverFilter");
             });
             if (data.hasOwnProperty("extraFilter")) {
                 serverFilter = serverFilter.concat(data.extraFilter);
@@ -565,12 +228,14 @@ class table extends React.Component {
                         startAdd = dateAdd.hasOwnProperty("startAdd") ? dateAdd.startAdd : startAdd;
                         endAdd = dateAdd.hasOwnProperty("endAdd") ? dateAdd.endAdd : endAdd;
                     }
-                    let placeholder;
+                    let placeholder = d.hasOwnProperty("placeholder") ? d.placeholder : d.name;
+                    let requiredClassName = d.required ? (" " + css.required) : "";
                     switch (d.type) {
                         case "input":
                             placeholder = d.hasOwnProperty("placeholder") ? d.placeholder : d.name;
                             condition = <div className={css.section}>
-                                <input className={css.filter} placeholder={placeholder} type="text"
+                                <input className={css.filter + requiredClassName}
+                                       placeholder={placeholder} type="text"
                                        value={this.state[d.id + "Condition"]}
                                        onChange={e=> {
                                            this.setConditionState(d.id + "Condition", e.target.value);
@@ -580,11 +245,11 @@ class table extends React.Component {
                         case "integer":
                             placeholder = d.hasOwnProperty("placeholder") ? d.placeholder : d.name;
                             condition = <div className={css.section}>
-                                <input className={css.filter} placeholder={placeholder} min="0" type="number"
-                                       value={this.state[d.id + "Condition"]}
-                                       onChange={e=> {
-                                           this.setConditionState(d.id + "Condition", e.target.value);
-                                       }}/>
+                                <input className={css.filter + requiredClassName} placeholder={placeholder} min="0"
+                                       type="number"
+                                       value={this.state[d.id + "Condition"]} onChange={e=> {
+                                    this.setConditionState(d.id + "Condition", e.target.value);
+                                }}/>
                             </div>;
                             break;
                         case "radio":
@@ -668,16 +333,54 @@ class table extends React.Component {
      */
     setClientFilterDom() {
         let pageArr = [];
-        for (let i = 0; i < Math.ceil(this.state.filterData.length / this.state.rowPerPage); i++) {
+        for (let i = 0; i < Math.ceil(this.state.inputFilterData.length / this.state.rowPerPage); i++) {
             pageArr.push(i + 1);
         }
+
+        //所有的客户端筛选字段
+        let clientFilterDom = this.state.columns.filter(d=> {
+            return d.hasOwnProperty("clientFilter") && d.clientFilter == true;
+        }).map(d=> {
+            let stateId = "clientFilter" + d.id;
+            let data = [];
+            if (this.state.hasOwnProperty(stateId)) {
+                //如果有state,直接使用原来的data
+                data = this.state[stateId];
+            } else {
+                //如果没有该state,对控件值进行初始化
+                this.state.sourceData.forEach(d1=> {
+                    if (!data.includes(d1[d.id])) {
+                        data.push(d1[d.id]);
+                    }
+                });
+                data = data.map((d, i)=> {
+                    return {id: i, name: d, checked: true};
+                });
+            }
+
+            return <div className={css.section}>
+                <Select data={data} text={d.name} callback={d1=> {
+                    let json = {};
+                    json["clientFilter" + d.id] = d1;
+                    this.setState(json, ()=> {
+                        this.setComponentFilterData();
+                    });
+                }}/>
+            </div>;
+        });
+
         let dom = <div className={css.clientFilter}>
             <div className={css.section}>
                 <Select data={this.state.columns} text="列过滤" callback={this.columnFilterCallback}
                         optionNumPerColumn={5}/>
             </div>
+            {
+                clientFilterDom
+            }
             <div className={css.section}>
-                <input className={css.rowFilter} onChange={this.rowFilterCallback} placeholder="行过滤"
+                <input className={css.rowFilter} onChange={e=> {
+                    this.setInputFilterData(e.target.value);
+                }} placeholder="行过滤"
                        value={this.state.rowFilterValue}/>
             </div>
             <div className={css.section}>
@@ -765,14 +468,34 @@ class table extends React.Component {
                 loading: false,
                 sourceData: data,
                 sortedData: data,
-                filterData: data,
+                componentFilterData: data,
+                inputFilterData: data,
                 displayData: displayData,
                 sortColumnId: "",
                 rowFilterValue: ""
             };
+
+            //设置客户端筛选组件控件的值为undefind，恢复为全选
+            this.state.columns.filter(d=> {
+                return d.hasOwnProperty("clientFilter") && d.clientFilter == true;
+            }).forEach(d=> {
+                let id = d.id;
+                let componentData = [];
+                data.forEach(d1=> {
+                    if (!componentData.includes(d1[id])) {
+                        componentData.push(d1[id]);
+                    }
+                });
+                componentData = componentData.map((d1, i)=> {
+                    return {id: i, name: d1, checked: true};
+                });
+                json["clientFilter" + id] = componentData;
+            });
+
             if (message.hasOwnProperty("columns")) {
                 json.columns = message.columns;
             }
+
             this.setState(json);
 
         } catch (e) {
@@ -785,11 +508,10 @@ class table extends React.Component {
 
     /**
      * 行过滤输入改变时的回调
-     * @param e
      */
-    rowFilterCallback(e) {
-        let matchValue = e.target.value;
-        let filterData = this.state.sourceData.filter(d => {
+    setInputFilterData(value) {
+        let matchValue = value == undefined ? this.state.rowFilterValue : value;
+        let inputFilterData = this.state.componentFilterData.filter(d => {
             let isFind = false;
             for (let k in d) {
                 if (d[k] != null && d[k].toString().toLowerCase().includes(matchValue.toLowerCase())) {
@@ -800,11 +522,14 @@ class table extends React.Component {
             return isFind;
         });
         let json = this.sort();
-        this.setState({
+        let json2 = {
             pageIndex: 1,
-            filterData: filterData,
-            rowFilterValue: matchValue
-        }, ()=> {
+            inputFilterData: inputFilterData
+        };
+        if (value != undefined) {
+            json2.rowFilterValue = matchValue;
+        }
+        this.setState(json2, ()=> {
             let json1 = this.sort();
             for (let k in json1) {
                 json[k] = json1[k];
@@ -851,7 +576,7 @@ class table extends React.Component {
             }
         }
 
-        let sortedData = this.state.filterData.concat();
+        let sortedData = this.state.inputFilterData.concat();
         let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
         if (sortDesc) {
             sortedData.sort((a, b) => {
@@ -889,6 +614,36 @@ class table extends React.Component {
             sortDesc: sortDesc,
             sortedData: sortedData,
         };
+    }
+
+    /**
+     * 根据客户端筛选组件的状态设置componentFilterData
+     */
+    setComponentFilterData() {
+        let componentFilterData = this.state.sourceData.concat();
+        this.state.columns.filter(d=> {
+            return d.hasOwnProperty("clientFilter") && d.clientFilter == true;
+        }).forEach(d=> {
+            let id = d.id;
+            let componentData = this.state["clientFilter" + id];
+            componentFilterData = componentFilterData.filter(d1=> {
+                //过滤组件没有勾选的行
+                let checkedArr = componentData.filter(d2=> {
+                    return d2.checked;
+                }).map(d2=> {
+                    return d2.name;
+                });
+                let isValid = checkedArr.some(d2=> {
+                    return d2 == d1[id];
+                });
+                return isValid;
+            });
+        });
+        this.setState({
+            componentFilterData: componentFilterData
+        }, ()=> {
+            this.setInputFilterData();
+        });
     }
 }
 

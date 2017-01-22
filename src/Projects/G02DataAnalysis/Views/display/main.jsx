@@ -98,7 +98,7 @@ ReactDom.render(
             </div>
         },
         {
-            id: "snap", name: "汇总表", group: "快照查询",
+            id: "snap", name: "角色汇总表", group: "快照查询",
             dom: <div>
                 <div className={css.tableTips}>该数据每1天更新一次</div>
                 <Table project="G02DataAnalysis" tableId="snap"/>

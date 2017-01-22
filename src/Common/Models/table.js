@@ -97,6 +97,17 @@ module.exports = {
         data.columns = await attachData(config.columns);
         if (config.hasOwnProperty("extraFilter")) {
             data.extraFilter = await attachData(config.extraFilter);
+            //附加其他属性
+            data.extraFilter = data.extraFilter.map(d=>{
+                let findElement = config.extraFilter.find(d1=>{
+                    return d.id == d1.id;
+                });
+                if(findElement.hasOwnProperty("required")){
+                    d.required = findElement.required;
+                }
+                return d;
+            })
+
         }
         response.success(res, data);
     },
@@ -378,11 +389,12 @@ module.exports = {
                 let name = findColumn == undefined ? d : findColumn.name;
                 let checked = findColumn == undefined ? true : findColumn.checked;
                 let json = {id: d, name: name, checked: checked};
-                if (findColumn != undefined && findColumn.hasOwnProperty("thStyle")) {
-                    json.thStyle = findColumn.thStyle;
-                }
-                if (findColumn != undefined && findColumn.hasOwnProperty("tdStyle")) {
-                    json.tdStyle = findColumn.tdStyle;
+                if(findColumn != undefined){
+                    ["thStyle","tdStyle"].forEach(d1=>{
+                        if (findColumn.hasOwnProperty(d1)) {
+                            json[d1] = findColumn[d1];
+                        }
+                    })
                 }
                 return json;
             });

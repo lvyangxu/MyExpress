@@ -15,11 +15,13 @@
  *          checked:是否默认显示
  *          clientFilter:是否作为客户端筛选条件
  *          type:表格创建和修改时显示的类型，可为input,textarea,radio,select,day,month,week,rangeDay,rangeMonth,rangeWeek，默认为input
- *          queryCondition;是否作为服务端查询筛选条件
+ *          serverFilter:是否作为服务端查询筛选条件
+ *          clientFilter:是否作为客户端查询筛选条件
  *          data:该筛选组件初始化数据的数组，函数或固定值，为函数时参数为pool
  *          dataMap:对data初始化的值进行处理
  *          radioArr:所有单选值的数组，仅在type为radio有效,
  *          placeholder:input输入框的placeholder，仅在type为integer或input时有效
+ *          required:控制input输入框placeholder的颜色，仅在type为integer或input时有效
  *          dateAdd：筛选条件为日期类型时，默认的日期偏移量，默认为{add:0,startAdd:-7(日)或-1(月),endAdd:0}
  *          suffix：table中td显示的后缀文字
  *          thStyle:默认css样式
@@ -234,13 +236,13 @@ module.exports = (req) => {
             curd: "r",
             autoRead: true,
             columns: [
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
+                {id: "day", name: "日期", checked: true, type: "rangeDay", serverFilter: true, dateAdd: {startAdd: -7}},
                 {
                     id: "server",
                     name: "服务器",
                     checked: true,
                     type: "select",
-                    queryCondition: true,
+                    serverFilter: true,
                     data: (pool)=> {
                         let sqlCommand = "select distinct serverid as server from res.new where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
@@ -258,8 +260,8 @@ module.exports = (req) => {
                 {id: "accountActivation", name: "日活跃账号数", checked: true},
                 {id: "deviceActivation", name: "日活跃设备数", checked: true},
                 {id: "loginTimes", name: "日登录次数", checked: true},
-                {id: "totalCharge", name: "日充值总额", checked: true},
-                {id: "newRoleTotalCharge", name: "日新增玩家付费总额", checked: true},
+                {id: "totalCharge", name: "日充值总额($)", checked: true},
+                {id: "newRoleTotalCharge", name: "日新增玩家付费总额($)", checked: true},
                 {id: "chargeRoleNum", name: "日付费用户数", checked: true},
                 {id: "chargeNewRoleNum", name: "日新增玩家付费用户数", checked: true},
                 {id: "charge3DayRoleNum", name: "连续三天付费用户数", checked: true},
@@ -295,8 +297,8 @@ module.exports = (req) => {
                 {
                     title: "充值总额", x: "day", type: "bar", group: ["server"],
                     y: [
-                        {id: "totalCharge", name: "充值总额"},
-                        {id: "newRoleTotalCharge", name: "新增玩家付费总额"},
+                        {id: "totalCharge", name: "充值总额($)"},
+                        {id: "newRoleTotalCharge", name: "新增玩家付费总额($)"},
                     ]
                 },
                 {
@@ -341,7 +343,7 @@ module.exports = (req) => {
                                 ${whereStr1} ${groupStr}) as active
                     on ${buildJoinCondition(server, "active")})
                     left join
-                         (select serverid as server,date as day,sum(day_charge_total) as totalCharge,sum(day_new_charge_total) as newRoleTotalCharge,
+                         (select serverid as server,date as day,round(sum(day_charge_total/100),2) as totalCharge,round(sum(day_new_charge_total/100),2) as newRoleTotalCharge,
                             sum(day_pay_user_num) as chargeRoleNum,sum(day_new_pay_user_num) as chargeNewRoleNum,sum(continus_pay_user_num) as charge3DayRoleNum
                                 from res.charge ${whereStr1} ${groupStr}) as charge
                     on ${buildJoinCondition(server, "charge")})
@@ -362,13 +364,13 @@ module.exports = (req) => {
             database: "log_nuclear",
             curd: "r",
             columns: [
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, dateAdd: {startAdd: -7}},
+                {id: "day", name: "日期", checked: true, type: "rangeDay", serverFilter: true, dateAdd: {startAdd: -7}},
                 {
                     id: "server",
                     name: "服务器",
                     checked: true,
                     type: "select",
-                    queryCondition: true,
+                    serverFilter: true,
                     data: (pool)=> {
                         let sqlCommand = "select distinct serverId as server from log_nuclear.diamond_data where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
@@ -393,11 +395,21 @@ module.exports = (req) => {
             ],
             chart: [
                 {
-                    title: "资源汇总", x: "day", type: "bar", 
+                    title: "资源汇总-值", x: "day", type: "bar", group: ["source"],
+                    y: [
+                        {id: "value", name: "值"},
+                    ]
+                },
+                {
+                    title: "资源汇总-人数", x: "day", type: "bar", group: ["source"],
                     y: [
                         {id: "roleNum", name: "人数"},
+                    ]
+                },
+                {
+                    title: "资源汇总-次数", x: "day", type: "bar", group: ["source"],
+                    y: [
                         {id: "times", name: "次数"},
-                        {id: "value", name: "值"},
                     ]
                 },
             ],
@@ -425,12 +437,13 @@ module.exports = (req) => {
                     condition.optionalSelectNum("serverId", "server"),
                     condition.notEqual("serverId", 0),
                     condition.rangeDate("date", "day"),
-                    condition.optionalSelectNum("vipLevel", "vipLevel")
+                    condition.optionalSelectNum("vipLevel", "vipLevel"),
+                    condition.notEqual(valueStr, 0)
                 ];
                 let whereStr = where(whereArr);
                 let groupStr = group(["server", "day", "source"]);
                 let sqlCommand = `select date as day,serverId as server,source,count(distinct roleId) as roleNum,sum(${timesStr}) as times,sum(${valueStr}) as value
-                                    from log_nuclear.diamond_data 
+                                    from log_nuclear.diamond_data  
                                         ${whereStr} ${groupStr}`;
                 return sqlCommand;
             },
@@ -519,10 +532,10 @@ module.exports = (req) => {
             database: "raw",
             curd: "r",
             columns: [
-                {id: "role", name: "角色id", checked: true, type: "integer", queryCondition: true},
+                {id: "role", name: "角色id", checked: true, type: "integer", serverFilter: true},
                 {id: "account", name: "账号id", checked: true},
                 {
-                    id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
+                    id: "server", name: "服务器id", checked: true, type: "select", serverFilter: true,
                     data: (pool)=> {
                         let sqlCommand = "select distinct serverid as server from raw.charge where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
@@ -532,21 +545,21 @@ module.exports = (req) => {
                 {id: "client", name: "站点id", checked: true},
                 {id: "vipLevel", name: "vip等级", checked: true},
                 {id: "level", name: "角色等级", checked: true},
-                {id: "money", name: "充值金额", checked: true},
+                {id: "money", name: "充值金额($)", checked: true},
                 {id: "num", name: "充值笔数", checked: true},
                 {id: "arrivalTime", name: "到帐时间", checked: true},
-                {id: "orderId", name: "订单号", checked: true, type: "integer", queryCondition: true},
+                {id: "orderId", name: "订单号", checked: true, type: "integer", serverFilter: true},
                 {id: "chargeChannel", name: "充值渠道", checked: true},
                 {id: "chargeClient", name: "充值站点", checked: true},
                 {
-                    id: "chargeStatus", name: "充值状态", checked: true, type: "select", queryCondition: true,
+                    id: "chargeStatus", name: "充值状态", checked: true, type: "select", serverFilter: true,
                     data: [
                         {id: "0", name: "非正式充值", checked: false},
                         {id: "1", name: "正式充值", checked: true}
                     ]
                 },
                 {id: "device", name: "设备id", checked: true},
-                {id: "second", name: "充值时间", checked: true, type: "rangeSecond", queryCondition: true},
+                {id: "second", name: "充值时间", checked: true, type: "rangeSecond", serverFilter: true},
             ],
             read: ()=> {
                 let whereStr = where([
@@ -557,11 +570,11 @@ module.exports = (req) => {
                     condition.optionalSelectNum("serverid", "server"),
                     condition.notEqual("serverid", 0)
                 ]);
-                whereStr = whereStr.replace(/status="非正式充值"/, "status=\"0\"");
-                whereStr = whereStr.replace(/status="正式充值"/, "status=\"1\"");
-                let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,money,
-                                    amount as num,transtamp as arrivalTime,orderid as orderId,now_channel as chargeChannel,now_ptid as chargeClient,
-                                        status as chargeStatus,dv_id as device,time as second from raw.charge ${whereStr} limit 5000`;
+                whereStr = whereStr.replace(/非正式充值/, "0");
+                whereStr = whereStr.replace(/正式充值/, "1");
+                let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,
+                                    round(money/100,2) as money,amount as num,transtamp as arrivalTime,orderid as orderId,now_channel as chargeChannel,
+                                        now_ptid as chargeClient,status as chargeStatus,dv_id as device,time as second from raw.charge ${whereStr} limit 5000`;
                 return sqlCommand;
             },
             readCheck: ()=> {
@@ -574,10 +587,10 @@ module.exports = (req) => {
             database: "raw",
             curd: "r",
             columns: [
-                {id: "role", name: "角色id", checked: true, type: "integer", queryCondition: true},
+                {id: "role", name: "角色id", checked: true, type: "integer", serverFilter: true},
                 {id: "account", name: "账号id", checked: true},
                 {
-                    id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
+                    id: "server", name: "服务器id", checked: true, type: "select", serverFilter: true,
                     data: (pool)=> {
                         let sqlCommand = "select distinct serverid as server from raw.cost where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
@@ -595,7 +608,7 @@ module.exports = (req) => {
                 {id: "leftDiamond", name: "剩余钻石数", checked: true},
                 {id: "leftSilver", name: "剩余银币数", checked: true},
                 {id: "device", name: "设备id", checked: true},
-                {id: "second", name: "消耗时间", checked: true, type: "rangeSecond", queryCondition: true},
+                {id: "second", name: "消耗时间", checked: true, type: "rangeSecond", serverFilter: true},
             ],
             read: ()=> {
                 let whereStr = where([
@@ -614,14 +627,52 @@ module.exports = (req) => {
             }
         },
         {
+            id: "stamina",
+            database: "raw",
+            curd: "r",
+            columns: [
+                {id: "role", name: "角色id", checked: true, type: "integer", serverFilter: true},
+                {id: "account", name: "账号id", checked: true},
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select", serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from raw.tili_buy where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "vipLevel", name: "vip等级", checked: true},
+                {id: "level", name: "角色等级", checked: true},
+                {id: "totalStamina", name: "当前身上体力总额", checked: true},
+                {id: "stamina", name: "购买体力", checked: true},
+                {id: "device", name: "设备id", checked: true},
+                {id: "second", name: "购买时间", checked: true, type: "rangeSecond", serverFilter: true},
+            ],
+            read: ()=> {
+                let whereStr = where([
+                    condition.optionalInputStr("js_id", "role"),
+                    condition.rangeDate("time", "second"),
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0)
+                ]);
+                let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,tili_total as totalStamina,
+                                    tili as stamina,dv_id as device,time as second from raw.tili_buy ${whereStr} limit 5000`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.rangeSecond("second") && check.select("server") && check.optionalRegex("role", /^\d+$/);
+            }
+        },
+        {
             id: "produce",
             database: "raw",
             curd: "r",
             columns: [
-                {id: "role", name: "角色id", checked: true, type: "integer", queryCondition: true},
+                {id: "role", name: "角色id", checked: true, type: "integer", serverFilter: true},
                 {id: "account", name: "账号id", checked: true},
                 {
-                    id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
+                    id: "server", name: "服务器id", checked: true, type: "select", serverFilter: true,
                     data: (pool)=> {
                         let sqlCommand = "select distinct serverid as server from raw.shouyi where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
@@ -641,7 +692,7 @@ module.exports = (req) => {
                 {id: "device", name: "设备id", checked: true},
                 {id: "sid", name: "sid", checked: true},
                 {id: "stamina", name: "体力", checked: true},
-                {id: "second", name: "消耗时间", checked: true, type: "rangeSecond", queryCondition: true},
+                {id: "second", name: "消耗时间", checked: true, type: "rangeSecond", serverFilter: true},
             ],
             read: ()=> {
                 let whereStr = where([
@@ -657,484 +708,6 @@ module.exports = (req) => {
             },
             readCheck: ()=> {
                 return check.optionalRegex("role", /^\d+$/) && check.rangeSecond("second") && check.select("server");
-            }
-        },
-        {
-            id: "stamina",
-            database: "raw",
-            curd: "r",
-            columns: [
-                {id: "role", name: "角色id", checked: true, type: "integer", queryCondition: true},
-                {id: "account", name: "账号id", checked: true},
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverid as server from raw.tili_buy where serverid <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "vipLevel", name: "vip等级", checked: true},
-                {id: "level", name: "角色等级", checked: true},
-                {id: "totalStamina", name: "当前身上体力总额", checked: true},
-                {id: "stamina", name: "购买体力", checked: true},
-                {id: "device", name: "设备id", checked: true},
-                {id: "second", name: "购买时间", checked: true, type: "rangeSecond", queryCondition: true},
-            ],
-            read: ()=> {
-                let whereStr = where([
-                    condition.optionalInputStr("js_id", "role"),
-                    condition.rangeDate("time", "second"),
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0)
-                ]);
-                let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,tili_total as totalStamina,
-                                    tili as stamina,dv_id as device,time as second from raw.tili_buy ${whereStr} limit 5000`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.rangeSecond("second") && check.select("server") && check.optionalRegex("role", /^\d+$/);
-            }
-        },
-        {
-            id: "diamond",
-            database: "res",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverid as server from res.rank where serverid <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "rank", name: "排名", checked: true},
-                {id: "rankType", name: "排名类型", checked: true, type: "radio", queryCondition: true, data: ["金钻", "钻石"]},
-                {id: "roleId", name: "角色名", checked: true},
-                {id: "role", name: "角色名", checked: true},
-                {id: "roleServer", name: "角色服务器", checked: true},
-                {id: "roleChannel", name: "角色渠道", checked: true},
-                {id: "roleClient", name: "角色站点", checked: true},
-                {id: "level", name: "角色等级", checked: true},
-                {id: "vipLevel", name: "角色VIP等级", checked: true},
-                {id: "gold", name: "当前金钻数", checked: true},
-                {id: "diamond", name: "当前钻石数", checked: true},
-                {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
-            ],
-            extraFilter: [
-                {id: "limit", name: "最大查询行数", type: "radio", data: [100, 200, 300]}
-            ],
-            read: ()=> {
-                let whereStr = where([
-                    condition.simpleStr("rank_type", "rankType"),
-                    condition.simpleStr("date", "day"),
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0)
-                ]);
-                whereStr = whereStr.replace(/rank_type="金钻"/, "rank_type=\"jinzuan\"");
-                whereStr = whereStr.replace(/rank_type="钻石"/, "rank_type=\"zuansi\"");
-                let sqlCommand = `select serverid as server,channel,ptid as client,rank,rank_type as rankType,js_str as roleId,js_na as role,js_server as roleServer,
-                                    js_channel as roleChannel,js_ptid as roleClient,level,viplevel as vipLevel,jinzuan_total as gold,zuansi_total as diamond,
-                                        date as day from res.rank ${whereStr} limit ${req.body.limit}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.select("server") && check.day("day") && check.regex("rankType", /^(金钻|钻石)$/) && check.regex("limit", /^\d+$/);
-            }
-        },
-        {
-            id: "chargeRank",
-            database: "res",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverid as server from res.rank_charge where serverid <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "rank", name: "排名", checked: true},
-                {id: "roleId", name: "角色名", checked: true},
-                {id: "role", name: "角色名", checked: true},
-                {id: "roleServer", name: "角色服务器", checked: true},
-                {id: "roleChannel", name: "角色渠道", checked: true},
-                {id: "roleClient", name: "角色站点", checked: true},
-                {id: "totalCharge", name: "充值总额", checked: true},
-                {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
-            ],
-            read: ()=> {
-                let whereStr = where([
-                    condition.simpleStr("date", "day"),
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0)
-                ]);
-                let sqlCommand = `select serverid as server,channel,ptid as client,rank,js_str as roleId,js_na as role,js_server as roleServer,
-                                    js_channel as roleChannel,js_ptid as roleClient,charge_total as totalCharge,date as day from res.rank_charge 
-                                        ${whereStr} `;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.select("server") && check.day("day");
-            }
-        },
-        {
-            id: "deviceChargeRank",
-            database: "res",
-            curd: "r",
-            columns: [
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "rank", name: "排名", checked: true},
-                {id: "device", name: "设备id", checked: true},
-                {id: "roleList", name: "角色列表", checked: true},
-                {id: "totalCharge", name: "充值总额", checked: true},
-                {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
-            ],
-            read: ()=> {
-                let whereStr = where([
-                    condition.simpleStr("date", "day")
-                ]);
-                let sqlCommand = `select channel,ptid as client,rank,dv_str as device,js_info as roleList,charge_total as totalCharge,date as day from res.rank_charge_dv 
-                                        ${whereStr} `;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.day("day");
-            }
-        },
-        {
-            id: "retentionAndLtv",
-            database: "log_nuclear",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from log_nuclear.login_data where serverId <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "day", name: "日期", checked: true, type: "rangeDay", queryCondition: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "dnu", name: "DNU", checked: true},
-                {id: "retention1", name: "次日留存", checked: true, suffix: "%"},
-                {id: "retention2", name: "2日留存", checked: true, suffix: "%"},
-                {id: "retention3", name: "3日留存", checked: true, suffix: "%"},
-                {id: "retention7", name: "7日留存", checked: true, suffix: "%"},
-                {id: "retention14", name: "14日留存", checked: true, suffix: "%"},
-                {id: "retention30", name: "30日留存", checked: true, suffix: "%"},
-                {id: "retention45", name: "45日留存", checked: true, suffix: "%"},
-                {id: "retention60", name: "60日留存", checked: true, suffix: "%"},
-                {id: "retention90", name: "90日留存", checked: true, suffix: "%"},
-                {id: "ltv1", name: "次日LTV", checked: true},
-                {id: "ltv2", name: "2日LTV", checked: true},
-                {id: "ltv3", name: "3日LTV", checked: true},
-                {id: "ltv7", name: "7日LTV", checked: true},
-                {id: "ltv14", name: "14日LTV", checked: true},
-                {id: "ltv30", name: "30日LTV", checked: true},
-                {id: "ltv45", name: "45日LTV", checked: true},
-                {id: "ltv60", name: "60日LTV", checked: true},
-                {id: "ltv90", name: "90日LTV", checked: true},
-                {id: "ltvAll", name: "allLTV", checked: true},
-            ],
-            extraFilter: [
-                {id: "type", name: "类型", type: "radio", data: ["角色", "账号", "设备"]}
-            ],
-            chart: [
-                {
-                    title: "留存", x: "day", tipsSuffix: "%",
-                    y: [
-                        {id: "retention1", name: "次日留存"},
-                        {id: "retention2", name: "2日留存"},
-                        {id: "retention3", name: "3日留存"},
-                        {id: "retention7", name: "7日留存"},
-                        {id: "retention14", name: "14日留存"},
-                        {id: "retention30", name: "30日留存"},
-                        {id: "retention45", name: "45日留存"},
-                        {id: "retention60", name: "60日留存"},
-                        {id: "retention90", name: "90日留存"},
-                    ]
-                },
-                {
-                    title: "LTV", x: "day",
-                    y: [
-                        {id: "ltv1", name: "次日LTV"},
-                        {id: "ltv2", name: "2日LTV"},
-                        {id: "ltv3", name: "3日LTV"},
-                        {id: "ltv7", name: "7日LTV"},
-                        {id: "ltv14", name: "14日LTV"},
-                        {id: "ltv30", name: "30日LTV"},
-                        {id: "ltv45", name: "45日LTV"},
-                        {id: "ltv60", name: "60日LTV"},
-                        {id: "ltv90", name: "90日LTV"},
-                        {id: "ltvAll", name: "allLTV"},
-                    ]
-                },
-            ],
-            read: ()=> {
-                let groupArr = ["server", "day"];
-                let dnuColumnStr, dayNumStr, dayColumnStr;
-                switch (req.body.type) {
-                    case "角色":
-                        dnuColumnStr = "roleId";
-                        dayColumnStr = "role_createDate";
-                        groupArr.push("role_createDate");
-                        dayNumStr = "role_tianshu";
-                        break;
-                    case "账号":
-                        dnuColumnStr = "accountId";
-                        dayColumnStr = "account_createDate";
-                        groupArr.push("account_createDate");
-                        dayNumStr = "account_tianshu";
-                        break;
-                    case "设备":
-                        dnuColumnStr = "imeiId";
-                        dayColumnStr = "imei_createDate";
-                        groupArr.push("imei_createDate");
-                        dayNumStr = "imei_tianshu";
-                        break;
-                }
-                let whereArr = [
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0),
-                    condition.rangeDate(dayColumnStr, "day")
-                ];
-                let whereStr = where(whereArr);
-                let groupStr = group(groupArr);
-                let dnu = `count(case when ${dayNumStr} = 0 then ${dnuColumnStr} end)`;
-                let retention = (dayNum)=> {
-                    let numerator = `count(distinct case when ${dayNumStr} = ${dayNum} then ${dnuColumnStr} end)`;
-                    let denominator = dnu;
-                    return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}*100/${denominator},2)) as retention${dayNum}`;
-                };
-                let ltv = (dayNum)=> {
-                    let numerator;
-                    let denominator = dnu;
-                    if (dayNum == undefined) {
-                        numerator = `sum(case when ${dayNumStr} >= 0 then pay end)`;
-                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltvAll`;
-                    } else {
-                        numerator = `sum(case when ${dayNumStr} <= ${dayNum} then pay end)`;
-                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltv${dayNum}`;
-                    }
-                };
-
-                let sqlCommand = `select ${column.optionalSelect("serverId", "server")}${dayColumnStr} as day,${dnu} as dnu,${retention(1)},${retention(2)},
-                                    ${retention(3)},${retention(7)},${retention(14)},${retention(30)},${retention(45)},${retention(60)},${retention(90)},
-                                        ${ltv(1)},${ltv(2)},${ltv(3)},${ltv(7)},${ltv(14)},${ltv(30)},${ltv(45)},${ltv(60)},${ltv(90)},${ltv()} 
-                                            from log_nuclear.login_data 
-                                                ${whereStr} ${groupStr}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.regex("type", /^(角色|账号|设备)$/) && check.rangeDay("day") && check.select("server");
-            }
-        },
-        {
-            id: "level",
-            database: "res",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from res.level_ds where serverId <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "level", name: "等级", checked: true},
-                {id: "num", name: "人数", checked: true},
-                {id: "total", name: "总人数", checked: true},
-            ],
-            chart: [
-                {
-                    title: "等级分布", x: "level", type: "bar",
-                    y: [
-                        {id: "num", name: "人数"},
-                    ]
-                }
-            ],
-            read: ()=> {
-                let whereArr = [
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0),
-                    condition.simpleStr("date", "day")
-                ];
-                let groupArr = ["server", "day", "level"];
-                let whereStr = where(whereArr);
-                let groupStr = group(groupArr);
-                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,level,sum(num) as num,sum(all_num) as total
-                                            from res.level_ds 
-                                                ${whereStr} ${groupStr}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.select("server") && check.day("day");
-            }
-        },
-        {
-            id: "vipLevel",
-            database: "res",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select",
-                    queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from res.vip_ds where serverId <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "day", name: "日期", checked: true, type: "day", queryCondition: true},
-                {id: "channel", name: "渠道id", checked: true},
-                {id: "client", name: "站点id", checked: true},
-                {id: "vipLevel", name: "VIP", checked: true},
-                {id: "num", name: "人数", checked: true},
-                {id: "total", name: "总人数", checked: true},
-            ],
-            chart: [
-                {
-                    title: "VIP等级分布", x: "vipLevel", type: "bar",
-                    y: [
-                        {id: "num", name: "人数"},
-                    ]
-                }
-            ],
-            read: ()=> {
-                let whereArr = [
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0),
-                    condition.simpleStr("date", "day")
-                ];
-                let groupArr = ["server", "day", "vipLevel"];
-                let whereStr = where(whereArr);
-                let groupStr = group(groupArr);
-                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,vip as vipLevel,sum(num) as num,sum(all_num) as total
-                                            from res.vip_ds 
-                                                ${whereStr} ${groupStr}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.select("server") && check.day("day");
-            }
-        },
-        {
-            id: "snap",
-            database: "log_nuclear",
-            curd: "r",
-            columns: [
-                {
-                    id: "server", name: "服务器id", checked: true, type: "select", queryCondition: true,
-                    data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from log_nuclear.player_info where serverid <> 0";
-                        return initMysqlServerFilter(pool, sqlCommand);
-                    }
-                },
-                {id: "deviceId", name: "设备id", checked: true, type: "integer", queryCondition: true},
-                {id: "accountId", name: "账号id", checked: true, type: "integer", queryCondition: true},
-                {id: "roleId", name: "角色id", checked: true, type: "integer", queryCondition: true},
-                {id: "region", name: "区域", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {
-                    id: "role",
-                    name: "角色名",
-                    checked: true,
-                    type: "input",
-                    queryCondition: true,
-                    tdStyle: {"white-space": "nowrap"}
-                },
-                {
-                    id: "account",
-                    name: "账号",
-                    checked: true,
-                    type: "input",
-                    queryCondition: true,
-                    thStyle: {"min-width": "100px"}
-                },
-                {id: "deviceCreateDay", name: "设备创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "accountCreateDay", name: "账号创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "roleCreateDay", name: "角色创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "level", name: "角色等级", checked: true},
-                {id: "vipLevel", name: "vip等级", checked: true},
-                {id: "roleCreateTime", name: "角色创建时间", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "profession", name: "职业", checked: true},
-                {id: "roleIp", name: "角色ip", checked: true},
-                {id: "deviceSystem", name: "系统", checked: true},
-                {id: "roleKey", name: "角色pk", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "lastLoginDay", name: "最后登录日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "loginDays", name: "登录天数", checked: true},
-                {id: "onlineDuration", name: "在线时长(秒)", checked: true},
-                {id: "loginTimes", name: "登录次数", checked: true},
-                {id: "goldAddNum", name: "金钻增量", checked: true},
-                {id: "goldAddTimes", name: "金钻增加次数", checked: true},
-                {id: "diamondAddNum", name: "钻石增量", checked: true},
-                {id: "diamondAddTimes", name: "钻石增加次数", checked: true},
-                {id: "silverAddNum", name: "银币增量", checked: true},
-                {id: "silverAddTimes", name: "银币增加次数", checked: true},
-                {id: "staminaAddNum", name: "体力增量", checked: true},
-                {id: "staminaAddTimes", name: "体力增加次数", checked: true},
-                {id: "goldCostNum", name: "金钻消耗数量", checked: true},
-                {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
-                {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
-                {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
-                {id: "silverCostNum", name: "银币消耗数量", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "silverCostTimes", name: "银币消耗次数", checked: true},
-                {id: "staminaCostNum", name: "体力消耗数量", checked: true},
-                {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
-                {id: "totalPay", name: "充值总额", checked: true},
-                {id: "firstPayDay", name: "首次充值日期", checked: true},
-                {id: "lastPayDay", name: "最近充值日期", checked: true},
-                {id: "payTimes", name: "充值次数", checked: true},
-                {id: "payDays", name: "充值天数", checked: true},
-            ],
-            extraFilter: [
-                {id: "roleQueryType", name: "角色名", type: "radio", data: ["精确匹配", "模糊查询"]}
-            ],
-            read: ()=> {
-                let whereArr = [
-                    condition.optionalInputStr("imeiId", "deviceId"),
-                    condition.optionalInputStr("accountId", "accountId"),
-                    condition.optionalInputStr("roleId", "roleId"),
-                    condition.optionalInputStr("account", "account"),
-                    condition.optionalSelectNum("serverid", "server"),
-                    condition.notEqual("serverid", 0)
-                ];
-                if (req.body.roleQueryType == "精确匹配") {
-                    whereArr.push(condition.optionalInputStr("role_name", "role"));
-                } else {
-                    whereArr.push(condition.optionalInputLikeStr("role_name", "role"));
-                }
-                let whereStr = where(whereArr);
-                let limitStr = req.body.roleQueryType == "精确匹配" ? "" : "limit 100";
-                let orderStr = "order by totalPay desc";
-                let sqlCommand = `select imeiId as deviceId,accountId,roleId,serverId as server,region,role_name as role,account,imei_createDate as deviceCreateDay,
-                                    account_createDate as accountCreateDay,role_createDate as roleCreateDay,level,vipLevel,role_createTime as roleCreateTime,
-                                        js_ocu as profession,role_ip as roleIp,imei_os as deviceSystem,pk as roleKey,login_last as lastLoginDay,login_days as loginDays,
-                                            online_times as onlineDuration,login_counts as loginTimes,jinzuan_append as goldAddNum,jinzuan_append_count as goldAddTimes,
-                                                zuansi_append as diamondAddNum,zuansi_append_count as diamondAddTimes,yinbi_append as silverAddNum,
-                                                    yinbi_append_count as silverAddTimes,tili_append as staminaAddNum,tili_append_count as staminaAddTimes,
-                                                        jinzuan_cost as goldCostNum,jinzuan_cost_count as goldCostTimes,zuansi_cost as diamondCostNum,
-                                                            zuansi_cost_count as diamondCostTimes,yinbi_cost as silverCostNum,yinbi_cost_count as silverCostTimes,
-                                                                tili_cost as staminaCostNum,tili_cost_count as staminaCostTimes,pay_all as totalPay,
-                                                                    pay_first as firstPayDay,pay_last as lastPayDay,pay_count as payTimes,pay_days as payDays
-                                                                        from log_nuclear.player_info ${whereStr} ${orderStr} ${limitStr}`;
-                return sqlCommand;
-            },
-            readCheck: ()=> {
-                return check.optionalRegex("deviceId", /^\d+$/) && check.optionalRegex("accountId", /^\d+$/) && check.optionalRegex("roleId", /^\d+$/)
-                    && check.optionalRegex("role", /^[^ ]+$/) && check.optionalRegex("account", /^[^ ]+$/)
-                    && check.regex("roleQueryType", /^(精确匹配|模糊查询)$/) && check.select("server");
             }
         },
         {
@@ -1235,7 +808,7 @@ module.exports = (req) => {
                 {id: "wupin", name: "物品栏", checked: true, thStyle: {"min-width": "100px"}},
                 {id: "module", name: "模块ID", checked: true},
                 {id: "pk", name: "玩家PK", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "timestamp", name: "时间戳", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "timestamp", name: "时间", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "type", name: "操作类型", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "mac", name: "mac", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "idfa", name: "idfa", checked: true, tdStyle: {"white-space": "nowrap"}},
@@ -1243,7 +816,7 @@ module.exports = (req) => {
             columns: [],
             extraFilter: [
                 {
-                    id: "server", name: "服务器id", checked: true, type: "radio", queryCondition: true,
+                    id: "server", name: "服务器id", checked: true, type: "radio", serverFilter: true,
                     data: (db)=> {
                         return db.collections();
                     },
@@ -1256,11 +829,12 @@ module.exports = (req) => {
                     }
                 },
                 {id: "second", name: "时间", type: "rangeSecond", dateAdd: -7},
-                {id: "pk", name: "角色pk", type: "integer", placeholder: "角色pk,必填"},
+                {id: "pk", name: "角色pk", type: "integer", placeholder: "角色pk,必填", required: true},
                 {
                     id: "module", name: "模块", type: "radio",
                     data: [
-                        "角色战力", "角色登出", "教学", "角色创建", "等级提升", "最后登录信息", "在线人数", "costGVEnum", "阵营选择", "账号创建", "角色登录",
+                        "角色战力", "角色登出", "教学", "角色创建", "等级提升", "最后登录信息", "costGVEnum", "阵营选择", "账号创建", "角色登录", "充值订单",
+                        "充值发货",
                         "成长基金", "梦想基金", "月卡礼包购买", "月卡礼包领取", "充值活动", "日常活动", "活动", "限时礼包", "转轮活动", "魔方礼包", "招财猫",
                         "顶水果", "高级挖矿", "收矿", "随机矿石", "一键挖矿", "一键收矿", "拍卖行物品上架", "拍卖行到期下架", "拍卖行购买物品", "拍卖行物品售出",
                         "宝石城抽一次", "宝石城抽次", "宝石城抽次", "普通狩猎场击杀获得饲料", "普通狩猎场捕获宠物", "普通狩猎场购买子弹", "普通狩猎场击杀buff怪",
@@ -1296,11 +870,12 @@ module.exports = (req) => {
                     {id: "js_create", name: "角色创建"},
                     {id: "lvup", name: "等级提升"},
                     {id: "login_last_info", name: "最后登录信息"},
-                    {id: "online", name: "在线人数"},
                     {id: "costGVEnum", name: "costGVEnum"},
                     {id: "zhenyingxuanze", name: "阵营选择"},
                     {id: "zh_create", name: "账号创建"},
-                    {id: "js_login", name: "角色登录"}
+                    {id: "js_login", name: "角色登录"},
+                    {id: "chargeing", name: "充值订单"},
+                    {id: "cz_rmb", name: "充值发货"},
                 ];
                 let moduleMap = [
                     {id: "118-1", name: "成长基金"},
@@ -1420,7 +995,7 @@ module.exports = (req) => {
             limitNum: 5000,
             sort: {"timestamp": 1},
             readCheck: ()=> {
-                let moduleRegex = new RegExp("^(角色战力|角色登出|教学|角色创建|等级提升|最后登录信息|在线人数|costGVEnum|阵营选择|账号创建|角色登录|" +
+                let moduleRegex = new RegExp("^(角色战力|角色登出|教学|角色创建|等级提升|最后登录信息|costGVEnum|阵营选择|账号创建|角色登录|充值订单|充值发货|" +
                     "成长基金|梦想基金|月卡礼包购买|月卡礼包领取|充值活动|日常活动|活动|限时礼包|转轮活动|魔方礼包|招财猫|顶水果|高级挖矿" +
                     "|收矿|随机矿石|一键挖矿|一键收矿|拍卖行物品上架|拍卖行到期下架|拍卖行购买物品|拍卖行物品售出|宝石城抽一次|宝石城抽次|宝石城抽次" +
                     "|普通狩猎场击杀获得饲料|普通狩猎场捕获宠物|普通狩猎场购买子弹|普通狩猎场击杀buff怪|普通狩猎场击杀任务怪|普通狩猎场领取任务奖励" +
@@ -1441,11 +1016,12 @@ module.exports = (req) => {
                     {id: "js_create", name: "角色创建"},
                     {id: "lvup", name: "等级提升"},
                     {id: "login_last_info", name: "最后登录信息"},
-                    {id: "online", name: "在线人数"},
                     {id: "costGVEnum", name: "costGVEnum"},
                     {id: "zhenyingxuanze", name: "阵营选择"},
                     {id: "zh_create", name: "账号创建"},
-                    {id: "js_login", name: "角色登录"}
+                    {id: "js_login", name: "角色登录"},
+                    {id: "chargeing", name: "充值订单"},
+                    {id: "cz_rmb", name: "充值发货"},
                 ];
                 data = data.map(d=> {
                     let isFind = actionMap.find(d1=> {
@@ -1454,11 +1030,468 @@ module.exports = (req) => {
                     if (isFind != undefined) {
                         d.action = isFind.name;
                     }
+                    if (d.hasOwnProperty("timestamp") && d.timestamp != "") {
+                        let date = new Date(Number.parseInt(d.timestamp));
+                        let [year,month,day,hour,minute,second] = [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()];
+                        [month, day, hour, minute, second] = [month, day, hour, minute, second].map(d1=> {
+                            d1 = d1 < 10 ? ("0" + d1) : d1;
+                            return d1;
+                        });
+                        d.timestamp = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+                    }
                     return d;
                 });
                 return data;
             }
         },
+        {
+            id: "retentionAndLtv",
+            database: "log_nuclear",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.login_data where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {
+                    id: "day",
+                    name: "日期",
+                    checked: true,
+                    type: "rangeDay",
+                    serverFilter: true,
+                    tdStyle: {"white-space": "nowrap"}
+                },
+                {id: "dnu", name: "DNU", checked: true},
+                {id: "retention1", name: "次日留存", checked: true, suffix: "%"},
+                {id: "retention2", name: "2日留存", checked: true, suffix: "%"},
+                {id: "retention3", name: "3日留存", checked: true, suffix: "%"},
+                {id: "retention7", name: "7日留存", checked: true, suffix: "%"},
+                {id: "retention14", name: "14日留存", checked: true, suffix: "%"},
+                {id: "retention30", name: "30日留存", checked: true, suffix: "%"},
+                {id: "retention45", name: "45日留存", checked: true, suffix: "%"},
+                {id: "retention60", name: "60日留存", checked: true, suffix: "%"},
+                {id: "retention90", name: "90日留存", checked: true, suffix: "%"},
+                {id: "ltv1", name: "次日LTV($)", checked: true},
+                {id: "ltv2", name: "2日LTV($)", checked: true},
+                {id: "ltv3", name: "3日LTV($)", checked: true},
+                {id: "ltv7", name: "7日LTV($)", checked: true},
+                {id: "ltv14", name: "14日LTV($)", checked: true},
+                {id: "ltv30", name: "30日LTV($)", checked: true},
+                {id: "ltv45", name: "45日LTV($)", checked: true},
+                {id: "ltv60", name: "60日LTV($)", checked: true},
+                {id: "ltv90", name: "90日LTV($)", checked: true},
+                {id: "ltvAll", name: "allLTV($)", checked: true},
+            ],
+            extraFilter: [
+                {id: "type", name: "类型", type: "radio", data: ["角色", "账号", "设备"]}
+            ],
+            chart: [
+                {
+                    title: "留存", x: "day", tipsSuffix: "%",
+                    y: [
+                        {id: "retention1", name: "次日留存"},
+                        {id: "retention2", name: "2日留存"},
+                        {id: "retention3", name: "3日留存"},
+                        {id: "retention7", name: "7日留存"},
+                        {id: "retention14", name: "14日留存"},
+                        {id: "retention30", name: "30日留存"},
+                        {id: "retention45", name: "45日留存"},
+                        {id: "retention60", name: "60日留存"},
+                        {id: "retention90", name: "90日留存"},
+                    ]
+                },
+                {
+                    title: "LTV", x: "day",
+                    y: [
+                        {id: "ltv1", name: "次日LTV($)"},
+                        {id: "ltv2", name: "2日LTV($)"},
+                        {id: "ltv3", name: "3日LTV($)"},
+                        {id: "ltv7", name: "7日LTV($)"},
+                        {id: "ltv14", name: "14日LTV($)"},
+                        {id: "ltv30", name: "30日LTV($)"},
+                        {id: "ltv45", name: "45日LTV($)"},
+                        {id: "ltv60", name: "60日LTV($)"},
+                        {id: "ltv90", name: "90日LTV($)"},
+                        {id: "ltvAll", name: "allLTV($)"},
+                    ]
+                },
+            ],
+            read: ()=> {
+                let groupArr = ["server", "day"];
+                let dnuColumnStr, dayNumStr, dayColumnStr;
+                switch (req.body.type) {
+                    case "角色":
+                        dnuColumnStr = "roleId";
+                        dayColumnStr = "role_createDate";
+                        groupArr.push("role_createDate");
+                        dayNumStr = "role_tianshu";
+                        break;
+                    case "账号":
+                        dnuColumnStr = "accountId";
+                        dayColumnStr = "account_createDate";
+                        groupArr.push("account_createDate");
+                        dayNumStr = "account_tianshu";
+                        break;
+                    case "设备":
+                        dnuColumnStr = "imeiId";
+                        dayColumnStr = "imei_createDate";
+                        groupArr.push("imei_createDate");
+                        dayNumStr = "imei_tianshu";
+                        break;
+                }
+                let whereArr = [
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0),
+                    condition.rangeDate(dayColumnStr, "day")
+                ];
+                let whereStr = where(whereArr);
+                let groupStr = group(groupArr);
+                let dnu = `count(case when ${dayNumStr} = 0 then ${dnuColumnStr} end)`;
+                let retention = (dayNum)=> {
+                    let numerator = `count(distinct case when ${dayNumStr} = ${dayNum} then ${dnuColumnStr} end)`;
+                    let denominator = dnu;
+                    return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}*100/${denominator},2)) as retention${dayNum}`;
+                };
+                let ltv = (dayNum)=> {
+                    let numerator;
+                    let denominator = dnu;
+                    if (dayNum == undefined) {
+                        numerator = `sum(case when ${dayNumStr} >= 0 then round(pay/100,2) end)`;
+                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltvAll`;
+                    } else {
+                        numerator = `sum(case when ${dayNumStr} <= ${dayNum} then round(pay/100,2) end)`;
+                        return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltv${dayNum}`;
+                    }
+                };
+
+                let sqlCommand = `select ${column.optionalSelect("serverId", "server")}${dayColumnStr} as day,${dnu} as dnu,${retention(1)},${retention(2)},
+                                    ${retention(3)},${retention(7)},${retention(14)},${retention(30)},${retention(45)},${retention(60)},${retention(90)},
+                                        ${ltv(1)},${ltv(2)},${ltv(3)},${ltv(7)},${ltv(14)},${ltv(30)},${ltv(45)},${ltv(60)},${ltv(90)},${ltv()} 
+                                            from log_nuclear.login_data 
+                                                ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.regex("type", /^(角色|账号|设备)$/) && check.rangeDay("day") && check.select("server");
+            }
+        },
+        {
+            id: "level",
+            database: "res",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from res.level_ds where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "level", name: "等级", checked: true},
+                {id: "num", name: "人数", checked: true},
+                {id: "total", name: "总人数", checked: true},
+            ],
+            chart: [
+                {
+                    title: "等级分布", x: "level", type: "bar",
+                    y: [
+                        {id: "num", name: "人数"},
+                    ]
+                }
+            ],
+            read: ()=> {
+                let whereArr = [
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0),
+                    condition.simpleStr("date", "day")
+                ];
+                let groupArr = ["server", "day", "level"];
+                let whereStr = where(whereArr);
+                let groupStr = group(groupArr);
+                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,level,sum(num) as num,sum(all_num) as total
+                                            from res.level_ds 
+                                                ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.select("server") && check.day("day");
+            }
+        },
+        {
+            id: "vipLevel",
+            database: "res",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from res.vip_ds where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "vipLevel", name: "VIP", checked: true},
+                {id: "num", name: "人数", checked: true},
+                {id: "total", name: "总人数", checked: true},
+            ],
+            chart: [
+                {
+                    title: "VIP等级分布", x: "vipLevel", type: "bar",
+                    y: [
+                        {id: "num", name: "人数"},
+                    ]
+                }
+            ],
+            read: ()=> {
+                let whereArr = [
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0),
+                    condition.simpleStr("date", "day")
+                ];
+                let groupArr = ["server", "day", "vipLevel"];
+                let whereStr = where(whereArr);
+                let groupStr = group(groupArr);
+                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,vip as vipLevel,sum(num) as num,sum(all_num) as total
+                                            from res.vip_ds 
+                                                ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.select("server") && check.day("day");
+            }
+        },
+        {
+            id: "diamond",
+            database: "res",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from res.rank where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "rank", name: "排名", checked: true},
+                {id: "rankType", name: "排名类型", checked: true, type: "radio", serverFilter: true, data: ["金钻", "钻石"]},
+                {id: "roleId", name: "角色名", checked: true},
+                {id: "role", name: "角色名", checked: true},
+                {id: "roleServer", name: "角色服务器", checked: true},
+                {id: "roleChannel", name: "角色渠道", checked: true},
+                {id: "roleClient", name: "角色站点", checked: true},
+                {id: "level", name: "角色等级", checked: true},
+                {id: "vipLevel", name: "角色VIP等级", checked: true},
+                {id: "gold", name: "当前金钻数", checked: true},
+                {id: "diamond", name: "当前钻石数", checked: true},
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+            ],
+            extraFilter: [
+                {id: "limit", name: "最大查询行数", type: "radio", data: [100, 200, 300]}
+            ],
+            read: ()=> {
+                let whereStr = where([
+                    condition.simpleStr("rank_type", "rankType"),
+                    condition.simpleStr("date", "day"),
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0)
+                ]);
+                whereStr = whereStr.replace(/rank_type="金钻"/, "rank_type=\"jinzuan\"");
+                whereStr = whereStr.replace(/rank_type="钻石"/, "rank_type=\"zuansi\"");
+                let sqlCommand = `select serverid as server,channel,ptid as client,rank,rank_type as rankType,js_str as roleId,js_na as role,js_server as roleServer,
+                                    js_channel as roleChannel,js_ptid as roleClient,level,viplevel as vipLevel,jinzuan_total as gold,zuansi_total as diamond,
+                                        date as day from res.rank ${whereStr} limit ${req.body.limit}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.select("server") && check.day("day") && check.regex("rankType", /^(金钻|钻石)$/) && check.regex("limit", /^\d+$/);
+            }
+        },
+        {
+            id: "snap",
+            database: "log_nuclear",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select", serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.player_info where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "deviceId", name: "设备id", checked: true, type: "integer", serverFilter: true},
+                {id: "accountId", name: "账号id", checked: true, type: "integer", serverFilter: true},
+                {id: "roleId", name: "角色id", checked: true, type: "integer", serverFilter: true},
+                {id: "region", name: "区域", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {
+                    id: "role",
+                    name: "角色名",
+                    checked: true,
+                    type: "input",
+                    serverFilter: true,
+                    tdStyle: {"white-space": "nowrap"}
+                },
+                {
+                    id: "account",
+                    name: "账号",
+                    checked: true,
+                    type: "input",
+                    serverFilter: true,
+                    thStyle: {"min-width": "100px"}
+                },
+                {id: "deviceCreateDay", name: "设备创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "accountCreateDay", name: "账号创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "roleCreateDay", name: "角色创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "level", name: "角色等级", checked: true},
+                {id: "vipLevel", name: "vip等级", checked: true},
+                {id: "roleCreateTime", name: "角色创建时间", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "profession", name: "职业", checked: true},
+                {id: "roleIp", name: "角色ip", checked: true},
+                {id: "deviceSystem", name: "系统", checked: true},
+                {id: "roleKey", name: "角色pk", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "lastLoginDay", name: "最后登录日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "loginDays", name: "登录天数", checked: true},
+                {id: "onlineDuration", name: "在线时长(秒)", checked: true},
+                {id: "loginTimes", name: "登录次数", checked: true},
+                {id: "goldAddNum", name: "金钻增量", checked: true},
+                {id: "goldAddTimes", name: "金钻增加次数", checked: true},
+                {id: "diamondAddNum", name: "钻石增量", checked: true},
+                {id: "diamondAddTimes", name: "钻石增加次数", checked: true},
+                {id: "silverAddNum", name: "银币增量", checked: true},
+                {id: "silverAddTimes", name: "银币增加次数", checked: true},
+                {id: "staminaAddNum", name: "体力增量", checked: true},
+                {id: "staminaAddTimes", name: "体力增加次数", checked: true},
+                {id: "goldCostNum", name: "金钻消耗数量", checked: true},
+                {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
+                {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
+                {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
+                {id: "silverCostNum", name: "银币消耗数量", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "silverCostTimes", name: "银币消耗次数", checked: true},
+                {id: "staminaCostNum", name: "体力消耗数量", checked: true},
+                {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
+                {id: "totalPay", name: "充值总额($)", checked: true},
+                {id: "firstPayDay", name: "首次充值日期", checked: true},
+                {id: "lastPayDay", name: "最近充值日期", checked: true},
+                {id: "payTimes", name: "充值次数", checked: true},
+                {id: "payDays", name: "充值天数", checked: true},
+            ],
+            extraFilter: [
+                {id: "roleQueryType", name: "角色名", type: "radio", data: ["精确匹配", "模糊查询"]}
+            ],
+            read: ()=> {
+                let whereArr = [
+                    condition.optionalInputStr("imeiId", "deviceId"),
+                    condition.optionalInputStr("accountId", "accountId"),
+                    condition.optionalInputStr("roleId", "roleId"),
+                    condition.optionalInputStr("account", "account"),
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0)
+                ];
+                if (req.body.roleQueryType == "精确匹配") {
+                    whereArr.push(condition.optionalInputStr("role_name", "role"));
+                } else {
+                    whereArr.push(condition.optionalInputLikeStr("role_name", "role"));
+                }
+                let whereStr = where(whereArr);
+                let limitStr = req.body.roleQueryType == "精确匹配" ? "" : "limit 100";
+                let orderStr = "order by totalPay desc";
+                let sqlCommand = `select imeiId as deviceId,accountId,roleId,serverId as server,region,role_name as role,account,imei_createDate as deviceCreateDay,
+                                    account_createDate as accountCreateDay,role_createDate as roleCreateDay,level,vipLevel,role_createTime as roleCreateTime,
+                                        js_ocu as profession,role_ip as roleIp,imei_os as deviceSystem,pk as roleKey,login_last as lastLoginDay,login_days as loginDays,
+                                            online_times as onlineDuration,login_counts as loginTimes,jinzuan_append as goldAddNum,jinzuan_append_count as goldAddTimes,
+                                                zuansi_append as diamondAddNum,zuansi_append_count as diamondAddTimes,yinbi_append as silverAddNum,
+                                                    yinbi_append_count as silverAddTimes,tili_append as staminaAddNum,tili_append_count as staminaAddTimes,
+                                                        jinzuan_cost as goldCostNum,jinzuan_cost_count as goldCostTimes,zuansi_cost as diamondCostNum,
+                                                            zuansi_cost_count as diamondCostTimes,yinbi_cost as silverCostNum,yinbi_cost_count as silverCostTimes,
+                                                                tili_cost as staminaCostNum,tili_cost_count as staminaCostTimes,round(pay_all/100,2) as totalPay,
+                                                                    pay_first as firstPayDay,pay_last as lastPayDay,pay_count as payTimes,pay_days as payDays
+                                                                        from log_nuclear.player_info ${whereStr} ${orderStr} ${limitStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.optionalRegex("deviceId", /^\d+$/) && check.optionalRegex("accountId", /^\d+$/) && check.optionalRegex("roleId", /^\d+$/)
+                    && check.optionalRegex("role", /^[^ ]+$/) && check.optionalRegex("account", /^[^ ]+$/)
+                    && check.regex("roleQueryType", /^(精确匹配|模糊查询)$/) && check.select("server");
+            }
+        },
+        {
+            id: "chargeRank",
+            database: "res",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverid as server from res.rank_charge where serverid <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "rank", name: "排名", checked: true},
+                {id: "roleId", name: "角色名", checked: true},
+                {id: "role", name: "角色名", checked: true},
+                {id: "roleServer", name: "角色服务器", checked: true},
+                {id: "roleChannel", name: "角色渠道", checked: true},
+                {id: "roleClient", name: "角色站点", checked: true},
+                {id: "totalCharge", name: "充值总额($)", checked: true},
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+            ],
+            read: ()=> {
+                let whereStr = where([
+                    condition.simpleStr("date", "day"),
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0)
+                ]);
+                let sqlCommand = `select serverid as server,channel,ptid as client,rank,js_str as roleId,js_na as role,js_server as roleServer,
+                                    js_channel as roleChannel,js_ptid as roleClient,round(charge_total/100,2) as totalCharge,date as day from res.rank_charge 
+                                        ${whereStr} `;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.select("server") && check.day("day");
+            }
+        },
+        {
+            id: "deviceChargeRank",
+            database: "res",
+            curd: "r",
+            columns: [
+                {id: "channel", name: "渠道id", checked: true},
+                {id: "client", name: "站点id", checked: true},
+                {id: "rank", name: "排名", checked: true},
+                {id: "device", name: "设备id", checked: true},
+                {id: "roleList", name: "角色列表", checked: true},
+                {id: "totalCharge", name: "充值总额($)", checked: true},
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+            ],
+            read: ()=> {
+                let whereStr = where([
+                    condition.simpleStr("date", "day")
+                ]);
+                let sqlCommand = `select channel,ptid as client,rank,dv_str as device,js_info as roleList,round(charge_total/100,2) as totalCharge,date as day from res.rank_charge_dv 
+                                        ${whereStr} `;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.day("day");
+            }
+        },
+
     ];
 };
 
