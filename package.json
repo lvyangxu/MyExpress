@@ -34,7 +34,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^2.24.1",
-    "karl-component-chart": "^4.4.6",
+    "karl-component-chart": "^4.4.9",
     "karl-component-datepicker": "^4.1.3",
     "karl-component-login": "^1.0.7",
     "karl-component-nav": "^4.0.6",

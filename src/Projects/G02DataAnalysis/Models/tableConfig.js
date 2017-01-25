@@ -343,7 +343,7 @@ module.exports = (req) => {
                                 ${whereStr1} ${groupStr}) as active
                     on ${buildJoinCondition(server, "active")})
                     left join
-                         (select serverid as server,date as day,round(sum(day_charge_total/100),2) as totalCharge,round(sum(day_new_charge_total/100),2) as newRoleTotalCharge,
+                         (select serverid as server,date as day,round(sum(day_charge_total),2) as totalCharge,round(sum(day_new_charge_total),2) as newRoleTotalCharge,
                             sum(day_pay_user_num) as chargeRoleNum,sum(day_new_pay_user_num) as chargeNewRoleNum,sum(continus_pay_user_num) as charge3DayRoleNum
                                 from res.charge ${whereStr1} ${groupStr}) as charge
                     on ${buildJoinCondition(server, "charge")})
@@ -573,7 +573,7 @@ module.exports = (req) => {
                 whereStr = whereStr.replace(/非正式充值/, "0");
                 whereStr = whereStr.replace(/正式充值/, "1");
                 let sqlCommand = `select js_id as role,zh_id as account,serverid as server,channel,ptid as client,viplevel as vipLevel,level,
-                                    round(money/100,2) as money,amount as num,transtamp as arrivalTime,orderid as orderId,now_channel as chargeChannel,
+                                    round(money,2) as money,amount as num,transtamp as arrivalTime,orderid as orderId,now_channel as chargeChannel,
                                         now_ptid as chargeClient,status as chargeStatus,dv_id as device,time as second from raw.charge ${whereStr} limit 5000`;
                 return sqlCommand;
             },
@@ -1160,10 +1160,10 @@ module.exports = (req) => {
                     let numerator;
                     let denominator = dnu;
                     if (dayNum == undefined) {
-                        numerator = `sum(case when ${dayNumStr} >= 0 then round(pay/100,2) end)`;
+                        numerator = `sum(case when ${dayNumStr} >= 0 then round(pay,2) end)`;
                         return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltvAll`;
                     } else {
-                        numerator = `sum(case when ${dayNumStr} <= ${dayNum} then round(pay/100,2) end)`;
+                        numerator = `sum(case when ${dayNumStr} <= ${dayNum} then round(pay,2) end)`;
                         return `if(${dnu} = 0 || ${numerator} = 0,"",round(${numerator}/${denominator},2)) as ltv${dayNum}`;
                     }
                 };
@@ -1352,41 +1352,42 @@ module.exports = (req) => {
                     serverFilter: true,
                     thStyle: {"min-width": "100px"}
                 },
-                {id: "deviceCreateDay", name: "设备创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "accountCreateDay", name: "账号创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "roleCreateDay", name: "角色创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
                 {id: "level", name: "角色等级", checked: true},
                 {id: "vipLevel", name: "vip等级", checked: true},
                 {id: "roleCreateTime", name: "角色创建时间", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "profession", name: "职业", checked: true},
-                {id: "roleIp", name: "角色ip", checked: true},
-                {id: "deviceSystem", name: "系统", checked: true},
-                {id: "roleKey", name: "角色pk", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "lastLoginDay", name: "最后登录日期", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "loginDays", name: "登录天数", checked: true},
-                {id: "onlineDuration", name: "在线时长(秒)", checked: true},
-                {id: "loginTimes", name: "登录次数", checked: true},
-                {id: "goldAddNum", name: "金钻增量", checked: true},
-                {id: "goldAddTimes", name: "金钻增加次数", checked: true},
-                {id: "diamondAddNum", name: "钻石增量", checked: true},
-                {id: "diamondAddTimes", name: "钻石增加次数", checked: true},
-                {id: "silverAddNum", name: "银币增量", checked: true},
-                {id: "silverAddTimes", name: "银币增加次数", checked: true},
-                {id: "staminaAddNum", name: "体力增量", checked: true},
-                {id: "staminaAddTimes", name: "体力增加次数", checked: true},
-                {id: "goldCostNum", name: "金钻消耗数量", checked: true},
-                {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
-                {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
-                {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
-                {id: "silverCostNum", name: "银币消耗数量", checked: true, tdStyle: {"white-space": "nowrap"}},
-                {id: "silverCostTimes", name: "银币消耗次数", checked: true},
-                {id: "staminaCostNum", name: "体力消耗数量", checked: true},
-                {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
                 {id: "totalPay", name: "充值总额($)", checked: true},
                 {id: "firstPayDay", name: "首次充值日期", checked: true},
                 {id: "lastPayDay", name: "最近充值日期", checked: true},
                 {id: "payTimes", name: "充值次数", checked: true},
                 {id: "payDays", name: "充值天数", checked: true},
+                {id: "lastLoginDay", name: "最后登录日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "loginDays", name: "登录天数", checked: true},
+                {id: "onlineDuration", name: "在线时长(秒)", checked: true},
+                {id: "loginTimes", name: "登录次数", checked: true},
+                {id: "profession", name: "职业", checked: true},
+                {id: "roleIp", name: "角色ip", checked: true},
+                {id: "deviceSystem", name: "系统", checked: true},
+                {id: "roleKey", name: "角色pk", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "deviceCreateDay", name: "设备创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "accountCreateDay", name: "账号创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "roleCreateDay", name: "角色创建日期", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "goldAddNum", name: "金钻增量", checked: true},
+                {id: "goldAddTimes", name: "金钻增加次数", checked: true},
+                {id: "goldCostNum", name: "金钻消耗数量", checked: true},
+                {id: "goldCostTimes", name: "金钻消耗次数", checked: true},
+                {id: "diamondAddNum", name: "钻石增量", checked: true},
+                {id: "diamondAddTimes", name: "钻石增加次数", checked: true},
+                {id: "diamondCostNum", name: "钻石消耗数量", checked: true},
+                {id: "diamondCostTimes", name: "钻石消耗次数", checked: true},
+                {id: "silverAddNum", name: "银币增量", checked: true},
+                {id: "silverAddTimes", name: "银币增加次数", checked: true},
+                {id: "silverCostNum", name: "银币消耗数量", checked: true, tdStyle: {"white-space": "nowrap"}},
+                {id: "silverCostTimes", name: "银币消耗次数", checked: true},
+                {id: "staminaAddNum", name: "体力增量", checked: true},
+                {id: "staminaAddTimes", name: "体力增加次数", checked: true},
+                {id: "staminaCostNum", name: "体力消耗数量", checked: true},
+                {id: "staminaCostTimes", name: "体力消耗次数", checked: true},
+
             ],
             extraFilter: [
                 {id: "roleQueryType", name: "角色名", type: "radio", data: ["精确匹配", "模糊查询"]}
@@ -1416,7 +1417,7 @@ module.exports = (req) => {
                                                     yinbi_append_count as silverAddTimes,tili_append as staminaAddNum,tili_append_count as staminaAddTimes,
                                                         jinzuan_cost as goldCostNum,jinzuan_cost_count as goldCostTimes,zuansi_cost as diamondCostNum,
                                                             zuansi_cost_count as diamondCostTimes,yinbi_cost as silverCostNum,yinbi_cost_count as silverCostTimes,
-                                                                tili_cost as staminaCostNum,tili_cost_count as staminaCostTimes,round(pay_all/100,2) as totalPay,
+                                                                tili_cost as staminaCostNum,tili_cost_count as staminaCostTimes,round(pay_all,2) as totalPay,
                                                                     pay_first as firstPayDay,pay_last as lastPayDay,pay_count as payTimes,pay_days as payDays
                                                                         from log_nuclear.player_info ${whereStr} ${orderStr} ${limitStr}`;
                 return sqlCommand;
@@ -1458,7 +1459,7 @@ module.exports = (req) => {
                     condition.notEqual("serverid", 0)
                 ]);
                 let sqlCommand = `select serverid as server,channel,ptid as client,rank,js_str as roleId,js_na as role,js_server as roleServer,
-                                    js_channel as roleChannel,js_ptid as roleClient,round(charge_total/100,2) as totalCharge,date as day from res.rank_charge 
+                                    js_channel as roleChannel,js_ptid as roleClient,round(charge_total,2) as totalCharge,date as day from res.rank_charge 
                                         ${whereStr} `;
                 return sqlCommand;
             },
@@ -1483,7 +1484,7 @@ module.exports = (req) => {
                 let whereStr = where([
                     condition.simpleStr("date", "day")
                 ]);
-                let sqlCommand = `select channel,ptid as client,rank,dv_str as device,js_info as roleList,round(charge_total/100,2) as totalCharge,date as day from res.rank_charge_dv 
+                let sqlCommand = `select channel,ptid as client,rank,dv_str as device,js_info as roleList,round(charge_total,2) as totalCharge,date as day from res.rank_charge_dv 
                                         ${whereStr} `;
                 return sqlCommand;
             },

@@ -577,7 +577,7 @@ class table extends React.Component {
         }
 
         let sortedData = this.state.inputFilterData.concat();
-        let regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/g);
+        let regex = new RegExp(/^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/g);
         if (sortDesc) {
             sortedData.sort((a, b) => {
                 let va, vb;
