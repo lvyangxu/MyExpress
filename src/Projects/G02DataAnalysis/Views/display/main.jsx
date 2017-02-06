@@ -118,6 +118,13 @@ ReactDom.render(
                 <Table project="G02DataAnalysis" tableId="deviceChargeRank"/>
             </div>
         },
+        {
+            id: "pointNode", name: "节点数据", group: "打点数据",
+            dom: <div>
+                <div className={css.tableTips}>该数据每1天更新一次</div>
+                <Table project="G02DataAnalysis" tableId="pointNode"/>
+            </div>
+        },
     ]}/>
     , document.getElementById("display"));
 

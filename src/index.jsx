@@ -20,6 +20,7 @@ class table extends React.Component {
             serverFilter: [],
             rowPerPage: this.props.rowPerPage ? this.props.rowPerPage : 10,
             pageIndex: 1,
+            isMinColumn: false,
             sourceData: [],
             componentFilterData: [],
             inputFilterData: [],
@@ -29,7 +30,7 @@ class table extends React.Component {
             sortColumnId: "",
         };
 
-        let bindArr = ["setTable", "setInputFilterData", "columnFilterCallback", "read", "setConditionState", "setChart"];
+        let bindArr = ["setTable", "setInputFilterData", "columnFilterCallback", "read", "setConditionState", "setChart", "download"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
@@ -52,10 +53,15 @@ class table extends React.Component {
             }
             initData.serverFilter = serverFilter;
 
+            //最小化列显示
+            if (data.hasOwnProperty("isMinColumn")) {
+                initData.isMinColumn = data.isMinColumn;
+            }
             //初始化图表
             if (data.hasOwnProperty("chart")) {
                 initData.chart = data.chart;
             }
+            //每页显示的行数
             if (data.hasOwnProperty("rowPerPage")) {
                 initData.rowPerPage = data.rowPerPage;
             }
@@ -128,11 +134,8 @@ class table extends React.Component {
                     let yAxisText = d.hasOwnProperty("yAxisText") ? d.yAxisText : "";
                     let chartSection = <div className={css.section}>
                         {
-                            d.group ?
-                                <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
-                                       yAxisText={d.yAxisText} data={data} group={d.group}/> :
-                                <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
-                                       yAxisText={d.yAxisText} data={data}/>
+                            <Chart tipsSuffix={d.tipsSuffix} type={d.type} title={d.title} x={d.x} y={d.y}
+                                   yAxisText={d.yAxisText} data={data} group={d.group} xAxisGroupNum={d.xAxisGroupNum}/>
                         }
                     </div>;
                     return chartSection;
@@ -323,6 +326,11 @@ class table extends React.Component {
                     <i className={this.state.loading ? (css.loading + " fa fa-refresh") : "fa fa-refresh"}></i>刷新
                 </button>
             </div>
+            <div className={css.section}>
+                <button className={css.filter} onClick={this.download}>
+                    <i className="fa fa-download"></i>导出
+                </button>
+            </div>
         </div>;
         return dom;
     }
@@ -496,7 +504,26 @@ class table extends React.Component {
                 json.columns = message.columns;
             }
 
-            this.setState(json);
+            //隐藏没有数据的列,显示有数据的列
+            if (this.state.isMinColumn) {
+                let columns = json.hasOwnProperty("columns") ? json.columns : this.state.columns;
+                columns = columns.map(d=> {
+                    //判断该列是否为空
+                    let isNotEmpty = data.some(d1=> {
+                        return d1.hasOwnProperty(d.id) && d1[d.id] != "" && d1[d.id] != null;
+                    });
+                    d.checked = isNotEmpty;
+                    return d;
+                });
+                this.setState({
+                    columns: columns
+                }, ()=> {
+                    this.setState(json);
+                })
+            } else {
+                this.setState(json);
+            }
+
 
         } catch (e) {
             this.setState({
@@ -644,6 +671,26 @@ class table extends React.Component {
         }, ()=> {
             this.setInputFilterData();
         });
+    }
+
+    async download() {
+        let header = this.state.columns.map(d=> {
+            return d.name;
+        });
+        let body = this.state.sourceData.map(d=> {
+            let rowData = this.state.columns.map(d1=> {
+                return d[d1.id];
+            });
+            return rowData;
+        });
+        let data = [header].concat(body);
+        try {
+            let message = await this.request("download", {data: data});
+            location.href = "../" + message.filePath;
+        } catch (e) {
+            alert("导出数据失败:" + e);
+        }
+
     }
 }
 

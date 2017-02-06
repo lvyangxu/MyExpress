@@ -15,7 +15,7 @@ var path = require('path');
 
 let project = process.argv[6].replace("--project=", "");
 
-let isProduction = true;
+let isProduction = false;
 let mysqlConfig = {
     Review: {
         user: "root",
@@ -105,6 +105,8 @@ gulp.task("async-task", () => {
 
     //delete log
     del(["dist/" + project + "/server/log/*"]);
+    //delete data
+    del(["dist/" + project + "/client/data/*"]);
 
     //init
     gulp.src(["src/Common/Init/*.js"])
@@ -242,7 +244,7 @@ gulp.task("move-scss", () => {
 gulp.task("get-views", ["move-jsx", "move-scss"], ()=> {
     //get all view
     views = fs.readdirSync(clientPath).filter(d=> {
-        return fs.statSync(path.join(clientPath, d)).isDirectory();
+        return fs.statSync(path.join(clientPath, d)).isDirectory() && d != "data" && d != "table";
     });
 });
 

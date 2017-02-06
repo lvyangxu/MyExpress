@@ -1,7 +1,9 @@
 /**
  * json含义
  * id:客户端请求的表名，唯一标识
+ * name:表格名称，下载表格时的文件名
  * type:数据库类型mysql/mongodb，未定义时默认为mysql
+ * isMinColumn:最小列显示，根据查询结果自动隐藏为空的列，只有在为true时执行
  * dynamicColumn:动态列
  * limitNum:mongo查询的最大返回行
  * sort:mongo查询的排序字段json
@@ -33,6 +35,7 @@
  *          yAxisText:y轴坐标单位
  *          type:图表类型，默认为curve
  *          tipsSuffix:tips后缀
+ *          xAxisGroupNum:x坐标轴数字分组基数
  * extraFilter:额外的查询条件
  * create:表格创建默认json值，如果某个键的值为undefined，表示sql语句中忽略该键值对
  * update:表格更新默认json值，如果某个键的值为undefined，表示sql语句中忽略该键值对
@@ -232,11 +235,20 @@ module.exports = (req) => {
     return [
         {
             id: "daily",
+            name: "每日信息",
             database: "log_nuclear",
             curd: "r",
             autoRead: true,
             columns: [
-                {id: "day", name: "日期", checked: true, type: "rangeDay", serverFilter: true, dateAdd: {startAdd: -7}},
+                {
+                    id: "day",
+                    name: "日期",
+                    checked: true,
+                    type: "rangeDay",
+                    serverFilter: true,
+                    dateAdd: {startAdd: -7},
+                    tdStyle: {"white-space": "nowrap"}
+                },
                 {
                     id: "server",
                     name: "服务器",
@@ -361,6 +373,7 @@ module.exports = (req) => {
         },
         {
             id: "resource",
+            name: "资源信息",
             database: "log_nuclear",
             curd: "r",
             columns: [
@@ -529,6 +542,7 @@ module.exports = (req) => {
         },
         {
             id: "charge",
+            name: "充值流水",
             database: "raw",
             curd: "r",
             columns: [
@@ -584,6 +598,7 @@ module.exports = (req) => {
         },
         {
             id: "cost",
+            name: "消耗流水",
             database: "raw",
             curd: "r",
             columns: [
@@ -628,6 +643,7 @@ module.exports = (req) => {
         },
         {
             id: "stamina",
+            name: "体力购买流水",
             database: "raw",
             curd: "r",
             columns: [
@@ -666,6 +682,7 @@ module.exports = (req) => {
         },
         {
             id: "produce",
+            name: "产出流水",
             database: "raw",
             curd: "r",
             columns: [
@@ -712,6 +729,7 @@ module.exports = (req) => {
         },
         {
             id: "action",
+            name: "操作日志",
             type: "mongodb",
             database: "g02_log",
             collection: ()=> {
@@ -984,7 +1002,9 @@ module.exports = (req) => {
                         module1 = arr[0];
                         module2 = arr[1];
                         jsonFilter.module = module1;
-                        jsonFilter.type = module2;
+                        if (module2 != "") {
+                            jsonFilter.type = module2;
+                        }
                     }
                 }
                 if (req.body.pk != undefined && req.body.pk != "") {
@@ -1046,7 +1066,9 @@ module.exports = (req) => {
         },
         {
             id: "retentionAndLtv",
+            name: "留存和LTV",
             database: "log_nuclear",
+            isMinColumn: true,
             curd: "r",
             columns: [
                 {
@@ -1181,6 +1203,7 @@ module.exports = (req) => {
         },
         {
             id: "level",
+            name: "等级分布",
             database: "res",
             curd: "r",
             columns: [
@@ -1195,13 +1218,23 @@ module.exports = (req) => {
                 {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
                 {id: "channel", name: "渠道id", checked: true},
                 {id: "client", name: "站点id", checked: true},
-                {id: "level", name: "等级", checked: true},
+                {id: "levelName", name: "等级", checked: true},
                 {id: "num", name: "人数", checked: true},
                 {id: "total", name: "总人数", checked: true},
             ],
+            extraFilter: [
+                {
+                    id: "levelSpacing",
+                    name: "等级间隔",
+                    checked: true,
+                    type: "radio",
+                    serverFilter: true,
+                    data: [1, 5, 10, 15, 20]
+                },
+            ],
             chart: [
                 {
-                    title: "等级分布", x: "level", type: "bar",
+                    title: "等级分布", x: "levelName", type: "bar", xAxisGroupNum: 10,
                     y: [
                         {id: "num", name: "人数"},
                     ]
@@ -1211,22 +1244,30 @@ module.exports = (req) => {
                 let whereArr = [
                     condition.optionalSelectNum("serverid", "server"),
                     condition.notEqual("serverid", 0),
-                    condition.simpleStr("date", "day")
+                    condition.simpleStr("date", "day"),
+                    condition.equal("channel", 0),
+                    condition.equal("ptid", 0)
                 ];
-                let groupArr = ["server", "day", "level"];
+                let groupArr = ["server", "day", "groupLevel"];
                 let whereStr = where(whereArr);
                 let groupStr = group(groupArr);
-                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,level,sum(num) as num,sum(all_num) as total
+                let groupLevel = `(level div ${req.body.levelSpacing})`;
+                let levelName = req.body.levelSpacing == 1 ? "level" :
+                    `concat(${groupLevel}*${req.body.levelSpacing}+1,"-",${groupLevel}*${req.body.levelSpacing}+${req.body.levelSpacing})`;
+                let sqlCommand = `select ${column.optionalSelect("serverid", "server")}date as day,channel,ptid as client,
+                                    ${groupLevel} as groupLevel,${levelName} as levelName,
+                                        sum(num) as num,sum(all_num) as total
                                             from res.level_ds 
                                                 ${whereStr} ${groupStr}`;
                 return sqlCommand;
             },
             readCheck: ()=> {
-                return check.select("server") && check.day("day");
+                return check.select("server") && check.day("day") && check.regex("levelSpacing", /^(1|5|10|15|20)$/);
             }
         },
         {
             id: "vipLevel",
+            name: "VIP等级分布",
             database: "res",
             curd: "r",
             columns: [
@@ -1273,6 +1314,7 @@ module.exports = (req) => {
         },
         {
             id: "diamond",
+            name: "当前钻石持有排名",
             database: "res",
             curd: "r",
             columns: [
@@ -1322,6 +1364,7 @@ module.exports = (req) => {
         },
         {
             id: "snap",
+            name: "角色汇总表",
             database: "log_nuclear",
             curd: "r",
             columns: [
@@ -1430,6 +1473,7 @@ module.exports = (req) => {
         },
         {
             id: "chargeRank",
+            name: "当日充值排名",
             database: "res",
             curd: "r",
             columns: [
@@ -1469,6 +1513,7 @@ module.exports = (req) => {
         },
         {
             id: "deviceChargeRank",
+            name: "当日充值排名(设备)",
             database: "res",
             curd: "r",
             columns: [
@@ -1492,7 +1537,89 @@ module.exports = (req) => {
                 return check.day("day");
             }
         },
-
+        {
+            id: "pointNode",
+            name: "节点数据",
+            database: "log_nuclear",
+            curd: "r",
+            isMinColumn: true,
+            columns: [
+                {
+                    id: "day",
+                    name: "日期",
+                    checked: true,
+                    type: "rangeDay",
+                    serverFilter: true,
+                    dateAdd: {startAdd: -7},
+                    tdStyle: {"white-space": "nowrap"}
+                },
+                {id: "node1", name: "启动app", checked: true},
+                {id: "node2", name: "进入logo主界面", checked: true},
+                {id: "node3", name: "加载语言选框", checked: true},
+                {id: "node4", name: "选择语言", checked: true},
+                {id: "node5", name: "资源包开始更新", checked: true},
+                {id: "node6", name: "资源包更新失败", checked: true},
+                {id: "node7", name: "资源包更新完成", checked: true},
+                {id: "node8", name: "补丁包开始更新", checked: true},
+                {id: "node9", name: "补丁包更新失败", checked: true},
+                {id: "node10", name: "补丁包更新完成", checked: true},
+                {id: "node11", name: "所有更新完成", checked: true},
+                {id: "node12", name: "进入logo主界面", checked: true},
+                {id: "node13", name: "弹出账号登陆框", checked: true},
+                {id: "node14", name: "弹出自登陆界面", checked: true},
+                {id: "node15", name: "弹出第三方登录界面FB", checked: true},
+                {id: "node17", name: "快速登录", checked: true},
+                {id: "node18", name: "选服界面", checked: true},
+                {id: "node19", name: "进入游戏", checked: true},
+                {id: "node20", name: "开场战斗开始", checked: true},
+                {id: "node21", name: "开场战斗结束", checked: true},
+                {id: "node22", name: "创建角色", checked: true},
+                {id: "region", name: "区域", checked: true, tdStyle: {"white-space": "nowrap"}},
+            ],
+            extraFilter: [
+                {id: "type", name: "展示类型", checked: true, type: "radio", data: ["独立", "汇总"]},
+            ],
+            read: ()=> {
+                let groupStr = req.body.type == "独立" ? group(["update_nuc", "region"]) : group(["region"]);
+                let nodeArr = [
+                    {event: "1000", scope: "1", name: "启动app"},
+                    {event: "1001", scope: "1", name: "进入logo主界面"},
+                    {event: "1002", scope: "1", name: "加载语言选框"},
+                    {event: "1003", scope: "1", name: "选择语言"},
+                    {event: "1004", scope: "1", name: "资源包开始更新"},
+                    {event: "1004", scope: "3", name: "资源包更新失败"},
+                    {event: "1004", scope: "2", name: "资源包更新完成"},
+                    {event: "1005", scope: "1", name: "补丁包开始更新"},
+                    {event: "1005", scope: "3", name: "补丁包更新失败"},
+                    {event: "1005", scope: "2", name: "补丁包更新完成"},
+                    {event: "1006", scope: "2", name: "所有更新完成"},
+                    {event: "1001", scope: "1", name: "进入logo主界面"},
+                    {event: "1007", scope: "1", name: "弹出账号登陆框"},
+                    {event: "1008", scope: "1", name: "弹出自登陆界面"},
+                    {event: "1009", scope: "1", name: "弹出第三方登录界面FB"},
+                    {event: "1009", scope: "1", name: "弹出第三方登录界面VK"},
+                    {event: "1010", scope: "1", name: "快速登录"},
+                    {event: "1011", scope: "1", name: "选服界面"},
+                    {event: "1012", scope: "1", name: "进入游戏"},
+                    {event: "1014", scope: "1", name: "开场战斗开始"},
+                    {event: "1014", scope: "2", name: "开场战斗结束"},
+                    {event: "1013", scope: "1", name: "创建角色"},
+                ];
+                let nodeStr = nodeArr.map((d, i)=> {
+                    let column = `sum(case when point="${d.event}" and scope="${d.scope}" then count end) as node${i + 1}`;
+                    return column;
+                }).join(",");
+                let columnStr = req.body.type == "独立" ? `update_nuc as day,${nodeStr}` : nodeStr;
+                let whereStr = where([condition.rangeDate("update_nuc", "day")]);
+                let sqlCommand = `select ${columnStr},region
+                                    from log_nuclear.point_node_data
+                                        ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.rangeDay("day") && check.regex("type", /^(独立|汇总)$/);
+            }
+        },
     ];
 };
 

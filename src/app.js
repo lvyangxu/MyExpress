@@ -25,7 +25,7 @@ app.use(morgan('dev'));
 //body parser
 let bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json({type:"application/json"}));
+app.use(bodyParser.json({type: "application/json", limit: 50000000}));
 
 //authenticate
 let authenticate = require("./authenticate");

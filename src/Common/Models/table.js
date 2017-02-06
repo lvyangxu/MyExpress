@@ -1,6 +1,6 @@
 let response = require("./response");
 let fs = require("fs");
-
+let excel = require("karl-excel");
 
 module.exports = {
     init: async(req, res, config) => {
@@ -18,6 +18,11 @@ module.exports = {
         //是否在初始化时自动读取一次数据
         if (config.hasOwnProperty("autoRead")) {
             data.autoRead = config.autoRead;
+        }
+
+        //是否隐藏值为空的列
+        if (config.hasOwnProperty("isMinColumn")) {
+            data.isMinColumn = config.isMinColumn;
         }
 
         //每一页显示的行数和图表
@@ -98,11 +103,11 @@ module.exports = {
         if (config.hasOwnProperty("extraFilter")) {
             data.extraFilter = await attachData(config.extraFilter);
             //附加其他属性
-            data.extraFilter = data.extraFilter.map(d=>{
-                let findElement = config.extraFilter.find(d1=>{
+            data.extraFilter = data.extraFilter.map(d=> {
+                let findElement = config.extraFilter.find(d1=> {
                     return d.id == d1.id;
                 });
-                if(findElement.hasOwnProperty("required")){
+                if (findElement.hasOwnProperty("required")) {
                     d.required = findElement.required;
                 }
                 return d;
@@ -389,8 +394,8 @@ module.exports = {
                 let name = findColumn == undefined ? d : findColumn.name;
                 let checked = findColumn == undefined ? true : findColumn.checked;
                 let json = {id: d, name: name, checked: checked};
-                if(findColumn != undefined){
-                    ["thStyle","tdStyle"].forEach(d1=>{
+                if (findColumn != undefined) {
+                    ["thStyle", "tdStyle"].forEach(d1=> {
                         if (findColumn.hasOwnProperty(d1)) {
                             json[d1] = findColumn[d1];
                         }
@@ -433,6 +438,16 @@ module.exports = {
             global.log.error.info(database + "," + sqlCommand);
             response.fail(res, "mysql excuteQuery error");
         });
+    },
+    download: (req, res, config)=> {
+        let name = config.hasOwnProperty("name") ? config.name : config.id;
+        let prefix = "client/";
+        let filePath = "data/" + name + ".xlsx";
+        excel.write(prefix + filePath, [{
+            sheetName: name,
+            data: req.body.data
+        }]);
+        response.success(res, {filePath: filePath});
     },
     attachmentRead: (req, res, config) => {
         let table = config.id;

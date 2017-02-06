@@ -34,7 +34,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^2.24.1",
-    "karl-component-chart": "^4.4.9",
+    "karl-component-chart": "^4.5.2",
     "karl-component-datepicker": "^4.1.3",
     "karl-component-login": "^1.0.7",
     "karl-component-nav": "^4.0.6",
@@ -73,6 +73,7 @@
     "image-size": "^0.5.0",
     "jquery": "^3.1.0",
     "karl-date": "^4.0.5",
+    "karl-excel": "^1.0.0",
     "karl-extend": "^4.0.0",
     "karl-jwt": "^1.0.5",
     "karl-xml": "^4.0.0",
@@ -82,6 +83,7 @@
     "multer": "^1.2.0",
     "mysql": "^2.11.1",
     "serve-favicon": "~2.3.0",
+    "xlsx": "^0.8.2",
     "xml2js": "^0.4.17"
   }
 }
