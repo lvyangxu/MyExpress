@@ -1,0 +1,25 @@
+@charset "utf-8";
+body {
+    font-family: "Microsoft YaHei UI", Arial;
+    .top{
+        height: 40px;
+        line-height: 40px;
+        padding-left: 40px;
+        background-color: rgba(45,135,226,1);
+        font-size: 13px;
+        color: white;
+    }
+    .tableTips{
+        background-color: rgba(45,135,226,1);
+        font-size: 13px;
+        color: white;
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin-bottom: 10px;
+        cursor: default;
+        user-select: none;
+    }
+}

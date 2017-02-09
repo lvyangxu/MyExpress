@@ -35,13 +35,6 @@ ReactDom.render(
             </div>
         },
         {
-            id: "world-level", name: "世界等级", group: "服务器信息",
-            dom: <div>
-                <div className={css.tableTips}>该数据每1天更新一次</div>
-                <Table project="G02DataAnalysis" tableId="worldLevel"/>
-            </div>
-        },
-        {
             id: "charge-query", name: "充值流水", group: "日志查询",
             dom: <div>
                 <div className={css.tableTips}>该数据每1小时更新一次，最多返回5000行数据</div>
@@ -114,8 +107,15 @@ ReactDom.render(
         {
             id: "charge-range", name: "当日充值排名", group: "排名相关",
             dom: <div>
-                <div className={css.tableTips}>该数据每1天更新一次</div>
+                <div className={css.tableTips}>该数据每1小时更新一次</div>
                 <Table project="G02DataAnalysis" tableId="chargeRank"/>
+            </div>
+        },
+        {
+            id: "device-charge-range", name: "当日充值排名(设备)", group: "排名相关",
+            dom: <div>
+                <div className={css.tableTips}>该数据每1小时更新一次</div>
+                <Table project="G02DataAnalysis" tableId="deviceChargeRank"/>
             </div>
         },
         {

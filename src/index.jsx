@@ -146,59 +146,64 @@ class table extends React.Component {
     }
 
     setTable() {
+        let thead = <thead>
+        <tr>
+            {
+                this.state.columns.map(d=> {
+                    let style = d.hasOwnProperty("thStyle") ? d.thStyle : {};
+                    if (d.hasOwnProperty("checked") && d.checked == false) {
+                        style.display = "none";
+                    }
+                    let th = <th style={style} onClick={() => {
+                        let json = this.sort(d.id);
+                        json.displayData = this.setDisplayData(json.sortedData);
+                        this.setState(json);
+                    }}>{d.name}{
+                        (this.state.sortColumnId == d.id) ? (
+                            this.state.sortDesc ?
+                                <i className="fa fa-caret-up"></i> :
+                                <i className="fa fa-caret-down"></i>
+                        ) : ""
+                    }</th>;
+                    return th;
+                })
+            }
+        </tr>
+        </thead>;
+        let tbody = <tbody>
+        {
+            this.state.displayData.map((d, i) => {
+                let tds = this.state.columns.map((d1, j) => {
+                    let tdHtml = d[d1.id];
+                    if (tdHtml) {
+                        tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
+                    }
+                    //当含有后缀并且不为空字符串时，附加后缀
+                    if (d1.hasOwnProperty("suffix") && tdHtml != "") {
+                        tdHtml += d1.suffix;
+                    }
+                    let style = d1.hasOwnProperty("tdStyle") ? d1.tdStyle : {};
+                    if (d1.hasOwnProperty("checked") && d1.checked == false) {
+                        style.display = "none";
+                    } else {
+                        delete style.display;
+                    }
+                    return <td key={j} style={style}
+                               dangerouslySetInnerHTML={{__html: tdHtml}}></td>
+                });
+                let tr = <tr key={i}>{tds}</tr>;
+                return tr;
+            })
+        }
+        </tbody>;
         let dom = <div className={css.middle}>
             <table>
-                <thead>
-                <tr>
-                    {
-                        this.state.columns.map(d=> {
-                            let style = d.hasOwnProperty("thStyle") ? d.thStyle : {};
-                            if (d.hasOwnProperty("checked") && d.checked == false) {
-                                style.display = "none";
-                            }
-                            let th = <th style={style} onClick={() => {
-                                let json = this.sort(d.id);
-                                json.displayData = this.setDisplayData(json.sortedData);
-                                this.setState(json);
-                            }}>{d.name}{
-                                (this.state.sortColumnId == d.id) ? (
-                                    this.state.sortDesc ?
-                                        <i className="fa fa-caret-up"></i> :
-                                        <i className="fa fa-caret-down"></i>
-                                ) : ""
-                            }</th>;
-                            return th;
-                        })
-                    }
-                </tr>
-                </thead>
-                <tbody>
                 {
-                    this.state.displayData.map((d, i) => {
-                        return <tr key={i}>
-                            {
-                                this.state.columns.map((d1, j) => {
-                                    let tdHtml = d[d1.id];
-                                    if (tdHtml) {
-                                        tdHtml = tdHtml.toString().replace(/\n/g, "<br/>");
-                                    }
-                                    //当含有后缀并且不为空字符串时，附加后缀
-                                    if (d1.hasOwnProperty("suffix") && tdHtml != "") {
-                                        tdHtml += d1.suffix;
-                                    }
-                                    let style = d1.hasOwnProperty("tdStyle") ? d1.tdStyle : {};
-                                    if (d1.hasOwnProperty("checked") && d1.checked == false) {
-                                        style.display = "none";
-                                    }
-                                    return <td key={j} style={style}
-                                               dangerouslySetInnerHTML={{__html: tdHtml}}></td>
-
-                                })
-                            }
-                        </tr>;
-                    })
+                    thead
                 }
-                </tbody>
+                {
+                    tbody
+                }
             </table>
         </div>;
         return dom;
@@ -507,7 +512,7 @@ class table extends React.Component {
             //隐藏没有数据的列,显示有数据的列
             if (this.state.isMinColumn) {
                 let columns = json.hasOwnProperty("columns") ? json.columns : this.state.columns;
-                columns = columns.map(d=> {
+                json.columns = columns.map(d=> {
                     //判断该列是否为空
                     let isNotEmpty = data.some(d1=> {
                         return d1.hasOwnProperty(d.id) && d1[d.id] != "" && d1[d.id] != null;
@@ -515,14 +520,8 @@ class table extends React.Component {
                     d.checked = isNotEmpty;
                     return d;
                 });
-                this.setState({
-                    columns: columns
-                }, ()=> {
-                    this.setState(json);
-                })
-            } else {
-                this.setState(json);
             }
+            this.setState(json);
 
 
         } catch (e) {
@@ -674,6 +673,10 @@ class table extends React.Component {
     }
 
     async download() {
+        if (this.state.sourceData.length == 0) {
+            return;
+        }
+
         let header = this.state.columns.map(d=> {
             return d.name;
         });
