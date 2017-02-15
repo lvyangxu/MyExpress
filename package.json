@@ -39,6 +39,7 @@
     "karl-component-login": "^1.0.7",
     "karl-component-nav": "^4.0.6",
     "karl-component-radio": "^4.1.4",
+    "karl-component-scroll": "^1.0.1",
     "karl-component-select": "^4.0.6",
     "karl-cookie": "^4.0.0",
     "karl-date": "^4.0.0",

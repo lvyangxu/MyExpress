@@ -1,5 +1,6 @@
+let fs = require("fs");
 let table = require("./table");
-let tableConfig = require("./tableConfig");
+let tableConfig = fs.existsSync("server/js/tableConfig.js") ? require("./tableConfig") : "";
 let response = require("./response");
 let account = require("./account");
 
@@ -26,10 +27,10 @@ router.route('/').get(function (req, res) {
 //account router
 router.route("/account/:action").post((req, res, next)=> {
     let action = req.params.action;
-    if(!account.hasOwnProperty(action)){
+    if (!account.hasOwnProperty(action)) {
         console.log("unknown action:account " + action);
         response.fail(res, "unknown action");
-    }else{
+    } else {
         account[action](req, res);
     }
 });

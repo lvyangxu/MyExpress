@@ -15,7 +15,7 @@ var path = require('path');
 
 let project = process.argv[6].replace("--project=", "");
 
-let isProduction = true;
+let isProduction = false;
 let mysqlConfig = {
     Review: {
         user: "root",

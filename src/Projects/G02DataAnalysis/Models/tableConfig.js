@@ -1401,7 +1401,7 @@ module.exports = (req) => {
                     id: "server", name: "服务器id", checked: true, type: "select",
                     serverFilter: true,
                     data: (pool)=> {
-                        let sqlCommand = "select distinct serverId as server from res.level_ds where serverId <> 0";
+                        let sqlCommand = "select distinct serverid as server from res.level_ds where serverid <> 0";
                         return initMysqlServerFilter(pool, sqlCommand);
                     }
                 },
@@ -1424,7 +1424,7 @@ module.exports = (req) => {
             ],
             chart: [
                 {
-                    title: "等级分布", x: "levelName", type: "bar", xAxisGroupNum: 10,
+                    title: "等级分布", x: "levelName", type: "bar", xAxisGroupNum: 10, group: ["server"],
                     y: [
                         {id: "num", name: "人数"},
                     ]
@@ -1448,6 +1448,65 @@ module.exports = (req) => {
                                     ${groupLevel} as groupLevel,${levelName} as levelName,
                                         sum(num) as num,sum(all_num) as total
                                             from res.level_ds 
+                                                ${whereStr} ${groupStr}`;
+                return sqlCommand;
+            },
+            readCheck: ()=> {
+                return check.select("server") && check.day("day") && check.regex("levelSpacing", /^(1|5|10|15|20)$/);
+            }
+        },
+        {
+            id: "loginLevel",
+            name: "登陆等级分布",
+            database: "log_nuclear",
+            curd: "r",
+            columns: [
+                {
+                    id: "server", name: "服务器id", checked: true, type: "select",
+                    serverFilter: true,
+                    data: (pool)=> {
+                        let sqlCommand = "select distinct serverId as server from log_nuclear.login_data where serverId <> 0";
+                        return initMysqlServerFilter(pool, sqlCommand);
+                    }
+                },
+                {id: "day", name: "日期", checked: true, type: "day", serverFilter: true},
+                {id: "levelName", name: "等级", checked: true},
+                {id: "num", name: "人数", checked: true},
+            ],
+            extraFilter: [
+                {
+                    id: "levelSpacing",
+                    name: "等级间隔",
+                    checked: true,
+                    type: "radio",
+                    serverFilter: true,
+                    data: [1, 5, 10, 15, 20]
+                },
+            ],
+            chart: [
+                {
+                    title: "等级分布", x: "levelName", type: "bar", xAxisGroupNum: 10, group: ["server"],
+                    y: [
+                        {id: "num", name: "人数"},
+                    ]
+                }
+            ],
+            read: ()=> {
+                let whereArr = [
+                    condition.optionalSelectNum("serverid", "server"),
+                    condition.notEqual("serverid", 0),
+                    condition.simpleStr("date", "day"),
+                ];
+                let groupArr = ["server", "day", "groupLevel"];
+                let whereStr = where(whereArr);
+                let groupStr = group(groupArr);
+                let groupLevel = `(level div ${req.body.levelSpacing})`;
+                let levelName = req.body.levelSpacing == 1 ? "level" :
+                    `concat(${groupLevel}*${req.body.levelSpacing}+1,"-",${groupLevel}*${req.body.levelSpacing}+${req.body.levelSpacing})`;
+                let sqlCommand = `select ${column.optionalSelect("serverId", "server")}date as day,
+                                    ${groupLevel} as groupLevel,${levelName} as levelName,
+                                        count(roleId) as num
+                                            from log_nuclear.login_data 
                                                 ${whereStr} ${groupStr}`;
                 return sqlCommand;
             },

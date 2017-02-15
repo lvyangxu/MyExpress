@@ -5,19 +5,6 @@ import Nav from "karl-component-nav";
 import Table from "../table/index.jsx";
 import css from "./index.css";
 
-// {
-//     id: "weekly", name: "每周信息", group: "服务器信息",
-//     dom: <div>
-//
-// </div>
-// },
-// {
-//     id: "monthly", name: "每月信息", group: "服务器信息",
-//     dom: <div>
-//
-// </div>
-// },
-
 ReactDom.render(
     <Nav sectionStyle={{padding: "50px"}} data={[
         {
@@ -88,6 +75,13 @@ ReactDom.render(
             dom: <div>
                 <div className={css.tableTips}>该数据每1小时更新一次</div>
                 <Table project="G02DataAnalysis" tableId="level"/>
+            </div>
+        },
+        {
+            id: "loginLevel", name: "登录等级分布", group: "用户分析",
+            dom: <div>
+                <div className={css.tableTips}>该数据每1天更新一次</div>
+                <Table project="G02DataAnalysis" tableId="loginLevel"/>
             </div>
         },
         {

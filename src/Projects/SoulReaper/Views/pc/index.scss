@@ -1,13 +1,87 @@
 @charset "utf-8";
 body {
     font-family: "Microsoft YaHei UI", Arial;
-    .top{
-        height: 40px;
-        line-height: 40px;
-        padding-left: 40px;
-        background-color: rgba(45,135,226,1);
-        font-size: 13px;
-        color: white;
-    }
+    .page1 {
+        background-color: black;
+        box-sizing: border-box;
+        padding: 30px;
+        height: 100%;
+        .logo {
+            position: absolute;
+            width: 30%;
+            left: 35%;
+        }
+        .top {
+            text-align: right;
+            height: 30px;
+            img {
+                cursor: pointer;
+                margin-left: 30px;
+                height: 100%;
+            }
+        }
+        .middle {
+            overflow: hidden;
+            box-sizing: border-box;
+            padding-top: 20px;
+            img {
+                width: 100%;
+            }
+        }
+        .bottom {
+            font-size: 0;
+            .left {
+                display: inline-block;
+                width: 50%;
+                height: 70px;
+                vertical-align: top;
+                text-align: left;
+                .nav {
+                    display: inline-block;
+                    cursor: pointer;
+                    height: 70px;
+                    line-height: 70px;
+                    color: white;
+                    margin-left: 30px;
+                    font-size: 14px;
+                    font-weight: bolder;
+                }
+                .nav:first-child {
+                    margin-left: 0px;
+                }
+            }
 
+            .right {
+                display: inline-block;
+                width: 50%;
+                height: 70px;
+                vertical-align: top;
+                text-align: right;
+                .fire {
+                    display: inline-block;
+                    vertical-align: top;
+                    height: 70px;
+                    img {
+                        margin-top: -50px;
+                        height: 100px;
+                    }
+                }
+
+                .google, .apple {
+                    display: inline-block;
+                    vertical-align: top;
+                    cursor: pointer;
+                    height: 70px;
+                    img {
+                        margin-top: 15px;
+                        height: 40px;
+                    }
+                }
+                .google {
+                    margin-right: 30px;
+                }
+            }
+
+        }
+    }
 }
