@@ -2,25 +2,20 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
+        <item url="file://$PROJECT_DIR$/src/module/karl-component-table/index.js" />
+        <item url="file://$PROJECT_DIR$/src/module/karl-http/index.js" />
+        <item url="file://$PROJECT_DIR$/src/common/server/init/dirInit.js" />
+        <item url="file://$PROJECT_DIR$/src/common/server/init/init.js" />
+        <item url="file://$PROJECT_DIR$/src/common/server/init/logInit.js" />
+        <item url="file://$PROJECT_DIR$/src/module/karl-date/index.js" />
         <item url="file://$PROJECT_DIR$/gulp.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
-        <item url="file://$PROJECT_DIR$/src/app.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/logInit.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
-        <item url="file://$PROJECT_DIR$/src/Common/Models/log.js" />
-        <item url="file://$PROJECT_DIR$/src/Projects/G02log/Models/init.js" />
+        <item url="file://$PROJECT_DIR$/src/project/Review/Controllers/screenshot.js" />
+        <item url="file://$PROJECT_DIR$/src/project/Review/Models/tableConfig.js" />
+        <item url="file://$PROJECT_DIR$/src/module/karl-component-upload/index.js" />
+        <item url="file://$PROJECT_DIR$/src/common/server/app.js" />
+        <item url="file://$PROJECT_DIR$/src/project/G02log/Models/route.js" />
+        <item url="file://$PROJECT_DIR$/src/project/G02log/Models/logInit.js" />
+        <item url="file://$PROJECT_DIR$/src/project/G02log/Models/init.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -58,25 +53,29 @@
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/session.js" />
       <root url="file://$PROJECT_DIR$/src/Common/Init/configInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/dirInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/init.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Init/logInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/response.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/table.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Utils/excel.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Utils/mysql.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Maintence/Models/tableConfig.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Review/Controllers/screenshot.js" />
+      <root url="file://$PROJECT_DIR$/src/common/Utils/upload.js" />
+      <root url="file://$PROJECT_DIR$/src/module/karl-component-table/index.js" />
+      <root url="file://$PROJECT_DIR$/src/module/karl-http/index.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/init/dirInit.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/init/init.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/init/logInit.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/model/response.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/model/table.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/util/excel.js" />
+      <root url="file://$PROJECT_DIR$/src/module/karl-date/index.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/util/mysql.js" />
+      <root url="file://$PROJECT_DIR$/src/project/Maintence/server/model/tableConfig.js" />
       <root url="file://$PROJECT_DIR$/gulp.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/Review/Models/tableConfig.js" />
-      <root url="file://$PROJECT_DIR$/src/app.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/route.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/MiddleWare/route.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/logInit.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Utils/upload.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/account.js" />
-      <root url="file://$PROJECT_DIR$/src/Common/Models/log.js" />
-      <root url="file://$PROJECT_DIR$/src/Projects/G02log/Models/init.js" />
+      <root url="file://$PROJECT_DIR$/src/project/Review/Controllers/screenshot.js" />
+      <root url="file://$PROJECT_DIR$/src/project/Review/Models/tableConfig.js" />
+      <root url="file://$PROJECT_DIR$/src/module/karl-component-upload/index.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/app.js" />
+      <root url="file://$PROJECT_DIR$/src/project/G02log/Models/route.js" />
+      <root url="file://$PROJECT_DIR$/src/project/G02log/Models/logInit.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/route/route.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/model/account.js" />
+      <root url="file://$PROJECT_DIR$/src/common/server/model/log.js" />
+      <root url="file://$PROJECT_DIR$/src/project/G02log/Models/init.js" />
     </CLASSES>
     <SOURCES />
   </library>

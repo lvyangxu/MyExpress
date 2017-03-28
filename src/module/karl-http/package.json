@@ -1,0 +1,13 @@
+{
+  "name": "karl-http",
+  "version": "4.0.1",
+  "description": "promise style http request with ajax",
+  "main": "index.js",
+  "author": "lvyangxu",
+  "license": "ISC",
+  "devDependencies": {
+    "jquery": "latest"
+  },
+  "dependencies": {
+  }
+}

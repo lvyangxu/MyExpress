@@ -1,0 +1,19 @@
+{
+  "name": "karl-component-table",
+  "version": "0.1.1",
+  "description": "react component table",
+  "main": "index.js",
+  "author": "lvyangxu",
+  "license": "ISC",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "karl-date": "latest",
+    "karl-http": "latest",
+    "font-awesome-webpack": "latest",
+    "karl-component-select": "latest",
+    "karl-component-datepicker": "latest",
+    "karl-component-chart": "latest",
+    "karl-component-radio": "latest"
+  }
+}

@@ -1,317 +1,342 @@
-var gulp = require('gulp');
-var rename = require('gulp-rename');
-var htmlmin = require('gulp-htmlmin');
-var del = require('del');
-var sass = require('gulp-sass');
-var concatCss = require('gulp-concat-css');
-var cleanCSS = require('gulp-clean-css');
-var replace = require('gulp-replace');
-var webpack = require("webpack");
-var webpackStream = require('webpack-stream');
-var hash_src = require("gulp-hash-src");
+let gulp = require("gulp");
+let exec = require("child_process").exec;
+let rename = require("gulp-rename");
+let htmlmin = require("gulp-htmlmin");
+let del = require("del");
+let sass = require("gulp-sass");
+let concatCss = require("gulp-concat-css");
+let cleanCSS = require("gulp-clean-css");
+let replace = require("gulp-replace");
+let webpack = require("webpack");
+let webpackStream = require("webpack-stream");
+let hash_src = require("gulp-hash-src");
 let xml = require("karl-xml");
-var fs = require('fs');
-var path = require('path');
+let fs = require("fs");
+let path = require("path");
 
 let project = process.argv[6].replace("--project=", "");
 
-let isProduction = false;
-let mysqlConfig = {
-    Review: {
-        user: "root",
-        password: "root",
-        database: "Review"
+let config = {
+    isProduction: true,
+    mysql: {
+        Review: {
+            user: "root",
+            password: "root",
+            database: "Review"
+        },
+        Maintence: {
+            user: "root",
+            password: "root",
+            database: "MaintenceSystem"
+        },
+        G02log: {
+            user: "root",
+            password: "root",
+            database: "G02log"
+        },
+        G02DataAnalysis: {
+            host: ["localhost", "localhost", "localhost", "localhost"],
+            user: ["root", "root", "root", "root"],
+            password: ["root", "root", "root", "root"],
+            database: ["log_nuclear", "raw", "res", "mid"]
+        },
+        BI: {
+            user: "root",
+            password: "root",
+            database: "BI"
+        }
     },
-    Maintence: {
-        user: "root",
-        password: "root",
-        database: "MaintenceSystem"
+    mongodb: {
+        G02DataAnalysis: {
+            host: ["localhost"],
+            port: [27017],
+            database: ["g02_log"]
+        }
     },
-    G02log: {
-        user: "root",
-        password: "root",
-        database: "G02log"
+    account: {
+        Review: {
+            username: "business",
+            password: "business",
+            loginRedirect: "display"
+        },
+        Maintence: {
+            username: "radiumme",
+            password: "radiumme",
+            loginRedirect: "manage"
+        },
+        G02log: {
+            username: "radiumme",
+            password: "radiumme",
+            loginRedirect: "display"
+        },
+        G02DataAnalysis: {
+            username: "radiumme",
+            password: "radiumme",
+            loginRedirect: "display"
+        },
+        BI: {
+            username: "radiumme",
+            password: "radiumme",
+            loginRedirect: "display"
+        },
     },
-    G02DataAnalysis: {
-        host: ["localhost", "localhost", "localhost", "localhost"],
-        user: ["root", "root", "root", "root"],
-        password: ["root", "root", "root", "root"],
-        database: ["log_nuclear", "raw", "res", "mid"]
+    port: {
+        G02DataAnalysis: 3001,
+        G02Error: 3002
     }
-};
-let mongodbConfig = {
-    G02DataAnalysis: {
-        host: ["localhost"],
-        port: [27017],
-        database: ["g02_log"]
-    }
-}
-let accountConfig = {
-    Review: {
-        username: "business",
-        password: "business",
-        loginRedirect: "display"
-    },
-    Maintence: {
-        username: "radiumme",
-        password: "radiumme",
-        loginRedirect: "manage"
-    },
-    G02log: {
-        username: "radiumme",
-        password: "radiumme",
-        loginRedirect: "display"
-    },
-    G02DataAnalysis: {
-        username: "radiumme",
-        password: "radiumme",
-        loginRedirect: "display"
-    }
-};
-let portConfig = {
-    G02DataAnalysis: 3001,
-    G02Error: 3002
 };
 
-process.env.NODE_ENV = (isProduction) ? "production" : "development";
-if (isProduction) {
-    mysqlConfig.Review.password = "kMXWy16GHVXlsEhXtwKh";
-    mysqlConfig.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
-    mysqlConfig.G02log.password = "kMXWy16GHVXlsEhXtwKh";
-    mysqlConfig.G02DataAnalysis.user = ["nuclear", "nuclear", "nuclear", "nuclear"];
-    mysqlConfig.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan", "wozhinengkan"];
+if (config.isProduction) {
+    config.mysql.Review.password = "kMXWy16GHVXlsEhXtwKh";
+    config.mysql.Maintence.password = "kMXWy16GHVXlsEhXtwKh";
+    config.mysql.G02log.password = "kMXWy16GHVXlsEhXtwKh";
+    config.mysql.G02DataAnalysis.user = ["nuclear", "nuclear", "nuclear", "nuclear"];
+    config.mysql.G02DataAnalysis.password = ["wozhinengkan", "wozhinengkan", "wozhinengkan", "wozhinengkan"];
 }
 
-gulp.task("build", ["async-task", "sync-task"], () => {
-    // gulp.task();
-    console.log("all done");
+gulp.task("build", ["move", "compile"], () => {
+    console.log("gulp build done");
 });
 
-/**
- * 可异步执行的任务
- */
-gulp.task("async-task", () => {
-    //app
-    gulp.src("src/app.js")
-        .pipe(gulp.dest("dist/" + project + "/server/js"));
-    if (isProduction && portConfig.hasOwnProperty(project)) {
-        gulp.src("src/bin/www")
-            .pipe(replace(/3000/g, portConfig[project]))
-            .pipe(gulp.dest("dist/" + project + "/server/js"));
-    } else {
-        gulp.src("src/bin/www")
-            .pipe(gulp.dest("dist/" + project + "/server/js"));
-    }
-
-    //delete log
-    del(["dist/" + project + "/server/log/*"]);
-    //delete data
-    del(["dist/" + project + "/client/data/*"]);
-
-    //init
-    gulp.src(["src/Common/Init/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/server/js"));
-    //middleware
-    gulp.src(["src/Common/MiddleWare/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/server/js"));
-    //models
-    gulp.src(["src/Common/Models/*.js", "src/Projects/" + project + "/Models/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/server/js"));
-    //config
-    gulp.src([`src/Projects/${project}/Config/*`])
-        .pipe(gulp.dest(`dist/${project}/server/config`));
-
-    //mysql.xml
-    if (mysqlConfig.hasOwnProperty(project)) {
-        if (Array.isArray(mysqlConfig[project].user)) {
-            let json = mysqlConfig[project];
-            if (!json.hasOwnProperty("host")) {
-                let hostArr = [];
-                for (let i = 0; i < json.user.length; i++) {
-                    hostArr.push("localhost");
-                }
-                json.host = hostArr;
-            }
-
-            let path = "./dist/" + project + "/server/config/mysql.xml";
-            xml.write(json, path);
-        } else {
-            //config
-            let stream = gulp.src("src/Common/Config/mysql.xml");
-            if (mysqlConfig[project].hasOwnProperty("host")) {
-                stream = stream.pipe(replace(/\{host}/g, mysqlConfig[project].host));
+//移动
+gulp.task("move", ["move-client", "move-server"]);
+//清理上次生成的文件
+gulp.task("clean-up", ()=> {
+    let promise = new Promise((resolve, reject)=> {
+        exec("netstat -ano | findstr 3000", (error, stdout) => {
+            if (error) {
+                //端口没有使用
+                del.sync([`dist/${project}`]);
+                resolve();
             } else {
-                stream = stream.pipe(replace(/\{host}/g, "localhost"));
-            }
-            stream = stream.pipe(replace(/\{user}/g, mysqlConfig[project].user))
-                .pipe(replace(/\{password}/g, mysqlConfig[project].password))
-                .pipe(replace(/\{database}/g, mysqlConfig[project].database));
-            stream.pipe(gulp.dest("dist/" + project + "/server/config"));
-        }
-    }
-
-    //mongodb.xml
-    if (mongodbConfig.hasOwnProperty(project)) {
-        if (Array.isArray(mongodbConfig[project].host)) {
-            let json = mongodbConfig[project];
-            let path = "./dist/" + project + "/server/config/mongodb.xml";
-            xml.write(json, path);
-        } else {
-            //config
-            if (mongodbConfig.hasOwnProperty(project)) {
-                gulp.src("src/Common/Config/mongodb.xml")
-                    .pipe(replace(/\{host}/g, mongodbConfig[project].host))
-                    .pipe(replace(/\{port}/g, mongodbConfig[project].port))
-                    .pipe(replace(/\{database}/g, mongodbConfig[project].database))
-                    .pipe(gulp.dest("dist/" + project + "/server/config"));
-            }
-        }
-    }
-
-    //account.xml
-    if (accountConfig.hasOwnProperty(project)) {
-        gulp.src("src/Common/Config/account.xml")
-            .pipe(replace(/\{project}/g, project))
-            .pipe(replace(/\{username}/g, accountConfig[project].username))
-            .pipe(replace(/\{password}/g, accountConfig[project].password))
-            .pipe(replace(/\{loginRedirect}/g, accountConfig[project].loginRedirect))
-            .pipe(gulp.dest("dist/" + project + "/server/config"));
-    }
-
-    //controller
-    gulp.src(["src/Common/Controllers/*.js", "src/Projects/" + project + "/Controllers/*.js"])
-        .pipe(gulp.dest("dist/" + project + "/server/js"));
-    //util
-    gulp.src("src/Common/Utils/*.js")
-        .pipe(gulp.dest("dist/" + project + "/util"));
-    //icon
-    gulp.src("src/Common/Icon/favicon.ico")
-        .pipe(gulp.dest("dist/" + project + "/client"));
-    //package.json
-    gulp.src("package.json")
-        .pipe(replace(/"name": "MyExpress"/g, "\"name\":\"" + project + "\""))
-        .pipe(gulp.dest("dist/" + project));
-    //html
-    gulp.src(["src/Common/Views/*/*.html", "src/Projects/" + project + "/Views/*/*.html"])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(hash_src({build_dir: "dist/" + project + "/client", src_path: "src/Projects/" + project + "/Views"}))
-        .pipe(gulp.dest("dist/" + project + "/client"));
-
-    //image
-    gulp.src(["src/Common/Views/*/image/*", "src/Projects/" + project + "/Views/*/image/*"])
-        .pipe(gulp.dest("dist/" + project + "/client"));
-});
-
-let clientPath = "dist/" + project + "/client";
-let views = [];
-
-/**
- * 必须同步执行的任务
- */
-gulp.task("sync-task", ["compile-jsx"], () => {
-    //最终删除不需要的文件
-    return del([clientPath + "/common/", clientPath + "/*/*.css", clientPath + "/*/*.scss", clientPath + "/*/*.jsx", "!" + clientPath + "/*/bundle.css"]);
-
-});
-
-gulp.task("move-table", ()=> {
-    let stream = gulp.src(["src/index.*"])
-        .pipe(gulp.dest("dist/" + project + "/client/table"));
-    return stream;
-});
-
-/**
- * 移动.jsx文件
- */
-gulp.task("move-jsx", ["move-table"], () => {
-    let stream = gulp.src(["src/Common/Views/*/*.jsx", "src/Projects/" + project + "/Views/*/*.jsx"])
-        .pipe(gulp.dest("dist/" + project + "/client"));
-    return stream;
-});
-
-/**
- * 移动.scss文件
- */
-gulp.task("move-scss", () => {
-    let stream = gulp.src(["src/Common/Views/*/*.scss", "src/Projects/" + project + "/Views/*/*.scss"])
-        .pipe(gulp.dest("dist/" + project + "/client"));
-    return stream;
-});
-
-/**
- * 获取所有视图的名称
- */
-gulp.task("get-views", ["move-jsx", "move-scss"], ()=> {
-    //get all view
-    views = fs.readdirSync(clientPath).filter(d=> {
-        return fs.statSync(path.join(clientPath, d)).isDirectory() && d != "data" && d != "table";
-    });
-});
-
-/**
- * 编译.scss
- */
-gulp.task("compile-scss", ["get-views"], () => {
-    let promiseArr = [];
-    views.forEach(d=> {
-        let promise = new Promise((resolve, reject)=> {
-            gulp.src(clientPath + "/" + d + "/*.scss")
-                .pipe(sass().on('error', sass.logError))
-                .pipe(gulp.dest(clientPath + "/" + d))
-                .on("end", ()=> {
+                //端口已占用
+                console.log("端口已占用,强行终止进程");
+                let regex = /LISTENING +\d+/;
+                let matchArr = stdout.match(regex);
+                if (matchArr != null) {
+                    let pid = matchArr[0];
+                    pid = pid.replace(/ /g, "").replace(/LISTENING/g, "");
+                    exec(`taskkill /f /pid ${pid}`, ()=> {
+                        del.sync([`dist/${project}`]);
+                        resolve();
+                    });
+                } else {
                     resolve();
-                });
+                }
+            }
         });
-        promiseArr.push(promise);
     });
-    return Promise.all(promiseArr);
+    return promise;
 });
-
-/**
- * 合并css
- */
-gulp.task("concat-css", ["compile-scss"], ()=> {
-    let promiseArr = [];
-    views.forEach(d=> {
-        let promise = new Promise((resolve, reject)=> {
-            gulp.src([clientPath + "/" + d + "/*.css", "dist/" + project + "/client/common/*.css"])
-                .pipe(concatCss("bundle.css", {rebaseUrls: false}))
-                .pipe(cleanCSS({compatibility: 'ie8'}))
-                .pipe(gulp.dest("dist/" + project + "/client/" + d))
-                .on("end", ()=> {
-                    resolve();
-                });
-        });
-        promiseArr.push(promise);
-    });
-    return Promise.all(promiseArr);
-})
-
-/**
- * 编译jsx文件
- */
-gulp.task("compile-jsx", ["concat-css"], ()=> {
-    let webpackConfig = require('./webpack.config.js');
-    if (isProduction) {
-        //压缩
-        webpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin());
-    }
-    let promiseArr = [];
-    views.forEach(d=> {
-        let path = clientPath + "/" + d + "/main.jsx";
-        if (fs.existsSync(path)) {
-            let promise = new Promise((resolve, reject)=> {
-                gulp.src(clientPath + "/" + d + "/main.jsx")
-                    .pipe(webpackStream(webpackConfig))
-                    .pipe(gulp.dest(clientPath + "/" + d))
+//移动server部分
+gulp.task("move-server", ["move-project-server", "move-package.json"]);
+gulp.task("move-package.json", ["clean-up"], ()=> {
+    let stream = gulp.src([
+        `package.json`,
+    ]).pipe(gulp.dest(`dist/${project}/`));
+    return stream;
+});
+gulp.task("move-common-server", ["build-mysql", "build-mongodb", "build-account", "move-common-js"]);
+//mysql.xml
+gulp.task("build-mysql", ["clean-up"], ()=> {
+    let promise = new Promise(resolve=> {
+        if (config.mysql.hasOwnProperty(project)) {
+            if (Array.isArray(config.mysql[project].user)) {
+                let json = config.mysql[project];
+                //host默认值为localhost
+                if (!json.hasOwnProperty("host")) {
+                    let hostArr = [];
+                    for (let i = 0; i < json.user.length; i++) {
+                        hostArr.push("localhost");
+                    }
+                    json.host = hostArr;
+                }
+                let path = `./dist/${project}/server/config/mysql.xml`;
+                xml.write(json, path);
+                resolve();
+            } else {
+                let stream = gulp.src("src/common/server/config/mysql.xml");
+                if (config.mysql[project].hasOwnProperty("host")) {
+                    stream = stream.pipe(replace(/\{host}/g, config.mysql[project].host));
+                } else {
+                    //host默认值为localhost
+                    stream = stream.pipe(replace(/\{host}/g, "localhost"));
+                }
+                stream.pipe(replace(/\{user}/g, config.mysql[project].user))
+                    .pipe(replace(/\{password}/g, config.mysql[project].password))
+                    .pipe(replace(/\{database}/g, config.mysql[project].database))
+                    .pipe(gulp.dest(`./dist/${project}/server/config`))
                     .on("end", ()=> {
                         resolve();
                     });
-            });
-            promiseArr.push(promise);
+            }
+        } else {
+            resolve();
         }
     });
-    if (promiseArr.length > 0) {
-        return Promise.all(promiseArr);
+    return promise;
+});
+//mongodb.xml
+gulp.task("build-mongodb", ["clean-up"], ()=> {
+    let promise = new Promise(resolve=> {
+        if (config.mongodb.hasOwnProperty(project)) {
+            if (Array.isArray(config.mongodb[project].host)) {
+                let json = config.mongodb[project];
+                let path = `./dist/${project}/server/config/mongodb.xml`;
+                xml.write(json, path);
+                resolve();
+            } else {
+                gulp.src("src/common/server/config/mongodb.xml")
+                    .pipe(replace(/\{host}/g, config.mongodb[project].host))
+                    .pipe(replace(/\{port}/g, config.mongodb[project].port))
+                    .pipe(replace(/\{database}/g, config.mongodb[project].database))
+                    .pipe(gulp.dest(`./dist/${project}/server/config`))
+                    .on("end", ()=> {
+                        resolve();
+                    });
+            }
+        } else {
+            resolve();
+        }
+    });
+    return promise;
+});
+//account.xml
+gulp.task("build-account", ["clean-up"], ()=> {
+    let promise = new Promise(resolve=> {
+        if (config.account.hasOwnProperty(project)) {
+            gulp.src("src/common/server/config/account.xml")
+                .pipe(replace(/\{project}/g, project))
+                .pipe(replace(/\{username}/g, config.account[project].username))
+                .pipe(replace(/\{password}/g, config.account[project].password))
+                .pipe(replace(/\{loginRedirect}/g, config.account[project].loginRedirect))
+                .pipe(gulp.dest(`dist/${project}/server/config`))
+                .on("end", ()=> {
+                    resolve();
+                });
+        } else {
+            resolve();
+        }
+    });
+});
+//移动js
+gulp.task("move-common-js", ["clean-up", "move-common-www"], ()=> {
+    let stream = gulp.src([
+        `src/common/server/*.js`,
+        `src/common/server/init/*.js`,
+        `src/common/server/middleware/*.js`,
+        `src/common/server/model/*.js`,
+        `src/common/server/route/*.js`,
+        `src/common/server/util/*.js`,
+    ]).pipe(gulp.dest(`dist/${project}/server/js/`));
+    return stream;
+});
+gulp.task("move-common-www", ["clean-up"], ()=> {
+    let stream;
+    if (config.isProduction && config.port.hasOwnProperty(project)) {
+        stream = gulp.src("src/common/server/www")
+            .pipe(replace(/3000/g, config.port[project]))
+            .pipe(gulp.dest(`dist/${project}/server/js/`));
+    } else {
+        stream = gulp.src("src/common/server/www")
+            .pipe(gulp.dest(`dist/${project}/server/js/`));
     }
-})
+    return stream;
+});
+
+gulp.task("move-project-server", ["move-common-server"], ()=> {
+    let stream = gulp.src([
+        `src/project/${project}/server/*.js`,
+        `src/project/${project}/server/init/*.js`,
+        `src/project/${project}/server/middleware/*.js`,
+        `src/project/${project}/server/model/*.js`,
+        `src/project/${project}/server/route/*.js`,
+        `src/project/${project}/server/util/*.js`,
+    ]).pipe(gulp.dest(`dist/${project}/server/js/`));
+    return stream;
+});
+//移动client部分
+gulp.task("move-view", ["clean-up"], ()=> {
+    let stream = gulp.src([
+        `src/project/${project}/client/**`,
+        "src/common/client/**",
+        `!src/project/${project}/client/*/*.html`,
+        "!src/common/client/*/*.html",
+        "!src/common/client/*"
+    ]).pipe(gulp.dest(`dist/${project}/client`));
+    return stream;
+});
+gulp.task("move-client", ["move-view"], ()=> {
+    let stream = gulp.src(["src/common/client/*/*.html", `src/project/${project}/client/*/*.html`])
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(hash_src({build_dir: `dist/${project}/client`, src_path: `src/project/${project}/client`}))
+        .pipe(gulp.dest(`dist/${project}/client`));
+    return stream;
+});
+
+//编译
+gulp.task("compile", ["compile-clean"]);
+//编译scss为css
+gulp.task("compile-scss", ["move"], () => {
+    let stream = gulp.src(`dist/${project}/client/*/*.scss`)
+        .pipe(sass().on("error", sass.logError))
+        .pipe(gulp.dest(`dist/${project}/client`));
+    return stream;
+});
+//获取视图模块
+let views = [];
+gulp.task("get-views", ["move"], () => {
+    let promise = new Promise(resolve=> {
+        views = fs.readdirSync(`dist/${project}/client`).filter(d=> {
+            return fs.statSync(path.join(`dist/${project}/client`, d)).isDirectory() && d != "common" && d != "data";
+        });
+        resolve();
+    });
+    return promise;
+});
+//合并css为bundle.css
+gulp.task("concat-css", ["compile-scss", "get-views"], ()=> {
+    let promiseArr = views.map(d=> {
+        let promise = new Promise(resolve=> {
+            gulp.src([`dist/${project}/client/${d}/*.css`, `dist/${project}/client/common/*.css`])
+                .pipe(concatCss("bundle.css", {rebaseUrls: false}))
+                .pipe(cleanCSS({compatibility: 'ie8'}))
+                .pipe(gulp.dest(`dist/${project}/client/${d}`))
+                .on("end", ()=> {
+                    resolve();
+                });
+        });
+        return promise;
+    });
+    return Promise.all(promiseArr);
+});
+//编译jsx
+gulp.task("compile-jsx", ["concat-css"], () => {
+    let webpackConfig = require('./webpack.config.js');
+    if (config.isProduction) {
+        //压缩
+        webpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin());
+    }
+    let promiseArr = views.map(d=> {
+        let promise = new Promise(resolve=> {
+            gulp.src(`dist/${project}/client/${d}/main.jsx`)
+                .pipe(webpackStream(webpackConfig))
+                .pipe(gulp.dest(`dist/${project}/client/${d}`))
+                .on("end", ()=> {
+                    resolve();
+                });
+        });
+        return promise;
+    });
+    return Promise.all(promiseArr);
+});
+//删除编译前的文件
+gulp.task("compile-clean", ["compile-jsx"], () => {
+    return del([
+        `dist/${project}/client/common`,
+        `dist/${project}/client/*/*.scss`,
+        `dist/${project}/client/*/*.css`,
+        `dist/${project}/client/*/*.jsx`,
+        `!dist/${project}/client/*/bundle.css`
+    ]);
+});

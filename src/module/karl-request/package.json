@@ -1,0 +1,13 @@
+{
+  "name": "karl-request",
+  "version": "1.0.0",
+  "description": "async style http request with node module http or https",
+  "main": "index.js",
+  "author": "lvyangxu",
+  "license": "ISC",
+  "devDependencies": {
+
+  },
+  "dependencies": {
+  }
+}
